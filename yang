@@ -1,0 +1,83 @@
+---
+stand_alone: true
+ipr: trust200902
+docname: draft-toutain-lpwan-yang-static-context-hc-01
+cat: info
+pi:
+  symrefs: 'yes'
+  sortrefs: 'yes'
+  strict: 'yes'
+  compact: 'yes'
+  toc: 'yes'
+
+title: LPWAN Static Context Header Compression (SCHC) for CoAP
+abbrev: LPWAN CoAP compression
+wg: lpwan Working Group
+author:
+- ins: A. Minaburo
+  name: Ana Minaburo
+  org: Acklio
+  street: 1137A avenue des Champs Blancs
+  city: 35510 Cesson-Sevigne Cedex
+  country: France
+  email: ana@ackl.io
+- ins: L. Toutain
+  name: Laurent Toutain
+  org: Institut MINES TELECOM; IMT Atlantique
+  street:
+  - 2 rue de la Chataigneraie
+  - CS 17607
+  city: 35576 Cesson-Sevigne Cedex
+  country: France
+  email: Laurent.Toutain@imt-atlantique.fr
+normative:
+  rfc7252:
+  rfc3095:
+  rfc5225:
+  rfc4997:
+  rfc6282:
+  rfc4944:
+  rfc7252:
+  rfc1332:
+  rfc8376:
+  I-D.ietf-lpwan-ipv6-static-context-hc:
+
+--- abstract
+This document describes a YANG model for Static Context Header Compression. 
+A generic module is defined, that can be applied for any headers. 
+A specific model for the IPv6 UDP protocol stack is also proposed. 
+Note that this draft is a first attempt to define a YANG module for SCHC, 
+more work is needed to use all the YANG facilities.
+
+
+--- middle
+
+# Introduction {#Introduction}
+<xref target="I-D.toutain-lpwan-ipv6-static-context-hc"/> defines a compression technique for LPWA network based on static 
+context. The context contains a list of rules (cf. <xref target="Fig-ctxt" />). Each rule contains itself a list of field 
+descriptions composed of a target value (TV), a matching operator (MO) and a Compression/Decompression Function (CDF).
+
+   
+    
+# SCHC Compression Process
+
+
+
+# IANA Considerations
+
+This document has no request to IANA.
+
+# Security considerations {#SecConsiderations}
+
+This document does not have any more Security consideration than the ones already raised on {{I-D.ietf-lpwan-ipv6-static-context-hc}}
+
+# Acknowledgements
+
+Thanks to all the persons that have give us feedback
+
+
+
+
+
+--- back
+
