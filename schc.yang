@@ -1,0 +1,157 @@
+module schc{
+       yang-version "1";
+       namespace "urn:ietf:lpwan:schc:rules-description";
+       prefix "schc";
+
+    import schc-id {
+      prefix "schc-id";
+    }
+
+  	description
+		"Generic Data model for Static Context Header Compression Rule for SCHC,
+                 based on draft-ietf-lpwan-ipv6-static-context-hc-18. Include compression
+                 rules and fragmentation rules.";
+
+	revision 2019-11-26 {
+		description "First version of the YANG model";
+	}
+
+// --------  RULE DEFINITION ------------
+
+// /!\ It will be better if we use a kind of bytearray with no type
+// for string and integer.
+
+  grouping target-values-struct {
+      leaf numerical {
+            type uint64;
+      }
+      leaf string {
+            type string;
+      }
+      leaf position {
+            type uint8;
+      }
+  }
+  
+
+  grouping compression-rule-entry {
+      leaf field-id {
+        mandatory true;
+    	  type schc-id:field-id-type;
+      }
+      leaf field-length {
+          mandatory true;
+          type schc-id:field-length-type;
+      }
+      leaf field-position {
+          mandatory true;
+          type int8; 
+      }
+      leaf direction-indicator {
+          mandatory true;
+          type schc-id:direction-indicator-type;
+      }
+      list target-values {
+          key position;
+
+	  	    uses target-values-struct;
+      }
+      leaf mo {
+          mandatory true;
+      	  type schc-id:matching-operator-type;
+      }
+      // /!\ Not always good, it allows to give several arguments to a MO, but
+      // theses arguments are only int or strings, cannot be arrays. Is it necessary?
+      list mo-value {
+          key position;
+      	  uses target-values-struct;
+      }
+      leaf cda {
+          mandatory true;
+      	  type schc-id:cda-type;
+      }
+      list cda-value {
+          key position;
+	  	    uses target-values-struct;
+      }
+  }
+
+  grouping fragmentation-content {
+       leaf dtagsize {
+          type uint8;
+       }
+       leaf wsize {
+          type uint8;
+       }
+       leaf fcnsize {
+          type uint8;
+       }
+       choice mode {
+          case no-ack;
+	   	    case ack-always;
+	        case ack-on-error {
+	       		leaf ack-method {
+	       			type enumeration {
+	       				enum afterAll0;
+	       				enum afterAll1;
+	       				enum always;
+	       			}
+	       		}
+	       }
+       }
+  }
+
+  grouping compression-content {
+    list entry {
+        key "field-id field-position direction-indicator"; // field-position direction-indicator"; 
+	      uses compression-rule-entry;
+    }
+  }
+
+  typedef rule-length-type {
+      type uint8 {
+          range "0..32";
+
+      }  		
+  }
+
+// Define rule ID. Rule ID is composed of a RuleID value and a Rule ID Length
+
+  grouping rule-id-type {
+      leaf rule-id {
+        type uint32;
+        description "rule ID value, this value must be unique combined with the length";
+      }
+      leaf rule-length {
+        type uint8 {
+          range 0..32;
+        }
+	   	  description "rule ID length in bits, value 0 is for implicit rules";
+      }
+  }
+
+// SCHC table for a specific device.
+
+  container schc {
+    leaf version{
+        type uint64;
+        mandatory false;
+        description "used for versioning";
+    }
+    list rule {
+    	key "rule-id rule-length";
+	 	  uses rule-id-type;
+	 	  choice nature {
+			  case fragmentation {
+	        uses fragmentation-content;
+	      }
+	     	case compression {
+	        uses compression-content;
+        }
+      }
+	 }
+  }
+  
+  
+}
+

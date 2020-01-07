@@ -1,0 +1,410 @@
+module schc-id{
+       yang-version "1";
+       namespace "urn:ietf:lpwan:schc:schc-id";
+       prefix "schc-id";
+
+  	description
+		"Identifiers used in SCHC data model.";
+
+	revision 2019-11-26 {
+		description "First version of the SCHC identifiers";
+	}
+
+// -------------------------
+//  Field ID type definition
+//--------------------------
+
+// generic value TV definition 
+
+  identity field-id-base-type  {
+  	   description "Field ID with SID";
+  }
+
+  identity fid-ipv6-version {
+  	   base field-id-base-type;
+	   description "IPv6 version field from RFC8200";
+  }
+
+  identity fid-ipv6-trafficclass {
+  	   base field-id-base-type;
+	   description "IPv6 Traffic Class field from RFC8200";
+  }
+
+  identity fid-ipv6-trafficclass-ds {
+  	   base field-id-base-type;
+	   description "IPv6 Traffic Class field from RFC8200, 
+       DiffServ field from RFC3168";
+  }
+
+  identity fid-ipv6-trafficclass-ecn {
+  	   base field-id-base-type;
+	   description "IPv6 Traffic Class field from RFC8200, 
+       ECN field from RFC3168";
+  }
+
+  identity fid-ipv6-flowlabel {
+  	   base field-id-base-type;
+	   description "IPv6 Flow Label field from RFC8200";
+  }
+
+  identity fid-ipv6-payloadlength {
+  	   base field-id-base-type;
+	   description "IPv6 Payload Length field from RFC8200";
+  }
+
+  identity fid-ipv6-nextheader {
+  	   base field-id-base-type;
+	   description "IPv6 Next Header field from RFC8200";
+  }
+
+  identity fid-ipv6-hoplimit {
+  	   base field-id-base-type;
+	   description "IPv6 Next Header field from RFC8200";
+  }
+
+  identity fid-ipv6-devprefix {
+  	   base field-id-base-type;
+	   description "correspond either to the source address or the desdination 
+                        address prefix of RFC 8200. Depending if it is respectively
+                        a uplink or an downklink message.";
+  }
+
+  identity fid-ipv6-deviid {
+  	   base field-id-base-type;
+	   description "correspond either to the source address or the desdination 
+                        address prefix of RFC 8200. Depending if it is respectively
+                        a uplink or an downklink message.";
+  }
+
+  identity fid-ipv6-appprefix {
+  	   base field-id-base-type;
+	   description "correspond either to the source address or the desdination 
+                        address prefix of RFC 768. Depending if it is respectively
+                        a downlink or an uplink message.";
+  }
+
+  identity fid-ipv6-appiid {
+  	   base field-id-base-type;
+	   description "correspond either to the source address or the desdination 
+                        address prefix of RFC 768. Depending if it is respectively
+                        a downlink or an uplink message.";
+  }
+
+  identity fid-udp-dev-port {
+  	   base field-id-base-type;
+	   description "UDP length from RFC 768";
+  }
+
+  identity fid-udp-app-port {
+  	   base field-id-base-type;
+	   description "UDP length from RFC 768";
+  }
+
+  identity fid-udp-length {
+  	   base field-id-base-type;
+	   description "UDP length from RFC 768";
+  }
+
+  identity fid-udp-checksum {
+  	   base field-id-base-type;
+	   description "UDP length from RFC 768";
+  }
+
+  identity fid-coap-version {
+  	   base field-id-base-type;
+	   description "CoAP version from RFC 7252";
+  }
+
+  identity fid-coap-type {
+  	   base field-id-base-type;
+	   description "CoAP type from RFC 7252";
+  }
+
+  identity fid-coap-tkl {
+  	   base field-id-base-type;
+	   description "CoAP token length from RFC 7252";
+  }
+
+  identity fid-coap-code {
+  	   base field-id-base-type;
+	   description "CoAP code from RFC 7252";
+  }
+
+  identity fid-coap-code-class {
+  	   base field-id-base-type;
+	   description "CoAP code from RFC 7252";
+  }
+
+  identity fid-coap-code-detail {
+  	   base field-id-base-type;
+	   description "CoAP code from RFC 7252";
+  }
+
+  identity fid-coap-mid {
+  	   base field-id-base-type;
+	   description "CoAP message ID from RFC 7252";
+  }
+
+  identity fid-coap-token {
+  	   base field-id-base-type;
+	   description "CoAP token from RFC 7252";
+  }
+
+  identity fid-coap-option-if-match {
+  	   base field-id-base-type;
+	   description "CoAP option If-Match from RFC 7252";
+  }
+
+  identity fid-coap-option-uri-host {
+  	   base field-id-base-type;
+	   description "CoAP option URI-Host from RFC 7252";
+  }
+
+  identity fid-coap-option-etag {
+  	   base field-id-base-type;
+	   description "CoAP option Etag from RFC 7252";
+  }
+
+  identity fid-coap-option-if-none-match {
+  	   base field-id-base-type;
+	   description "CoAP option if-none-match from RFC 7252";
+  }
+
+  identity fid-coap-option-observe {
+  	   base field-id-base-type;
+	   description "CoAP option Observe from RFC 7641";
+  }
+
+  identity fid-coap-option-uri-port {
+  	   base field-id-base-type;
+	   description "CoAP option Uri-Port from RFC 7252";
+  }
+
+  identity fid-coap-option-location-path {
+  	   base field-id-base-type;
+	   description "CoAP option Location-Path from RFC 7252";
+  }
+
+  identity fid-coap-option-uri-path {
+  	   base field-id-base-type;
+	   description "CoAP option Uri-Path from RFC 7252";
+  }
+
+  identity fid-coap-option-content-format {
+  	   base field-id-base-type;
+	   description "CoAP option Content Format from RFC 7252";
+  }
+
+  identity fid-coap-option-max-age {
+  	   base field-id-base-type;
+	   description "CoAP option Max-Age from RFC 7252";
+  }
+
+  identity fid-coap-option-uri-query {
+  	   base field-id-base-type;
+	   description "CoAP option Uri-Query from RFC 7252";
+  }
+
+  identity fid-coap-option-accept {
+  	   base field-id-base-type;
+	   description "CoAP option Max-Age from RFC 7252";
+  }
+
+  identity fid-coap-option-location-query {
+  	   base field-id-base-type;
+	   description "CoAP option Location-Query from RFC 7252";
+  }
+
+  identity fid-coap-option-block2 {
+  	   base field-id-base-type;
+	   description "CoAP option Block2 from RFC 7959";
+  }
+
+  identity fid-coap-option-block1 {
+  	   base field-id-base-type;
+	   description "CoAP option Block1 from RFC 7959";
+  }
+
+  identity fid-coap-option-size2 {
+  	   base field-id-base-type;
+	   description "CoAP option size2 from RFC 7959";
+  }
+
+  identity fid-coap-option-proxy-uri {
+  	   base field-id-base-type;
+	   description "CoAP option Proxy-Uri from RFC 7252";
+  }
+
+  identity fid-coap-option-proxy-scheme {
+  	   base field-id-base-type;
+	   description "CoAP option Proxy-scheme from RFC 7252";
+  }
+
+  identity fid-coap-option-size1 {
+  	   base field-id-base-type;
+	   description "CoAP option Size1 from RFC 7252";
+  }
+
+  identity fid-coap-option-no-response {
+  	   base field-id-base-type;
+	   description "CoAP option No response from RFC 7967";
+  }
+
+  identity fid-coap-option-end-option {
+  	   base field-id-base-type;
+	   description "CoAP End Option from RFC 7967";
+  }
+
+
+//----------------------------------
+// Field Length type definition
+//----------------------------------
+
+  identity field-length-base-type {
+        description "used to extend field length functions";
+  }
+
+  identity fl-variable {
+  	   base field-length-base-type;
+	   description "residue length in Byte is sent";
+  }
+
+  identity fl-token-length {
+  	   base field-length-base-type;
+	   description "residue length in Byte is sent";
+  }
+
+//---------------------------------
+// Direction Indicator type
+//---------------------------------
+
+  identity direction-indicator-base-type {
+        description "used to extend field length functions";
+  }
+
+  identity di-bidirectional {
+  	   base direction-indicator-base-type;
+	   description "Direction Indication of bi directionality";
+  }
+
+  identity di-up {
+  	   base direction-indicator-base-type;
+	   description "Direction Indication of upstream";
+  }
+
+  identity di-down {
+  	   base direction-indicator-base-type;
+	   description "Direction Indication of downstream";
+  }
+
+//----------------------------------
+// Matching Operator type definition
+//----------------------------------
+
+   identity matching-operator-base-type {
+      description "used to extend Matching Operators with SID values";
+   }
+
+   identity mo-equal {
+      base matching-operator-base-type;
+      description "SCHC draft";
+   }
+   
+   identity mo-ignore {
+      base matching-operator-base-type;
+      description "SCHC draft";
+   }
+   
+   identity mo-msb {
+      base matching-operator-base-type;
+      description "SCHC draft";
+   }
+   
+   identity mo-matching {
+      base matching-operator-base-type;
+      description "SCHC draft";
+   }
+
+//------------------------------
+// CDA type definition
+//------------------------------
+
+    identity compression-decompression-action-base-type;
+
+    identity cda-not-sent {
+    	base compression-decompression-action-base-type;
+	    description "from SCHC draft";
+    }   
+
+    identity cda-value-sent {
+    	base compression-decompression-action-base-type;
+	    description "from SCHC draft";
+    }   
+
+    identity cda-lsb {
+    	base compression-decompression-action-base-type;
+	    description "from SCHC draft";
+    }   
+
+    identity cda-mapping-sent {
+    	base compression-decompression-action-base-type;
+	    description "from SCHC draft";
+    }   
+
+    identity cda-compute-length {
+    	base compression-decompression-action-base-type;
+	    description "from SCHC draft";
+    }   
+
+    identity cda-compute-checksum {
+    	base compression-decompression-action-base-type;
+	    description "from SCHC draft";
+    }   
+
+    identity cda-deviid {
+    	base compression-decompression-action-base-type;
+	    description "from SCHC draft";
+    }   
+
+   identity cda-appiid {
+    	base compression-decompression-action-base-type;
+	    description "from SCHC draft";
+    }   
+
+// -- type definition
+
+    typedef field-id-type {
+        description "Field ID generic type.";
+        type identityref {
+            base field-id-base-type;
+        }
+    }
+
+    typedef field-length-type {
+        type union {
+            type int64; /* positive length */
+            type identityref { /* function */
+                base field-length-base-type;
+            }
+        }
+    }
+
+
+    typedef direction-indicator-type {
+        type identityref {
+            base direction-indicator-base-type;
+        }
+    }
+
+    typedef matching-operator-type {
+        type identityref {
+            base matching-operator-base-type;
+        }
+    }
+
+    typedef cda-type {
+        type identityref {
+            base compression-decompression-action-base-type;
+        }
+    }
+}
