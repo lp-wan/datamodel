@@ -1,7 +1,7 @@
 ---
 stand_alone: true
 ipr: trust200902
-docname: draft-ietf-lpwan-yang-data-model-01
+docname: draft-ietf-lpwan-schc-yang-data-model-03
 cat: std
 pi:
   symrefs: 'yes'
@@ -155,9 +155,9 @@ Using the YANG model, each field can be identified through a global YANG identit
 The naming convention is "fid" followed by the protocol name and the field name.  
 The yang model in annex gives the full definition of the field ID for {{I-D.ietf-lpwan-ipv6-static-context-hc}} and {{I-D.ietf-lpwan-coap-static-context-hc}}.
 
-~~~~~
 The type associated to this identity is field-id-type (cf. {{Fig-field-id-type}})
 
+~~~~~
     typedef field-id-type {
         description "Field ID generic type.";
         type identityref {
@@ -274,18 +274,20 @@ Target Value may be either a string or binary sequence. For match-mapping, sever
 be contained in a Target Value field. In the data model, this is generalized by adding a position, which
 orders the list of values. By default the position is set to 0.
 
+The leaf "value" is not mandatory to represent a non existing value in a TV.
+
 ~~~~~
 
-  grouping target-values-type {
-       leaf numerical {
-            type uint64;
-       }
-       leaf string {
-            type string;
-       }
-       leaf position {
-	          type uint8;
-       }
+  grouping target-values-struct {
+    leaf value {
+      type union {
+        type binary;
+        type string;
+      }
+    }
+    leaf position {
+          type uint16;
+    }
   }
 
 ~~~~~
@@ -293,7 +295,6 @@ orders the list of values. By default the position is set to 0.
 
 {{Fig-ex-TV}} gives the definition of a single element of a Target Value. In the rule, this will be used as a list, with position as a key.
 
-NOTE: An union could be used, but in some CLI, everything is viewed as a string. So that's the reason for two leaves. but only one can be selected, or we don't care of CLI and we go to union ?
 
 ## Matching Operator
 
@@ -474,47 +475,44 @@ Decompression actions can have arguments. They are viewed a ordered list of stri
 as in target values.
 
 ~~~~~ 
-  grouping compression-rule-entry {
-      leaf field-id {
-          mandatory true;
-    	  type schc-id:field-id-type;
-      }
-      leaf field-length {
-          mandatory true;
-          type schc-id:field-length-type;
-      }
-      leaf field-position {
-          mandatory true;
-          type uint8; 
-      }
-      leaf direction-indicator {
-          mandatory true;
-          type schc-id:direction-indicator-type;
-      }
-      list target-values {
-          key position;
-
-	  	    uses target-values-struct;
-      }
-      leaf mo {
-          mandatory true;
-      	  type schc-id:matching-operator-type;
-      }
-      // /!\ Not always good, it allows to give several arguments to a MO, but
-      // theses arguments are only int or strings, cannot be arrays. Is it necessary?
-      list mo-value {
-          key position;
-      	  uses target-values-struct;
-      }
-      leaf cda {
-          mandatory true;
-      	  type schc-id:cda-type;
-      }
-      list cda-value {
-          key position;
-	  	    uses target-values-struct;
-      }
-  }
+    grouping compression-rule-entry {
+        leaf field-id {
+            mandatory true;
+            type schc-id:field-id-type;
+        }
+        leaf field-length {
+            mandatory true;
+            type schc-id:field-length-type;
+        }
+        leaf field-position {
+            mandatory true;
+            type uint8; 
+        }
+        leaf direction-indicator {
+            mandatory true;
+            type schc-id:direction-indicator-type;
+        }
+        list target-values {
+            key position;
+            uses target-values-struct;
+        }
+        leaf mo {
+            mandatory true;
+            type schc-id:matching-operator-type;
+        }
+        list mo-value {
+            key position;
+            uses target-values-struct;
+        }
+        leaf cda {
+            mandatory true;
+            type schc-id:comp-decomp-action-type;
+        }
+        list cda-value {
+            key position;
+            uses target-values-struct;
+        }
+    }
 ~~~~~ 
 {: #Fig-comp-entry title='Definition of a compression entry'}
 
@@ -522,49 +520,95 @@ as in target values.
 
 A compression rule is a list of entries. 
 
-
 ~~~~~ 
   grouping compression-content {
     list entry {
-        key "field-id field-position direction-indicator"; // field-position direction-indicator"; 
+        key "field-id field-position direction-indicator"; 
 	      uses compression-rule-entry;
     }
   }
 ~~~~~ 
 {: #Fig-comp-rule title='Definition of a compression rule'}
 
-To identify a specific entry Field ID, position and direction is needed.
+To identify a specific entry Field ID, position and direction are needed.
 
 
 ## Fragmentation rule
 
-TBD
+Parameters for fragmentation are defined in Annex D of {{I-D.ietf-lpwan-ipv6-static-context-hc}}. 
+Two new types are defined for Ack on Error acknowlement behavior (ack-behavior-type) and the RCS 
+algorithm (RCS-algorithm-type).
 
 ~~~~~ 
-  grouping fragmentation-content {
-       leaf dtagsize {
-          type uint8;
+    grouping fragmentation-content {
+        leaf direction {
+            type schc-id:direction-indicator-type;
+            description "should be up or down";
+        }
+
+        leaf dtagsize {
+            type uint8;
+            description "size in bit of the DTag field";
+        }
+        leaf wsize {
+            type uint8;
+            description "size in bit of the window field";
+        }
+        leaf fcnsize {
+            type uint8;
+            description "size in bit of the FCN field";
+        }
+        leaf RCS-algorithm {
+            type RCS-algorithm-type;
+            default schc-id:RFC8724-RCS;
+            description "Algoritm used for RCS";
+        }
+        leaf maximum-window-size {
+            type uint16;
+            description "by default 2^wsize - 1";
+        }
+
+        leaf retransmission-timer {
+            type uint64;
+            description "duration in seconds of the retransmission timer"; // Check the units
+        }
+
+        leaf inactivity-timer {
+            type uint64;
+            description "duration is seconds of the inactivity timer"; // check units
+        }
+
+        leaf max-ack-requests {
+            type uint8;        
+        }
+
+        leaf maximum-packet-size {
+            type uint16;
+            mandatory true;
+            default 1280;
+            description "When decompression is done, packet size must not strictly exceed this limit in Bytes";
+        }
+
+        choice mode {
+            case no-ack;
+            case ack-always;
+            case ack-on-error {
+                leaf tile-size {
+                    type uint8;
+                    description "size in bit of tiles";
+                }
+                leaf tile-in-All1 {
+                    type boolean;
+                    description "When true, sender and receiver except a tile in All-1 frag";
+                }
+                leaf ack-behavior {
+                    type schc-id:ack-behavior-type;
+                    mandatory true;
+                }
+
+            }
        }
-       leaf wsize {
-          type uint8;
-       }
-       leaf fcnsize {
-          type uint8;
-       }
-       choice mode {
-          case no-ack;
-	   	    case ack-always;
-	        case ack-on-error {
-	       		leaf ack-method {
-	       			type enumeration {
-	       				enum afterAll0;
-	       				enum afterAll1;
-	       				enum always;
-	       			}
-	       		}
-	       }
-       }
-  }
+    }
 ~~~~~ 
 {: #Fig-frag-rule title='Definition of a fragmentation rule'}
 
@@ -572,41 +616,49 @@ TBD
 
 
 ~~~~~ 
+module: schc
   +--rw schc
      +--rw version?   uint64
      +--rw rule* [rule-id rule-length]
-        +--rw rule-id                   uint32
-        +--rw rule-length               uint8
+        +--rw rule-id                       uint32
+        +--rw rule-length                   uint8
         +--rw (nature)?
            +--:(fragmentation)
-           |  +--rw dtagsize?           uint8
-           |  +--rw wsize?              uint8
-           |  +--rw fcnsize?            uint8
-           |  +--rw (mode)?
+           |  +--rw direction?              schc-id:direction-indicator-type
+           |  +--rw dtagsize?               uint8
+           |  +--rw wsize?                  uint8
+           |  +--rw fcnsize?                uint8
+           |  +--rw RCS-algorithm?          RCS-algorithm-type
+           |  +--rw maximum-window-size?    uint16
+           |  +--rw retransmission-timer?   uint64
+           |  +--rw inactivity-timer?       uint64
+           |  +--rw max-ack-requests?       uint8
+           |  +--rw maximum-packet-size     uint16
+           |  +--rw (mode)
            |     +--:(no-ack)
            |     +--:(ack-always)
            |     +--:(ack-on-error)
-           |        +--rw ack-method?   enumeration
+           |        +--rw tile-size?        uint8
+           |        +--rw tile-in-All1?     boolean
+           |        +--rw ack-behavior      schc-id:ack-behavior-type
            +--:(compression)
               +--rw entry* [field-id field-position direction-indicator]
                  +--rw field-id               schc-id:field-id-type
                  +--rw field-length           schc-id:field-length-type
-                 +--rw field-position         int8
+                 +--rw field-position         uint8
                  +--rw direction-indicator    schc-id:direction-indicator-type
                  +--rw target-values* [position]
-                 |  +--rw numerical?   uint64
-                 |  +--rw string?      string
-                 |  +--rw position     uint8
+                 |  +--rw value?      union
+                 |  +--rw position    uint16
                  +--rw mo                     schc-id:matching-operator-type
                  +--rw mo-value* [position]
-                 |  +--rw numerical?   uint64
-                 |  +--rw string?      string
-                 |  +--rw position     uint8
+                 |  +--rw value?      union
+                 |  +--rw position    uint16
                  +--rw cda                    schc-id:comp-decomp-action-type
                  +--rw cda-value* [position]
-                    +--rw numerical?   uint64
-                    +--rw string?      string
-                    +--rw position     uint8
+                    +--rw value?      union
+                    +--rw position    uint16
+
 ~~~~~ 
 {: #Fig-model-overview title='Overview of SCHC data model}
 
@@ -623,14 +675,24 @@ This document does not have any more Security consideration than the ones alread
 The authors would like to thank Dominique Barthel, Carsten Bormann, Alexander Pelov. 
 
 # YANG Module
-<!-->
-<CODE BEGINS> file "schc-id@2020-01-07.yang"
-see github
-<CODE ENDS>
 
-<CODE BEGINS> file "schc@2020-01-07.yang"
-see github
-<CODE ENDS>
--->
+Currently the data model is split into two parts. The first one is dedicated to SCHC identifiers and the
+second one contains the rules definition. The goal is to allow some stabilities in the rule identifiers
+if new SCHC identfiers are added. When the model will be stable, these two files will be merged.
+
+~~~~
+<code begins> file schc-id@2020-01-07.yang
+{::include schc-id@2020-02-28.yang}
+<code ends>
+~~~~
+{: #Fig-schc-id title="First part of the data model}
+
+~~~~
+<code begins> file schc@2020-01-23.yang
+{::include schc@2020-02-28.yang}
+<code ends>
+~~~~
+{: #Fig-schc title="Second part of the data model}
+
 
 --- back
