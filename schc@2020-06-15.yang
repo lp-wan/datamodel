@@ -1,0 +1,819 @@
+module schc{
+    yang-version "1";
+    namespace "urn:ietf:lpwan:schc:rules-description";
+    prefix "schc";
+        
+    description 
+    "Generic Data model for Static Context Header Compression Rule for SCHC,
+    based on draft-ietf-lpwan-ipv6-static-context-hc-18. Include compression
+    rules and fragmentation rules.
+        
+    This module is a YANG model for SCHC rules (RFc 8724).
+    RFC 8724 describes a rule in a abstract way through a table. 
+
+    |-----------------------------------------------------------------|
+    |  (FID)            Rule 1                                        |
+    |+-------+--+--+--+------------+-----------------+---------------+|
+    ||Field 1|FL|FP|DI|Target Value|Matching Operator|Comp/Decomp Act||
+    |+-------+--+--+--+------------+-----------------+---------------+|
+    ||Field 2|FL|FP|DI|Target Value|Matching Operator|Comp/Decomp Act||
+    |+-------+--+--+--+------------+-----------------+---------------+|
+    ||...    |..|..|..|   ...      | ...             | ...           ||
+    |+-------+--+--+--+------------+-----------------+---------------+|
+    ||Field N|FL|FP|DI|Target Value|Matching Operator|Comp/Decomp Act||
+    +-------+--+--+--+------------+-----------------+---------------+||
+    |-----------------------------------------------------------------|
+
+    This module proposes a global data model that can be used for rule 
+    exchanges or modification. It proposes both the data model format and 
+    the global identifiers used to describes some operations in fields.
+    This data model applies both to compression and fragmentation.";
+
+    revision 2020-06-15 {
+        description "clean up and add descriptions, merge schc-id to this file";
+    }
+
+    revision 2020-02-28 {
+        description "Add Fragmentation parameters";
+    }
+
+    revision 2020-01-23 {
+        description "Modified TV with binary and union";
+    }
+
+    revision 2020-01-07 {
+        description "First version of the YANG model";
+    }
+
+// -------------------------
+//  Field ID type definition
+//--------------------------
+
+// generic value TV definition 
+
+    identity field-id-base-type  {
+  	   description "Field ID with SID";
+    }
+
+    identity fid-ipv6-version {
+  	   base field-id-base-type;
+	   description "IPv6 version field from RFC8200";
+    }
+
+    identity fid-ipv6-trafficclass {
+        base field-id-base-type;
+        description "IPv6 Traffic Class field from RFC8200";
+    }
+
+    identity fid-ipv6-trafficclass-ds {
+        base field-id-base-type;
+        description "IPv6 Traffic Class field from RFC8200, 
+        DiffServ field from RFC3168";
+    }
+
+    identity fid-ipv6-trafficclass-ecn {
+        base field-id-base-type;
+        description "IPv6 Traffic Class field from RFC8200, 
+        ECN field from RFC3168";
+    }
+
+    identity fid-ipv6-flowlabel {
+        base field-id-base-type;
+        description "IPv6 Flow Label field from RFC8200";
+    }
+
+    identity fid-ipv6-payloadlength {
+        base field-id-base-type;
+        description "IPv6 Payload Length field from RFC8200";
+    }
+
+    identity fid-ipv6-nextheader {
+        base field-id-base-type;
+        description "IPv6 Next Header field from RFC8200";
+    }
+
+    identity fid-ipv6-hoplimit {
+        base field-id-base-type;
+        description "IPv6 Next Header field from RFC8200";
+    }
+
+    identity fid-ipv6-devprefix {
+        base field-id-base-type;
+        description "correspond either to the source address or the desdination 
+                            address prefix of RFC 8200. Depending if it is respectively
+                            a uplink or an downklink message.";
+    }
+
+    identity fid-ipv6-deviid {
+        base field-id-base-type;
+        description "correspond either to the source address or the desdination 
+                            address prefix of RFC 8200. Depending if it is respectively
+                            a uplink or an downklink message.";
+    }
+
+    identity fid-ipv6-appprefix {
+        base field-id-base-type;
+        description "correspond either to the source address or the desdination 
+                            address prefix of RFC 768. Depending if it is respectively
+                            a downlink or an uplink message.";
+    }
+
+    identity fid-ipv6-appiid {
+        base field-id-base-type;
+        description "correspond either to the source address or the desdination 
+                            address prefix of RFC 768. Depending if it is respectively
+                            a downlink or an uplink message.";
+    }
+
+    identity fid-udp-dev-port {
+        base field-id-base-type;
+        description "UDP length from RFC 768";
+    }
+
+    identity fid-udp-app-port {
+        base field-id-base-type;
+        description "UDP length from RFC 768";
+    }
+
+    identity fid-udp-length {
+        base field-id-base-type;
+        description "UDP length from RFC 768";
+    }
+
+    identity fid-udp-checksum {
+        base field-id-base-type;
+        description "UDP length from RFC 768";
+    }
+
+    identity fid-coap-version {
+        base field-id-base-type;
+        description "CoAP version from RFC 7252";
+    }
+
+    identity fid-coap-type {
+        base field-id-base-type;
+        description "CoAP type from RFC 7252";
+    }
+
+    identity fid-coap-tkl {
+        base field-id-base-type;
+        description "CoAP token length from RFC 7252";
+    }
+
+    identity fid-coap-code {
+        base field-id-base-type;
+        description "CoAP code from RFC 7252";
+    }
+
+    identity fid-coap-code-class {
+        base field-id-base-type;
+        description "CoAP code class from RFC 7252";
+    }
+
+    identity fid-coap-code-detail {
+        base field-id-base-type;
+        description "CoAP code detail from RFC 7252";
+    }
+
+    identity fid-coap-mid {
+        base field-id-base-type;
+        description "CoAP message ID from RFC 7252";
+    }
+
+    identity fid-coap-token {
+        base field-id-base-type;
+        description "CoAP token from RFC 7252";
+    }
+
+    identity fid-coap-option-if-match {
+        base field-id-base-type;
+        description "CoAP option If-Match from RFC 7252";
+    }
+
+    identity fid-coap-option-uri-host {
+        base field-id-base-type;
+        description "CoAP option URI-Host from RFC 7252";
+    }
+
+    identity fid-coap-option-etag {
+        base field-id-base-type;
+        description "CoAP option Etag from RFC 7252";
+    }
+
+    identity fid-coap-option-if-none-match {
+        base field-id-base-type;
+        description "CoAP option if-none-match from RFC 7252";
+    }
+
+    identity fid-coap-option-observe {
+        base field-id-base-type;
+        description "CoAP option Observe from RFC 7641";
+    }
+
+    identity fid-coap-option-uri-port {
+        base field-id-base-type;
+        description "CoAP option Uri-Port from RFC 7252";
+    }
+
+    identity fid-coap-option-location-path {
+        base field-id-base-type;
+        description "CoAP option Location-Path from RFC 7252";
+    }
+
+    identity fid-coap-option-uri-path {
+        base field-id-base-type;
+        description "CoAP option Uri-Path from RFC 7252";
+    }
+
+    identity fid-coap-option-content-format {
+        base field-id-base-type;
+        description "CoAP option Content Format from RFC 7252";
+    }
+
+    identity fid-coap-option-max-age {
+        base field-id-base-type;
+        description "CoAP option Max-Age from RFC 7252";
+    }
+
+    identity fid-coap-option-uri-query {
+        base field-id-base-type;
+        description "CoAP option Uri-Query from RFC 7252";
+    }
+
+    identity fid-coap-option-accept {
+        base field-id-base-type;
+        description "CoAP option Max-Age from RFC 7252";
+    }
+
+    identity fid-coap-option-location-query {
+        base field-id-base-type;
+        description "CoAP option Location-Query from RFC 7252";
+    }
+
+    identity fid-coap-option-block2 {
+        base field-id-base-type;
+        description "CoAP option Block2 from RFC 7959";
+    }
+
+    identity fid-coap-option-block1 {
+        base field-id-base-type;
+        description "CoAP option Block1 from RFC 7959";
+    }
+
+    identity fid-coap-option-size2 {
+        base field-id-base-type;
+        description "CoAP option size2 from RFC 7959";
+    }
+
+    identity fid-coap-option-proxy-uri {
+        base field-id-base-type;
+        description "CoAP option Proxy-Uri from RFC 7252";
+    }
+
+    identity fid-coap-option-proxy-scheme {
+        base field-id-base-type;
+        description "CoAP option Proxy-scheme from RFC 7252";
+    }
+
+    identity fid-coap-option-size1 {
+        base field-id-base-type;
+        description "CoAP option Size1 from RFC 7252";
+    }
+
+    identity fid-coap-option-no-response {
+        base field-id-base-type;
+        description "CoAP option No response from RFC 7967";
+    }
+
+    identity fid-coap-option-oscore-flags {
+        base field-id-base-type;
+        description "CoAP option oscore flags (see draft schc coap, section 6.4)";
+    }
+
+    identity fid-coap-option-oscore-piv {
+        base field-id-base-type;
+        description "CoAP option oscore flags (see draft schc coap, section 6.4)";
+    }
+
+    identity fid-coap-option-oscore-kid {
+        base field-id-base-type;
+        description "CoAP option oscore flags (see draft schc coap, section 6.4)";
+    }
+
+    identity fid-coap-option-oscore-kidctx {
+        base field-id-base-type;
+        description "CoAP option oscore flags (see draft schc coap, section 6.4)";
+    }
+
+    identity fid-icmpv6-type {
+        base field-id-base-type;
+        description "ICMPv6 field (see draft OAM)";
+    }
+
+    identity fid-icmpv6-code {
+        base field-id-base-type;
+        description "ICMPv6 field (see draft OAM)";
+    }
+
+    identity fid-icmpv6-checksum {
+        base field-id-base-type;
+        description "ICMPv6 field (see draft OAM)";
+    }
+
+    identity fid-icmpv6-identifier {
+        base field-id-base-type;
+        description "ICMPv6 field (see draft OAM)";
+    }
+
+    identity fid-icmpv6-sequence {
+        base field-id-base-type;
+        description "ICMPv6 field (see draft OAM)";
+    }
+ 
+
+/// !!!!!!! See future CoAP extentions
+
+//----------------------------------
+// Field Length type definition
+//----------------------------------
+
+  identity field-length-base-type {
+        description "used to extend field length functions";
+  }
+
+  identity fl-variable {
+  	   base field-length-base-type;
+	   description "residue length in Byte is sent";
+  }
+
+  identity fl-token-length {
+  	   base field-length-base-type;
+	   description "residue length in Byte is sent";
+  }
+
+//---------------------------------
+// Direction Indicator type
+//---------------------------------
+
+  identity direction-indicator-base-type {
+        description "used to extend field length functions";
+  }
+
+  identity di-bidirectional {
+  	   base direction-indicator-base-type;
+	   description "Direction Indication of bi directionality";
+  }
+
+  identity di-up {
+  	   base direction-indicator-base-type;
+	   description "Direction Indication of upstream";
+  }
+
+  identity di-down {
+  	   base direction-indicator-base-type;
+	   description "Direction Indication of downstream";
+  }
+
+//----------------------------------
+// Matching Operator type definition
+//----------------------------------
+
+   identity matching-operator-base-type {
+      description "used to extend Matching Operators with SID values";
+   }
+
+   identity mo-equal {
+      base matching-operator-base-type;
+      description "RFC 8724";
+   }
+   
+   identity mo-ignore {
+      base matching-operator-base-type;
+      description "RFC 8724";
+   }
+   
+   identity mo-msb {
+      base matching-operator-base-type;
+      description "RFC 8724";
+   }
+   
+   identity mo-matching {
+      base matching-operator-base-type;
+      description "RFC 8724";
+   }
+
+//------------------------------
+// CDA type definition
+//------------------------------
+
+    identity compression-decompression-action-base-type;
+
+    identity cda-not-sent {
+    	base compression-decompression-action-base-type;
+	    description "RFC 8724";
+    }   
+
+    identity cda-value-sent {
+    	base compression-decompression-action-base-type;
+	    description "RFC 8724";
+    }   
+
+    identity cda-lsb {
+    	base compression-decompression-action-base-type;
+	    description "RFC 8724";
+    }   
+
+    identity cda-mapping-sent {
+    	base compression-decompression-action-base-type;
+	    description "RFC 8724";
+    }   
+
+    identity cda-compute-length {
+    	base compression-decompression-action-base-type;
+	    description "RFC 8724";
+    }   
+
+    identity cda-compute-checksum {
+    	base compression-decompression-action-base-type;
+	    description "RFC 8724";
+    }   
+
+    identity cda-deviid {
+    	base compression-decompression-action-base-type;
+	    description "RFC 8724";
+    }   
+
+   identity cda-appiid {
+    	base compression-decompression-action-base-type;
+	    description "RFC 8724";
+    }   
+
+// -- type definition
+
+    typedef field-id-type {
+        description "Field ID generic type.";
+        type identityref {
+            base field-id-base-type;
+        }
+    }
+
+    typedef field-length-type {
+        description "Field length either a positive integer giving the size in bits 
+        or a function defined through an identityref.";
+        type union {
+            type int64; /* positive length in bits */
+            type identityref { /* function */
+                base field-length-base-type;
+            }
+        }
+    }
+
+    typedef direction-indicator-type {
+        description "direction in LPWAN network, up when emitted by the device,
+        down when received by the device, bi when emitted or received by the device.";
+        type identityref {
+            base direction-indicator-base-type;
+        }
+    }
+
+    typedef matching-operator-type {
+        description "Matching Operator (MO) to compare fields values with target values";
+        type identityref {
+            base matching-operator-base-type;
+        }
+    }
+
+    typedef comp-decomp-action-type {
+        description "Compression Decompression Action to compression or decompress a field.";
+        type identityref {
+            base compression-decompression-action-base-type;
+        }
+    }
+
+// -- FRAGMENTATION TYPE
+
+// -- fragmentation modes
+
+    identity fragmentation-mode-base-type {
+        description "fragmentation mode";
+    }
+
+    identity fragmentation-mode-no-ack {
+        description "No Ack of RFC 8724.";
+        base fragmentation-mode-base-type;
+    }
+
+    identity fragmentation-mode-ack-always {
+        description "Ack Always of RFC8724.";
+        base fragmentation-mode-base-type;
+    }
+    identity fragmentation-mode-ack-on-error {
+        description "Ack on Error of RFC8724.";
+        base fragmentation-mode-base-type;
+    }
+
+    typedef fragmentation-mode-type {
+        type identityref {
+            base fragmentation-mode-base-type;
+        }
+    }
+
+// -- Ack behavior 
+
+    identity ack-behavior-base-type {
+        description "define when to send an Acknowledgment message";
+    }
+
+    identity ack-behavior-after-All0 {
+        description "fragmentation expects Ack after sending All0 fragment."; 
+        base ack-behavior-base-type;
+    }
+
+    identity ack-behavior-after-All1 {
+        description "fragmentation expects Ack after sending All1 fragment.";
+        base ack-behavior-base-type;
+    }
+
+    identity ack-behavior-always {
+        description "fragmentation expects Ack after sending every fragment.";
+        base ack-behavior-base-type;
+    }
+
+    typedef ack-behavior-type {
+        type identityref {
+            base ack-behavior-base-type;
+        }
+    }
+
+// -- All1 with data types
+
+    identity all1-data-base-type {
+        description "type to define when to send an Acknowledgment message";
+    }
+
+    identity all1-data-no {
+        description "All1 contains no tiles."; 
+        base all1-data-base-type;
+    }
+
+    identity all1-data-yes {
+        description "All1 MUST contain a tile";
+        base all1-data-base-type;
+    }
+
+    identity all1-data-sender-choice {
+        description "Fragmentation process choose to send tiles or not in all1.";
+        base all1-data-base-type;
+    }
+
+    typedef all1-data-type {
+        type identityref {
+            base all1-data-base-type;
+        }
+    }
+
+// -- RCS algorithm types
+
+    identity RCS-algorithm-base-type {
+        description "identify which algorithm is used to compute RSC.
+        The algorithm defines also the size if the RSC field.";
+    }
+
+    identity RFC8724-RCS {
+        description "CRC 32 defined as default RCS in RFC8724.";
+        base RCS-algorithm-base-type;
+    }
+
+    typedef RCS-algorithm-type {
+        type identityref {
+            base RCS-algorithm-base-type;
+        }
+    }
+
+
+
+// --------  RULE ENTRY DEFINITION ------------
+
+    grouping target-values-struct {
+        description "defines the target value element. Can be either an arbitrary
+        binary or ascii element. All target values are considered as a matching lists.
+        Position is used to order values, by default position 0 is used when containing
+        a single element.";
+
+        leaf value {
+            type union {
+                type binary;
+                type string;
+            }
+        }
+        leaf position {
+            description "If only one element position is 0, otherwise position is the
+            matching list.";
+            type uint16;
+        }
+    }
+
+    grouping compression-rule-entry {
+        description "These entries defines a compression entry (i.e. a line) 
+        as defined in RFC 8724 and fragmentation parameters.
+  
+        +-------+--+--+--+------------+-----------------+---------------+
+        |Field 1|FL|FP|DI|Target Value|Matching Operator|Comp/Decomp Act|
+        +-------+--+--+--+------------+-----------------+---------------+
+
+        An entry in a compression rule is composed of 7 elements:
+        - Field ID: The header field to be compressed. The content is a YANG identifer.
+        - Field Length : either a positive integer of a function defined as a YANF id.
+        - Field Position: a positive (and possibly equal to 0) integer.
+        - Direction Indicator: a YANG identifier giving the direction.
+        - Target value: a value against which the header Field is compared.
+        - Matching Operator: a YANG id giving the operation, paramters may be 
+        associated to that operator.
+        - Comp./Decomp. Action: A YANG id giving the compression or decompression
+        action, paramters may be associated to that action.  
+        ";
+
+        leaf field-id {
+            description "Field ID, identify a field in the header with a YANG refenceid.";
+            mandatory true;
+            type schc:field-id-type;
+        }
+        leaf field-length {
+            description "Field Length in bit or through a function defined as a YANG referenceid";
+            mandatory true;
+            type schc:field-length-type;
+        }
+        leaf field-position {
+            description "field position in the header is a integer. If the field is not repeated 
+            in the header the value is 1, and incremented for each repetition of the field. Position
+            0 means that the position is not important and order may change when decompressed"; 
+            mandatory true;
+            type uint8; 
+        }
+        leaf direction-indicator {
+            description "Direction Indicator, a YANG referenceid to say if the packet is bidirectionnal,
+            up or down";
+            mandatory true;
+            type schc:direction-indicator-type;
+        }
+        list target-values {
+            description "a list of value to compare with the header field value. If target value
+            is a singleton, position must be 0. For matching-list, should be consecutive position
+            values starting from 1.";
+            key position;
+            uses target-values-struct;
+        }
+        leaf matching-operator {
+            mandatory true;
+            type schc:matching-operator-type;
+        }
+        list matching-operator-value {
+            key position;
+            uses target-values-struct;
+        }
+        leaf comp-decomp-action {
+            mandatory true;
+            type schc:comp-decomp-action-type;
+        }
+        list comp-decomp-action-value {
+            key position;
+            uses target-values-struct;
+        }
+    }
+
+    grouping compression-content {
+        description "define a compression rule composed of a list of entries.";
+        list entry {
+            key "field-id field-position direction-indicator"; 
+            uses compression-rule-entry;
+        }
+    }
+
+    grouping fragmentation-content {
+        description "This grouping defines the fragmentation parameters for
+        all the modes (No Ack, Ack Always and Ack on Error) specified in 
+        RFC 8724.";
+
+        leaf direction {
+            type schc:direction-indicator-type;
+            description "should be up or down, bi directionnal is forbiden.";
+            mandatory true;
+        }
+        leaf dtagsize {
+            type uint8;
+            description "size in bit of the DTag field";
+
+        }
+        leaf wsize {
+            type uint8;
+            description "size in bit of the window field";
+        }
+        leaf fcnsize {
+            type uint8;
+            description "size in bit of the FCN field";
+            mandatory true;
+        }
+        leaf RCS-algorithm {
+            type RCS-algorithm-type;
+            default schc:RFC8724-RCS;
+            description "Algoritm used for RCS";
+        }
+        leaf maximum-window-size {
+            type uint16;
+            description "by default 2^wsize - 1";
+        }
+
+        leaf retransmission-timer {
+            type uint64 {
+                range 1..max;
+            }
+            description "duration in seconds of the retransmission timer"; // Check the units
+        }
+
+        leaf inactivity-timer {
+            type uint64;
+            description "duration is seconds of the inactivity timer, 0 indicates the timer is disabled"; // check units
+        }
+
+        leaf max-ack-requests {
+            type uint8 {
+                range 1..max;
+            }
+            description "the maximum number of retries for a specific SCHC ACK.";        
+        }
+
+        leaf maximum-packet-size {
+            type uint16;
+            default 1280;
+            description "When decompression is done, packet size must not strictly exceed this limit in Bytes";
+        }
+
+        leaf fragmentation-mode {
+            type schc:fragmentation-mode-type;
+            description "which fragmentation mode is used (noAck, AckAlways, AckonError)";
+            mandatory true;
+        }
+
+        choice mode {
+            case no-ack;
+            case ack-always;
+            case ack-on-error {
+                leaf tile-size {
+                    type uint8;
+                    description "size in bit of tiles, if not specified or set to 0: tile fills the fragment.";
+                }
+                leaf tile-in-All1 {
+                    type schc:all1-data-type;
+                    description "When true, sender and receiver except a tile in All-1 frag";
+                }
+                leaf ack-behavior {
+                    type schc:ack-behavior-type;
+                    description "Sender behavior to acknowledge, after All-0, All-1 or when the
+                    LPWAN allows it (Always)";
+                }
+            }
+       }
+    }
+
+
+
+// Define rule ID. Rule ID is composed of a RuleID value and a Rule ID Length
+
+    grouping rule-id-type {
+        leaf rule-id {
+            type uint32;
+            description "rule ID value, this value must be unique combined with the length";
+        }
+        leaf rule-length {
+            type uint8 {
+                range 0..32;
+            }
+            description "rule ID length in bits, value 0 is for implicit rules";
+        }
+    }
+
+// SCHC table for a specific device.
+
+    container schc {
+        leaf version{
+            type uint64;
+            mandatory false;
+            description "used as an indication for versioning";
+        }
+        list rule {
+            key "rule-id rule-length";
+            uses rule-id-type;
+            choice nature {
+                case fragmentation {
+                    uses fragmentation-content;
+                }
+                case compression {
+                    uses compression-content;
+                }
+            }
+        }
+    }
+  
+  
+}
+
