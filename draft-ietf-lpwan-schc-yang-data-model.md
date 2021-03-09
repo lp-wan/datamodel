@@ -1,7 +1,7 @@
 ---
 stand_alone: true
 ipr: trust200902
-docname: draft-ietf-lpwan-schc-yang-data-model-03
+docname: draft-ietf-lpwan-schc-yang-data-model-04
 cat: std
 pi:
   symrefs: 'yes'
@@ -49,26 +49,25 @@ compression and fragmentation rules.
 
 SCHC is a compression and fragmentation mechanism for constrained networks defined in {{RFC8724}}.
 It is based on a static context shared by two entities at the boundary this constrained network.
-Draft {{RFC8724}} provides an abstract representation of the rules used either for compression/decompression (or C/D)
+Draft {{RFC8724}} provides an non formal representation of the rules used either for compression/decompression (or C/D)
 or fragmentation/reassembly (or F/R). The goal of this document is to formalize the description of the rules to offer:
 
 * the same definition on both ends, even if the internal representation is different. 
 * an update the other end to set up some specific values (e.g. IPv6 prefix, Destination address,...)
 * ...
 
-This document defines a YANG module to represent both compression and fragmentation rules, which leads to common 
-representation for values for all the rules elements. 
+This document defines a YANG module to represent both compression and fragmentation rules, which leads to common representation for values for all the rules elements. 
 
 SCHC compression is generic, the main mechanism do no refers
-to a specific fields. A field is abstracted through an ID, a position, a direction and a value that can be a numerical
-value or a string. {{RFC8724}} and {{I-D.ietf-lpwan-coap-static-context-hc}} specifies fields for IPv6, UDP, CoAP and OSCORE. 
+to a specific protocol. Any header field is abstracted through an ID, a position, a direction and a value that can be a numerical
+value or a string. {{RFC8724}} and {{I-D.ietf-lpwan-coap-static-context-hc}} specifies fields for IPv6, UDP, CoAP and OSCORE. {{I-D.barthel-lpwan-oam-schc}} decribes ICMPv6 header compression.
 
 SCHC fragmentation requires a set of common parameters that are included in a rule. These parameters are defined in {{RFC8724}}.
 
 
 ## Compression Rules
 
-{{RFC8724}} proposes an abstract representation of the compression rule.
+{{RFC8724}} proposes an non formal representation of the compression rule.
 A compression context for a device is composed of a set of rules. Each rule contains information to
 describe a specific field in the header to be compressed. 
 
@@ -100,7 +99,7 @@ describe a specific field in the header to be compressed.
 In the process of compression, the headers of the original packet are first parsed to create a list of fields. This list of fields
 is matched against the rules to find the appropriate one and apply compression. The link between the list given by the parsed fields and the
 rules is done through a field ID.  {{RFC8724}}  do not state how the field ID value can be constructed. 
-In the examples, it was given through a string indexed by the protocol name (e.g. IPv6.version, CoAP.version,...).
+In examples, identification is done through a string indexed by the protocol name (e.g. IPv6.version, CoAP.version,...).
 
 Using the YANG model, each field MUST be identified through a global YANG identityref. A YANG field ID  derives from the field-id-base-type. {{Fig-ex-field-id}} gives some field ID definitions. Note that some field IDs can be splitted is smaller pieces. This is the case for "fid-ipv6-trafficclass-ds" and "fid-ipv6-trafficclass-ecn" which are a subset of "fid-ipv6-trafficclass-ds".
 
@@ -138,7 +137,8 @@ Using the YANG model, each field MUST be identified through a global YANG identi
 ~~~~~
 {: #Fig-ex-field-id title='Definition of identityref for field IDs'}
 
-{{Fig-ex-field-id}} gives an example of field ID identityref definitions. The base identity is field-id-base-type, and field id are derived for it.
+{{Fig-ex-field-id}} gives some examples of field ID identityref definitions. The base identity is field-id-base-type, and field id are derived for it. 
+
 The naming convention is "fid" followed by the protocol name and the field name.  
 The yang model in annex (see {{annexA}}) gives the full definition of the field ID for {{RFC8724}}, {{I-D.ietf-lpwan-coap-static-context-hc}}, and {{I-D.barthel-lpwan-oam-schc}}.
 
@@ -454,7 +454,7 @@ A rule is either a C/D or an F/R rule. A rule is identified by the rule ID value
 To access to a specific rule, rule-id and its specific length is used as a key. The rule is either
 a compression or a fragmentation rule.  
 
-Each context can be identify though a version id. 
+Each context can be identified though a version id. 
 
 ## Compression rule
 
@@ -563,7 +563,7 @@ Parameters for fragmentation are defined in Annex D of {{RFC8724}}.
 
 
 {{Fig-frag-header}} gives the first elements found in this structure. It starts with 
-a direction. Since fragmentation rules are unidirectional, they contain a mandatory direction.
+a direction. Since fragmentation rules work for a specific direction, they contain a mandatory direction.
 The type is the same as the one used in compression entries, but the use of bidirectionnal is 
 forbidden. 
 
@@ -683,7 +683,7 @@ The algorithms are identified through an identityref specified in the SCHC Data 
 For Ack on Error some specific information may be provided:
 
 * tile-size gives in bits the size of the tile; If set to 0 a single tile is inserted inside a fragment.
-* tile-in All1 indicates if All1 contains only the RCS (all1-data-no) or may contain a single tile (all1-data-yes). Since the reassembly process may detect this behavior, the choice can be left to the fragmentation process. In that case identityref all1-data-sender-choice as to be specified. All possible values are given {{Fig-frag-AoE-val}}.  
+* tile-in-All1 indicates if All1 contains only the RCS (all1-data-no) or may contain a single tile (all1-data-yes). Since the reassembly process may detect this behavior, the choice can be left to the fragmentation process. In that case identityref all1-data-sender-choice as to be specified. All possible values are given {{Fig-frag-AoE-val}}.  
 * ack-behavior tells when the fragmentation process may send acknowledgments. When ack-behavior-after-All0 is specified, the ack may be sent after the reception of All-0 fragment. When ack-behavior-after-All1 is specified, the ack may be sent after the reception of All-1 fragment at the end of the fragmentation process.  ack-behavior-always do not impose a limitation at the SCHC level. The constraint may come from the LPWAN technology.  All possible values are given {{Fig-frag-AoE-val}}.  
 
 ~~~~~
@@ -870,7 +870,7 @@ The authors would like to thank Dominique Barthel, Carsten Bormann, Alexander Pe
 
 
 ~~~~
-<code begins> file schc@2020-02-28.yang
+<code begins> file schc@2020-06-15.yang
 {::include schc@2020-06-15.yang}
 <code ends>
 ~~~~

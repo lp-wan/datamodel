@@ -1,7 +1,7 @@
 module schc{
     yang-version "1";
     namespace "urn:ietf:lpwan:schc:rules-description";
-    prefix "schc";
+    prefix "ietf-schc";
         
     description 
     "Generic Data model for Static Context Header Compression Rule for SCHC,
