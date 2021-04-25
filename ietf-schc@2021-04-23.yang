@@ -201,12 +201,12 @@ module ietf-schc{
     }
 
     identity fid-coap-code-class {
-        base field-id-coap-base-type;
+        base fid-coap-code;
         description "CoAP code class from RFC 7252";
     }
 
     identity fid-coap-code-detail {
-        base field-id-coap-base-type;
+        base fid-coap-code;
         description "CoAP code detail from RFC 7252";
     }
 
