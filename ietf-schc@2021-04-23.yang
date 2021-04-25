@@ -91,13 +91,13 @@ module ietf-schc{
     }
 
     identity fid-ipv6-trafficclass-ds {
-        base field-id-ipv6-base-type;
+        base fid-ipv6-trafficclass;
         description "IPv6 Traffic Class field from RFC8200, 
         DiffServ field from RFC3168";
     }
 
     identity fid-ipv6-trafficclass-ecn {
-        base field-id-ipv6-base-type;
+        base fid-ipv6-trafficclass;
         description "IPv6 Traffic Class field from RFC8200, 
         ECN field from RFC3168";
     }
