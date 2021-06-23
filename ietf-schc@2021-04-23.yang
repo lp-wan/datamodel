@@ -63,7 +63,10 @@ module ietf-schc{
         description "Initial version from RFC XXXX ";
         reference "RFC XXX: Data Model for Static Context Header Compression (SCHC)";
     }
-    
+
+feature fragmentation {
+    description "Fragmentation is usually required only at the lowest level.";
+}
 
 // -------------------------
 //  Field ID type definition
@@ -865,6 +868,7 @@ module ietf-schc{
             uses rule-id-type;
             choice nature {
                 case fragmentation {
+                    if-feature "fragmentation";
                     uses fragmentation-content;
                 }
                 case compression {
