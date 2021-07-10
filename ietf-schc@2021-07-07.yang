@@ -863,7 +863,7 @@ feature fragmentation {
                     LPWAN allows it (Always)";
                 }
                 leaf bitmap-format {
-                    type schc:bitmap-format-type,
+                    type schc:bitmap-format-type;
                     default schc:RFC8724-bitmap;
                     description "how the bitmaps are included in the Ack message.";
                 }
@@ -902,7 +902,7 @@ feature fragmentation {
             uses rule-id-type;
             choice nature {
                 case fragmentation {
-                    //if-feature "fragmentation";
+                    if-feature "fragmentation";
                     uses fragmentation-content;
                 }
                 case compression {
