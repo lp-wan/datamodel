@@ -765,7 +765,7 @@ feature fragmentation {
             description "size in bit of the DTag field";
 
         }
-        leaf wsize {
+        leaf wsize { 
             when "not(derived-from(../fragmentation-mode, 'fragmentation-mode-no-ack'))";
             type uint8;
             description "size in bit of the window field";
