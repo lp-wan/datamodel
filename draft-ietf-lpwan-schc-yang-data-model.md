@@ -1,7 +1,7 @@
 ---
 stand_alone: true
 ipr: trust200902
-docname: draft-ietf-lpwan-schc-yang-data-model-04
+docname: draft-ietf-lpwan-schc-yang-data-model-05
 cat: std
 pi:
   symrefs: 'yes'
@@ -32,9 +32,11 @@ author:
   email: Laurent.Toutain@imt-atlantique.fr
 normative:
     RFC8724:
-    I-D.ietf-lpwan-coap-static-context-hc:
+    RFC8824:
     I-D.barthel-lpwan-oam-schc:
     RFC7252:
+    I-D.ietf-lpwan-schc-compound-ack:
+
     
 --- abstract
 
@@ -49,7 +51,7 @@ compression and fragmentation rules.
 
 SCHC is a compression and fragmentation mechanism for constrained networks defined in {{RFC8724}}.
 It is based on a static context shared by two entities at the boundary this constrained network.
-Draft {{RFC8724}} provides an non formal representation of the rules used either for compression/decompression (or C/D)
+Draft {{RFC8724}} provides a non formal representation of the rules used either for compression/decompression (or C/D)
 or fragmentation/reassembly (or F/R). The goal of this document is to formalize the description of the rules to offer:
 
 * the same definition on both ends, even if the internal representation is different. 
@@ -58,16 +60,17 @@ or fragmentation/reassembly (or F/R). The goal of this document is to formalize 
 
 This document defines a YANG module to represent both compression and fragmentation rules, which leads to common representation for values for all the rules elements. 
 
-SCHC compression is generic, the main mechanism do no refers
-to a specific protocol. Any header field is abstracted through an ID, a position, a direction and a value that can be a numerical
-value or a string. {{RFC8724}} and {{I-D.ietf-lpwan-coap-static-context-hc}} specifies fields for IPv6, UDP, CoAP and OSCORE. {{I-D.barthel-lpwan-oam-schc}} decribes ICMPv6 header compression.
+SCHC compression is generic, the main mechanism does not refer
+to a specific protocol. Any header field is abstracted through an ID, a position, a direction, and a value that can be a numerical
+value or a string. {{RFC8724}} and {{RFC8824}} specifies fields for IPv6, UDP, CoAP and OSCORE. {{I-D.barthel-lpwan-oam-schc}} describes 
+ICMPv6 header compression and {{I-D.ietf-lpwan-schc-compound-ack}} includes a new fragmentation behavior.
 
 SCHC fragmentation requires a set of common parameters that are included in a rule. These parameters are defined in {{RFC8724}}.
 
 
-## Compression Rules
+## Compression Rules {#comp_types}
 
-{{RFC8724}} proposes an non formal representation of the compression rule.
+{{RFC8724}} proposes a non formal representation of the compression rule.
 A compression context for a device is composed of a set of rules. Each rule contains information to
 describe a specific field in the header to be compressed. 
 
@@ -94,42 +97,95 @@ describe a specific field in the header to be compressed.
 ~~~~~~
 {: #Fig-ctxt title='Compression Decompression Context'}
 
-##Field Identifier
+##Identifier generation
 
-In the process of compression, the headers of the original packet are first parsed to create a list of fields. This list of fields
-is matched against the rules to find the appropriate one and apply compression. The link between the list given by the parsed fields and the
-rules is done through a field ID.  {{RFC8724}}  do not state how the field ID value can be constructed. 
-In examples, identification is done through a string indexed by the protocol name (e.g. IPv6.version, CoAP.version,...).
+Identifier used un the SCHC YANG Data Model are from the identityref statement to ensure to be globally unique and be easily augmented if needed.  The principle to define a new type based on a group of identityref is the following:
 
-Using the YANG model, each field MUST be identified through a global YANG identityref. A YANG field ID  derives from the field-id-base-type. {{Fig-ex-field-id}} gives some field ID definitions. Note that some field IDs can be splitted is smaller pieces. This is the case for "fid-ipv6-trafficclass-ds" and "fid-ipv6-trafficclass-ecn" which are a subset of "fid-ipv6-trafficclass-ds".
+* define a main identity ending with the keyword base-type.
+
+* derive all the identity used in the Data Model from this base type.
+
+* create a typedef from this base type.
+
+The example ({{Fig-identityref}}) shows how an identityref is created for RCS algorithms used during SCHC fragmentation. 
 
 
 ~~~~~
 
-   identity field-id-base-type  {
-  	   description "Field ID with SID";
-    }
+  // -- RCS algorithm types
 
-    identity fid-ipv6-version {
-  	   base field-id-base-type;
-	   description "IPv6 version field from RFC8200";
+  identity rcs-algorithm-base-type {
+    description
+      "identify which algorithm is used to compute RSC.
+       The algorithm also defines the size if the RSC field.";
+  }
+
+  identity rcs-RFC8724 {
+    base rcs-algorithm-base-type;
+    description
+      "CRC 32 defined as default RCS in RFC8724.";
+  }
+
+  typedef rcs-algorithm-type {
+    type identityref {
+      base rcs-algorithm-base-type;
     }
+    description
+      "type used in rules";
+  }
+~~~~~
+{: #Fig-identityref title='Principle to define a type based on identityref.'}
+
+
+##Field Identifier
+
+In the process of compression, the headers of the original packet are first parsed to create a list of fields. This list of fields is matched against the rules to find the appropriate one and apply compression. The link between the list given by the parsed fields and the
+rules is done through a field ID.  {{RFC8724}}  do not state how the field ID value can be constructed. 
+In examples, identification is done through a string indexed by the protocol name (e.g. IPv6.version, CoAP.version,...).
+
+The current YANG Data Model includes fields definitions found in {{RFC8724}}, {{RFC8824}}, and {{I-D.barthel-lpwan-oam-schc}}.
+
+Using the YANG model, each field MUST be identified through a global YANG identityref.  
+A YANG field ID for the protocol always derives from the fid-base-type. Then an identity 
+for each protocol is specified using the naming convention fid-<<protocol name>>-base-type. 
+All possible fields for this protocol MUST derive from the protocol identity. The naming 
+convention is "fid" followed by the protocol name and the field name. If a field has 
+to be divided into sub-fields, the field identity serves as a base. 
+
+The full field-id definition is found in {{annexA}}. The example {{Fig-ex-field-id}} 
+gives the first field ID definitions. A type is defined for IPv6 protocol, and each 
+field is based on it. Note that the DiffServ bits derives from the Traffic Class identity.
+
+~~~~~
+
+  identity fid-base-type {
+    description
+      "Field ID base type for all fields";
+  }
+
+  identity fid-ipv6-base-type {
+    base fid-base-type;
+    description
+      "Field IP base type for IPv6 headers described in RFC 8200";
+  }
+
+  identity fid-ipv6-version {
+    base fid-ipv6-base-type;
+    description
+      "IPv6 version field from RFC8200";
+  }
 
   identity fid-ipv6-trafficclass {
-  	   base field-id-base-type;
-	   description "IPv6 Traffic Class field from RFC8200";
+    base fid-ipv6-base-type;
+    description
+      "IPv6 Traffic Class field from RFC8200";
   }
 
   identity fid-ipv6-trafficclass-ds {
-  	   base field-id-base-type;
-	   description "IPv6 Traffic Class field from RFC8200, 
+    base fid-ipv6-trafficclass;
+    description
+      "IPv6 Traffic Class field from RFC8200,
        DiffServ field from RFC3168";
-  }
-
-  identity fid-ipv6-trafficclass-ecn {
-  	   base field-id-base-type;
-	   description "IPv6 Traffic Class field from RFC8200, 
-       ECN field from RFC3168";
   }
   
   ...
@@ -137,198 +193,208 @@ Using the YANG model, each field MUST be identified through a global YANG identi
 ~~~~~
 {: #Fig-ex-field-id title='Definition of identityref for field IDs'}
 
-{{Fig-ex-field-id}} gives some examples of field ID identityref definitions. The base identity is field-id-base-type, and field id are derived for it. 
 
-The naming convention is "fid" followed by the protocol name and the field name.  
-The yang model in annex (see {{annexA}}) gives the full definition of the field ID for {{RFC8724}}, {{I-D.ietf-lpwan-coap-static-context-hc}}, and {{I-D.barthel-lpwan-oam-schc}}.
-
-The type associated to this identity is field-id-type (cf. {{Fig-field-id-type}})
+The type associated to this identity is fid-type (cf. {{Fig-field-id-type}})
 
 ~~~~~
-    typedef field-id-type {
-        description "Field ID generic type.";
-        type identityref {
-            base field-id-base-type;
-        }
+  typedef fid-type {
+    type identityref {
+      base fid-base-type;
     }
+    description
+      "Field ID generic type.";
+  }
 ~~~~~
 {: #Fig-field-id-type title='Type definition for field IDs'}
 
-<!--
-### CoAP options
-
-Option in COAP are specified by several documents. To avoid to add a yang specification each time a new option is defined, this document preallocated a block 
-of 255 identityref corresponding to the two first blocks described in Table 8 of {{RFC7252}}. 
--->
 
 ## Field length 
 
 Field length is either an integer giving the size of a field in bits or a specific function. {{RFC8724}} defines the
-"var" function which allows variable length fields in byte and {{I-D.ietf-lpwan-coap-static-context-hc}} defines the "tkl" function for managing the CoAP
+"var" function which allows variable length fields in byte and {{RFC8824}} defines the "tkl" function for managing the CoAP
 Token length field.
 
-~~~~~
+The naming convention is "fl" followed by the function name.
 
-  identity field-length-base-type {
-        description "used to extend field length functions";
+~~~~~
+  identity fl-base-type {
+    description
+      "Used to extend field length functions";
   }
 
   identity fl-variable {
-  	   base field-length-base-type;
-	   description "residue length in Byte is sent";
+    base fl-base-type;
+    description
+      "Residue length in Byte is sent defined in 
+      for CoAP in RFC 8824 (cf. 5.3)";
   }
 
   identity fl-token-length {
-  	   base field-length-base-type;
-	   description "residue length in Byte is sent";
+    base fl-base-type;
+    description
+      "Residue length in Byte is sent defined in 
+      for CoAP in RFC 8824 (cf. 4.5)";
   }
+~~~~~
+{: #Fig-ex-field-length title='Definition of identityref for Field Length'}
+
+As for field ID, field length function can be defined as an identityref as shown in {{Fig-ex-field-length}}.
+
+Therefore, the type for field length is a union between an integer giving in bits the size of the length and the identityref (cf. {{Fig-ex-field-length-union}}).
 
 ~~~~~
-{: #Fig-ex-field-length title='Definition of identityref for field ILength'}
-
-As for field ID, field length function can be defined as a identityref as shown in {{Fig-ex-field-length}}.
-
-Therefore the type for field length is a union between an integer giving in bits the size of the length and the identityref (cf. {{Fig-ex-field-length-union}}).
-
-~~~~~
-    typedef field-length-type {
-        description "Field length either a positive integer giving the size in bits 
-        or a function defined through an identityref.";
-        type union {
-            type int64; /* positive length in bits */
-            type identityref { /* function */
-                base field-length-base-type;
-            }
-        }
+  typedef fl-type {
+    type union {
+      type int64; /* positive length in bits */
+      type identityref { /* function */
+        base fl-base-type;
+      }
     }
+    description
+      "Field length either a positive integer giving the size in bits
+       or a function defined through an identityref.";
+  }
 ~~~~~
 {: #Fig-ex-field-length-union title='Type definition for field Length'}
 
-The naming convention is fl followed by the function name as defined in SCHC specifications. 
 
 ## Field position
 
 Field position is a positive integer which gives the position of a field, the default value is 1, but if the field is repeated several times, the value is higher. 
-value 0 indicates that the position is not important and is not taken into account during the rule selection process. 
+value 0 indicates that the position is not important and is not considered during the rule selection process. 
 
 Field position is a positive integer. The type is an uint8.
 
 ## Direction Indicator
 
-The Direction Indicator (DI) is used to tell if a field appears in both direction (Bi) or only uplink (Up) or Downlink (Dw). 
+The Direction Indicator (di) is used to tell if a field appears in both direction (Bi) or only uplink (Up) or Downlink (Dw). 
 
 ~~~~~
-
-  identity direction-indicator-base-type {
-        description "used to extend field length functions";
+ 
+  identity di-base-type {
+    description
+      "Used to extend field length functions";
   }
 
   identity di-bidirectional {
-  	   base direction-indicator-base-type;
-	   description "Direction Indication of bi directionality";
+    base di-base-type;
+    description
+      "Direction Indication of bi directionality in 
+      RFC 8724 (cf. 7.1)";
   }
 
   identity di-up {
-  	   base direction-indicator-base-type;
-	   description "Direction Indication of upstream";
+    base di-base-type;
+    description
+      "Direction Indication of upstream defined in 
+      RFC 8724 (cf. 7.1)";
   }
 
   identity di-down {
-  	   base direction-indicator-base-type;
-	   description "Direction Indication of downstream";
+    base di-base-type;
+    description
+      "Direction Indication of downstream defined in 
+      RFC 8724 (cf. 7.1)";
   }
 
 ~~~~~
 {: #Fig-ex-field-DI title='Definition of identityref for direction indicators'}
 
-{{Fig-ex-field-DI}} gives the identityref for Direction Indicators.
+{{Fig-ex-field-DI}} gives the identityref for Direction Indicators. The naming convention is "di" followed by the Direction Indicator name.
 
 The type is "direction-indicator-type" (cf. {{Fig-field-DI-type}}).
 
 ~~~~~
-    typedef direction-indicator-type {
-        description "direction in LPWAN network, up when emitted by the device,
-        down when received by the device, bi when emitted or received by the device.";
-        type identityref {
-            base direction-indicator-base-type;
-        }
+  typedef di-type {
+    type identityref {
+      base di-base-type;
     }
+    description
+      "Direction in LPWAN network, up when emitted by the device,
+       down when received by the device, bi when emitted or received by the device.";
+  }
+
 ~~~~~
 {: #Fig-field-DI-type title='Type definition for direction indicators'}
 
 ## Target Value
 
-Target Value may be either a string or binary sequence. For match-mapping, several of these values can 
-be contained in a Target Value field. In the data model, this is generalized by adding a position, which
-orders the list of values. By default the position is set to 0.
+The Target Value is a list of binary sequences of any length, aligned on the left. {{Fig-ex-TV}} gives the definition of a single element of a Target Value. In the rule, this will be used as a list, with position as a key. The highest position value is used to compute the size of the index sent in residue for LSB CDA. The position allows to specify several values:
 
-The leaf "value" is not mandatory to represent a non existing value in a TV.
+* For Equal and LSB, a single value is used, such as for the equal or LSB CDA, the position is set to 0.
+
+* For match-mapping, several of these values can be contained in a Target Value field. In the data model, this is generalized by adding a position, which orders the list of values. Position values must start from 0 and be contiguous. 
+
 
 ~~~~~
-    grouping target-values-struct {
-        description "defines the target value element. Can be either an arbitrary
-        binary or ascii element. All target values are considered as a matching lists.
-        Position is used to order values, by default position 0 is used when containing
-        a single element.";
-
-        leaf value {
-            type union {
-                type binary;
-                type string;
-            }
-        }
-        leaf position {
-            description "If only one element position is 0, otherwise position is the
-            matching list.";
-            type uint16;
-        }
+  grouping tv-struct {
+    description
+      "Define the target value element. Always a binary type, strings
+       must be converted to binary. field-id allows the conversion to the appropriate
+       type.";
+    leaf value {
+      type binary;
     }
+    leaf position {
+      type uint16;
+      description
+        "If only one element position is 0, otherwise position is the
+         matching list.";
+    }
+  }
 ~~~~~
 {: #Fig-ex-TV title='Definition of target value'}
-
-{{Fig-ex-TV}} gives the definition of a single element of a Target Value. In the rule, this will be used as a list, with position as a key. The highest position value is used to compute the size of the index sent in residue.
 
 
 ## Matching Operator
 
-Matching Operator (MO) is a function applied between a field value provided by the parsed header and the target value. {{RFC8724}} defines 4 MO.
+Matching Operator (MO) is a function applied between a field value provided by the parsed header and the target value. {{RFC8724}} defines 4 MO as listed in {{Fig-ex-MO}}.
 
 ~~~~~
-   identity matching-operator-base-type {
-      description "used to extend Matching Operators with SID values";
-   }
+  identity mo-base-type {
+    description
+      "Used to extend Matching Operators with SID values";
+  }
 
-   identity mo-equal {
-      base matching-operator-base-type;
-      description "RFC 8724";
-   }
-   
-   identity mo-ignore {
-      base matching-operator-base-type;
-      description "RFC 8724";
-   }
-   
-   identity mo-msb {
-      base matching-operator-base-type;
-      description "RFC 8724";
-   }
-   
-   identity mo-matching {
-      base matching-operator-base-type;
-      description "RFC 8724";
-   }
+  identity mo-equal {
+    base mo-base-type;
+    description
+      "Equal MO as defined RFC 8724 (cf. 7.3)";
+  }
+
+  identity mo-ignore {
+    base mo-base-type;
+    description
+      "Ignore MO as defined RFC 8724 (cf. 7.3)";
+  }
+
+  identity mo-msb {
+    base mo-base-type;
+    description
+      "MSB MO as defined RFC 8724 (cf. 7.3)";
+  }
+
+  identity mo-matching {
+    base mo-base-type;
+    description
+      "match-mapping MO as defined RFC 8724 (cf. 7.3)";
+  }
+
 ~~~~~
 {: #Fig-ex-MO title='Definition of identityref for Matching Operator '}
 
-the type is "matching-operator-type" (cf. {{Fig-MO-type}})
+The naming convention is "mo" followed by the MO name.
+
+The type is "matching-operator-type" (cf. {{Fig-MO-type}})
 
 ~~~~~
-    typedef matching-operator-type {
-        description "Matching Operator (MO) to compare fields values with target values";
-        type identityref {
-            base matching-operator-base-type;
-        }
+  typedef mo-type {
+    type identityref {
+      base mo-base-type;
     }
+    description
+      "Matching Operator (MO) to compare fields values with target values";
+  }
 ~~~~~
 {: #Fig-MO-type title='Type definition for Matching Operator'}
 
@@ -342,60 +408,53 @@ They are viewed as a list of target-values-type.
 Compression Decompression Action (CDA) identified the function to use either for compression or decompression. 
 {{RFC8724}} defines 6 CDA. 
 
+{{Fig-CDA-type}} gives some CDA definition, the full definition is in {{annexA}}.
+
 ~~~~~
-     identity compression-decompression-action-base-type;
+  identity cda-base-type {
+    description
+      "Compression Decompression Actions";
+  }
 
-    identity cda-not-sent {
-    	base compression-decompression-action-base-type;
-	    description "RFC 8724";
-    }   
+  identity cda-not-sent {
+    base cda-base-type;
+    description
+      "not-sent CDA as defines in RFC 8724 (cf. 7.4)";
+  }
 
-    identity cda-value-sent {
-    	base compression-decompression-action-base-type;
-	    description "RFC 8724";
-    }   
+  identity cda-value-sent {
+    base cda-base-type;
+    description
+      "value-sent CDA as defines in RFC 8724 (cf. 7.4)";
+  }
 
-    identity cda-lsb {
-    	base compression-decompression-action-base-type;
-	    description "RFC 8724";
-    }   
+  identity cda-lsb {
+    base cda-base-type;
+    description
+      "LSB CDA as defines in RFC 8724 (cf. 7.4)";
+  }
 
-    identity cda-mapping-sent {
-    	base compression-decompression-action-base-type;
-	    description "RFC 8724";
-    }   
+  identity cda-mapping-sent {
+    base cda-base-type;
+    description
+      "mapping-sent CDA as defines in RFC 8724 (cf. 7.4)";
+  }
 
-    identity cda-compute-length {
-    	base compression-decompression-action-base-type;
-	    description "RFC 8724";
-    }   
-
-    identity cda-compute-checksum {
-    	base compression-decompression-action-base-type;
-	    description "RFC 8724";
-    }   
-
-    identity cda-deviid {
-    	base compression-decompression-action-base-type;
-	    description "RFC 8724";
-    }   
-
-   identity cda-appiid {
-    	base compression-decompression-action-base-type;
-	    description "RFC 8724";
-    }   
+    ....
 ~~~~~
 {: #Fig-ex-CDA title='Definition of identityref for  Compresion Decompression Action'}
 
-The type is "comp-decomp-action-type" (cf. {{Fig-CDA-type}})
+The naming convention is "cda" followed by the CDA name.
+
 
 ~~~~~
-   typedef comp-decomp-action-type {
-        description "Compression Decompression Action to compression or decompress a field.";
-        type identityref {
-            base compression-decompression-action-base-type;
-        }
+  typedef cda-type {
+    type identityref {
+      base cda-base-type;
     }
+    description
+      "Compression Decompression Action to compression or decompress a field.";
+  }
 
 ~~~~~
 {: #Fig-CDA-type title='Type definition for Compresion Decompression Action'}
@@ -405,48 +464,360 @@ The type is "comp-decomp-action-type" (cf. {{Fig-CDA-type}})
 Currently no CDA requires arguments, but the future some CDA may require several arguments.
 They are viewed as a list of target-values-type.
 
-# Rule definition
+## Fragmentation rule {#frag_types}
 
-A rule is either a C/D or an F/R rule. A rule is identified by the rule ID value and its associated length. The YANG grouping rule-id-type defines the structure used to represent a rule ID. Length of 0 is allowed to represent an implicit rule. 
+Fragmentation is optional in the data model and depends on the presence of the "fragmentation" feature.  
+
+Most of parameters for fragmentation are defined in Annex D of {{RFC8724}}. 
+
+Since fragmentation rules work for a specific direction, they contain a mandatory direction.
+The type is the same as the one used in compression entries, but the use of bidirectional is 
+forbidden. 
+
+### Fragmentation mode
+
+{{RFC8724}} defines 3 fragmentation modes:
+
+* No Ack: this mode is unidirectionnal, no acknowledgment is sent back. 
+
+* Ack Always: each fragmentation window must be explicitly acknowledged before going to the next.
+
+* Ack on Error:  A window is acknowledged only when the receiver detects some missing fragments.
+
+{{Fig-frag-mode}} give the definition for identifiers from these three modes.
+
+~~~~
+identity fragmentation-mode-base-type {
+    description
+      "Fragmentation mode";
+  }
+
+  identity fragmentation-mode-no-ack {
+    base fragmentation-mode-base-type;
+    description
+      "No Ack of RFC 8724.";
+  }
+
+  identity fragmentation-mode-ack-always {
+    base fragmentation-mode-base-type;
+    description
+      "Ack Always of RFC8724.";
+  }
+
+  identity fragmentation-mode-ack-on-error {
+    base fragmentation-mode-base-type;
+    description
+      "Ack on Error of RFC8724.";
+  }
+
+  typedef fragmentation-mode-type {
+    type identityref {
+      base fragmentation-mode-base-type;
+    }
+    description
+      "type used in rules";
+  }
+~~~~
+{: #Fig-frag-mode title='Definition of fragmentation mode identifer'}
+
+The naming convention is "fragmentation-mode" followed by the fragmentation mode name.
+
+
+### Fragmentation Header
+
+
+A data fragment header, directly following the rule ID can be sent on the fragmentation direction. 
+The direction is mandatory and must be up or down. bidirectional is forbidden. The SCHC header may be composed of (cf. {{Fig-frag-header-8724}}):
+
+* a Datagram Tag (Dtag) identifying the datagram being fragmented if the fragmentation applies concurrently on several datagrams. This field in optional and its length is defined by the rule.
+
+* a Window (W) used in Ack-Always and Ack-on-Error modes. In Ack-Always, its size is 1 and depends on the rule in Ack-on-Error. This field is not need in No-Ack mode. 
+
+* a Fragment Compressed Number (FCN) indicating the fragment/tile position on the window. This field is mandatory on all modes defined in {{RFC8724}}, its size is defined by the rule.
 
 ~~~~~
-// Define rule ID. Rule ID is composed of a RuleID value and a Rule ID Length
 
-    grouping rule-id-type {
-        leaf rule-id {
-            type uint32;
-            description "rule ID value, this value must be unique combined with the length";
-        }
-        leaf rule-length {
-            type uint8 {
-                range 0..32;
-            }
-            description "rule ID length in bits, value 0 is for implicit rules";
-        }
+   |-- SCHC Fragment Header ----|
+            |-- T --|-M-|-- N --|
+   +-- ... -+- ... -+---+- ... -+--------...-------+~~~~~~~~~~~~~~~~~~~~
+   | RuleID | DTag  | W |  FCN  | Fragment Payload | padding (as needed)
+   +-- ... -+- ... -+---+- ... -+--------...-------+~~~~~~~~~~~~~~~~~~~~
+
+~~~~~
+{: #Fig-frag-header-8724 title='Data fragment header from RFC8724'}
+
+### Last fragment format
+
+The last fragment of a datagram is sent with an RCS (Reassembly Check Sequence) field to detect residual 
+transmission error and possible losses in the last window. {{RFC8724}} defines a single algorithm based on Ethernet 
+CRC computation. The identity of the RCS algorithm is shown in {{Fig-frag-RCS}}.
+
+~~~~~~
+  // -- RCS algorithm types
+
+  identity rcs-algorithm-base-type {
+    description
+      "Identify which algorithm is used to compute RSC.
+       The algorithm defines also the size if the RSC field.";
+  }
+
+  identity rcs-RFC8724 {
+    base rcs-algorithm-base-type;
+    description
+      "CRC 32 defined as default RCS in RFC8724.";
+  }
+
+  typedef rcs-algorithm-type {
+    type identityref {
+      base rcs-algorithm-base-type;
     }
+    description
+      "type used in rules";
+  }
+~~~~~~~
+{: #Fig-frag-RCS title='type definition for RCS'}
 
-// SCHC table for a specific device.
+The naming convention is "rcs" followed by the algorithm name.
 
-    container schc {
-        leaf version{
-            type uint64;
-            mandatory false;
-            description "used as an indication for versioning";
-        }
-        list rule {
-            key "rule-id rule-length";
-            uses rule-id-type;
-            choice nature {
-                case fragmentation {
-                    uses fragmentation-content;
-                }
-                case compression {
-                    uses compression-content;
-                }
-            }
-        }
+For Ack-on-Error mode, the All-1 fragment may just contain the RCS or can include a tile. The parameters defined in {{Fig-frag-all1-data}} allows to define the 
+behavior:
+
+* all1-data-no: the last fragment contains no data, just the RCS
+
+* all1-data-yes: the last fragment includes a single tile and the RCS
+
+* all1-data-sender-choice: the last fragment may or may not contain a single tile. The receiver can detect if a tile is present.
+
+~~~~
+ // -- All1 with data types
+
+  identity all1-data-base-type {
+    description
+      "Type to define when to send an Acknowledgment message";
+  }
+
+  identity all1-data-no {
+    base all1-data-base-type;
+    description
+      "All1 contains no tiles.";
+  }
+
+  identity all1-data-yes {
+    base all1-data-base-type;
+    description
+      "All1 MUST contain a tile";
+  }
+
+  identity all1-data-sender-choice {
+    base all1-data-base-type;
+    description
+      "Fragmentation process choose to send tiles or not in all1.";
+  }
+
+  typedef all1-data-type {
+    type identityref {
+      base all1-data-base-type;
     }
-  
+    description
+      "Type used in rules";
+  }
+
+~~~~
+{: #Fig-frag-all1-data title='type definition for RCS'}
+
+The naming convention is "all1-data" followed by the behavior identifier.
+
+
+### Acknowledgment behavior
+
+A cknowledgment fragment header goes in the opposite direction of data. The header is composed of (see {{Fig-frag-ack}}):
+
+* a Dtag (if present).
+* a mandatory window as in the data fragment. 
+* a C bit giving the status of RCS validation.  In case of failure, a bitmap follows, indicating received fragment/tile. The size of the bitmap is given by the FCN value.
+
+NOTE: IN THE DATA MODEL THERE IS A max-window-size FIELD TO LIMIT THE BITMAP SIZE, BUT IS NO MORE IN RFC8724! DO WE KEEP IT?
+
+~~~~~~
+   |--- SCHC ACK Header ----|
+            |-- T --|-M-| 1 |
+   +-- ... -+- ... -+---+---+~~~~~~~~~~~~~~~~~~
+   | RuleID |  DTag | W |C=1| padding as needed                (success)
+   +-- ... -+- ... -+---+---+~~~~~~~~~~~~~~~~~~
+
+   +-- ... -+- ... -+---+---+------ ... ------+~~~~~~~~~~~~~~~
+   | RuleID |  DTag | W |C=0|Compressed Bitmap| pad. as needed (failure)
+   +-- ... -+- ... -+---+---+------ ... ------+~~~~~~~~~~~~~~~
+
+~~~~~~
+{: #Fig-frag-ack title='Acknowledgment fragment header for RFC8724'}
+
+For Ack-on-Error, SCHC defined  when acknowledgment can be sent. This can be at any time defined by the layer 2, at the end of a window (FCN All-0) 
+or at the end of the fragment (FCN All-1). The following identifiers (cf. {{Fig-frag-ack-behavior}}) define the acknowledgment behavior.
+
+~~~~~
+
+// -- Ack behavior 
+
+  identity ack-behavior-base-type {
+    description
+      "Define when to send an Acknowledgment message";
+  }
+
+  identity ack-behavior-after-All0 {
+    base ack-behavior-base-type;
+    description
+      "Fragmentation expects Ack after sending All0 fragment.";
+  }
+
+  identity ack-behavior-after-All1 {
+    base ack-behavior-base-type;
+    description
+      "Fragmentation expects Ack after sending All1 fragment.";
+  }
+
+  identity ack-behavior-always {
+    base ack-behavior-base-type;
+    description
+      "Fragmentation expects Ack after sending every fragment.";
+  }
+
+  typedef ack-behavior-type {
+    type identityref {
+      base ack-behavior-base-type;
+    }
+    description
+      "Type used in rules";
+  }
+
+~~~~~
+{: #Fig-frag-ack-behavior title='bitmap generation behavior'}
+
+The naming convention is "ack-behavior" followed by the algorithm name.
+
+
+For Ack-onError, {{RFC8724}} allows a single bitmap in an acknowledment fragment, and {{I-D.ietf-lpwan-schc-compound-ack}} proposes to acknowledge several windows on a single ack fragment.
+The following identifiers (cf. {{Fig-frag-bitmap}}) define the behavior.
+
+~~~~~~
+  identity bitmap-format-base-type {
+    description
+      "Define how the bitmap is defined in ACK messages.";
+  }
+
+  identity bitmap-RFC8724 {
+    base bitmap-format-base-type;
+    description
+      "Bitmap as defined in RFC8724.";
+  }
+
+  identity bitmap-compound-ack {
+    base bitmap-format-base-type;
+    description
+      "Compound Ack.";
+  }
+
+  typedef bitmap-format-type {
+    type identityref {
+      base bitmap-format-base-type;
+    }
+    description
+      "type used in rules";
+  }
+
+~~~~~~
+{: #Fig-frag-bitmap title='bitmap generation behavior'}
+
+The naming convention is "bitmap" followed by the algorithm name.
+
+
+### Fragmentation Parameters
+
+
+
+The state machine requires some common values to handle fragmentation:
+
+* retransmission-timer gives in seconds the duration before sending an ack request (cf. section 8.2.2.4. of {{RFC8724}}). If specified, value must be higher or equal to 1. 
+* inactivity-timer gives in seconds the duration before aborting (cf. section 8.2.2.4. of {{RFC8724}}), value of 0 explicitly indicates that this timer is disabled.
+* max-ack-requests gives the number of attempts before aborting (cf. section 8.2.2.4. of {{RFC8724}}).
+* maximum-packet-size gives in bytes the larger packet size that can be reassembled. 
+
+The are defined as unsigned integer, see {{annexA}}.
+
+### Layer 2 parameters
+
+The data model includes two parameters needed for fragmentation:
+
+* l2-word-size: {{RFC8724}} base fragmentation on a layer 2 word which can be of any length. The default value is 8 and correspond 
+to the default value for byte aligned layer 2. A value of 1 will indicate that there is no alignment and no need for padding. 
+* maximum-packet-size: defines the maximum size of a uncompressed datagram. By default, the value is set to 1280 bytes.
+
+They are defined as unsigned integer, see {{annexA}}.
+
+
+
+
+# Rule definition
+
+A rule is either a C/D or an F/R rule. A rule is identified by the rule ID value and its associated length. 
+The YANG grouping rule-id-type defines the structure used to represent a rule ID. Length of 0 is allowed to represent an implicit rule. 
+
+Three types of rules are defined in {{RFC8724}}:
+
+* Compression: a compression rule is associated to the rule ID.
+* No compression: nothing is associated to the rule ID.
+* Fragmentation: fragmentation parameters are associated to the rule ID. Fragmentation is optional and feature "fragmentation" should be set. 
+
+
+~~~~~
+  grouping rule-id-type {
+    leaf rule-id-value {
+      type uint32;
+      description
+        "Rule ID value, this value must be unique combined with the length";
+    }
+    leaf rule-id-length {
+      type uint8 {
+        range "0..32";
+      }
+      description
+        "Rule ID length in bits, value 0 is for implicit rules";
+    }
+    description
+      "A rule ID is composed of a value and a length in bit";
+  }
+
+  // SCHC table for a specific device.
+
+  container schc {
+    list rule {
+      key "rule-id-value rule-id-length";
+      uses rule-id-type;
+      choice nature {
+        case fragmentation {
+          if-feature "fragmentation";
+          uses fragmentation-content;
+        }
+        case compression {
+          uses compression-content;
+        }
+        case no-compression {
+          description
+            "RFC8724 allows a rule for uncompressed headers";
+        }
+        description
+          "A rule is either for compression, no compression or fragmentation";
+      }
+      description
+        "Set of rules compression, no compression or fragmentation rules 
+        identified by their rule-id ";
+    }
+    description
+      "a SCHC set of rules is composed of a list of rule which are either
+       compression or fragmentation";
+  }
+}
+
 
 ~~~~~ 
 {: #Fig-yang-schc title='Definition of a SCHC Context'}
@@ -460,366 +831,272 @@ Each context can be identified though a version id.
 
 A compression rule is composed of entries describing its processing (cf. {{Fig-comp-entry}}). An entry  contains all the information defined in {{Fig-ctxt}} with the types defined above. 
 
-### Compression context representation.
+The compression rule described {{Fig-ctxt}} is defined by compression-content. It defines a list of
+compression-rule-entry, indexed by their field id, position and direction. The compression-rule-entry 
+element represent a line of the table {{Fig-ctxt}}. Their type reflects the identifier types defined in
+{{comp_types}}
 
-The compression rule described {{Fig-ctxt}} is associated to a rule ID. The compression
-rule entry is defined in  {{Fig-comp-entry}}. Each column in the table
-is either represented by a leaf or a list. Note that Matching Operators and Compression 
-Decompression actions can have arguments. They are viewed a ordered list of strings and numbers
-as in target values.
+Some controls are made on the values:
+
+* target value must be present for MO different from ignore.
+* when MSB MO is specified, the matching-operator-value must be present
 
 ~~~~~ 
-    grouping compression-rule-entry {
-        description "These entries defines a compression entry (i.e. a line) 
-        as defined in RFC 8724 and fragmentation parameters.
-  
-        +-------+--+--+--+------------+-----------------+---------------+
-        |Field 1|FL|FP|DI|Target Value|Matching Operator|Comp/Decomp Act|
-        +-------+--+--+--+------------+-----------------+---------------+
+  grouping compression-rule-entry {
+    description
+      "These entries defines a compression entry (i.e. a line)
+       as defined in RFC 8724 and fragmentation parameters.
 
-        An entry in a compression rule is composed of 7 elements:
-        - Field ID: The header field to be compressed. The content is a YANG identifer.
-        - Field Length : either a positive integer of a function defined as a YANG id.
-        - Field Position: a positive (and possibly equal to 0) integer.
-        - Direction Indicator: a YANG identifier giving the direction.
-        - Target value: a value against which the header Field is compared.
-        - Matching Operator: a YANG id giving the operation, parameters may be 
-        associated to that operator.
-        - Comp./Decomp. Action: A YANG id giving the compression or decompression
-        action, parameters may be associated to that action.  
-        ";
+       +-------+--+--+--+------------+-----------------+---------------+
+       |Field 1|FL|FP|DI|Target Value|Matching Operator|Comp/Decomp Act|
+       +-------+--+--+--+------------+-----------------+---------------+
 
-        leaf field-id {
-            description "Field ID, identify a field in the header with a YANG identityref.";
-            mandatory true;
-            type schc:field-id-type;
-        }
-        leaf field-length {
-            description "Field Length in bit or through a function defined as a YANG identityref";
-            mandatory true;
-            type schc:field-length-type;
-        }
-        leaf field-position {
-            description "field position in the header is a integer. If the field is not repeated 
-            in the header the value is 1, and incremented for each repetition of the field. Position
-            0 means that the position is not important and order may change when decompressed"; 
-            mandatory true;
-            type uint8; 
-        }
-        leaf direction-indicator {
-            description "Direction Indicator, a YANG identityref to say if the packet is bidirectionnal,
-            up or down";
-            mandatory true;
-            type schc:direction-indicator-type;
-        }
-        list target-values {
-            description "a list of value to compare with the header field value. If target value
-            is a singleton, position must be 0. For matching-list, should be consecutive position
-            values starting from 1.";
-            key position;
-            uses target-values-struct;
-        }
-        leaf matching-operator {
-            mandatory true;
-            type schc:matching-operator-type;
-        }
-        list matching-operator-value {
-            key position;
-            uses target-values-struct;
-        }
-        leaf comp-decomp-action {
-            mandatory true;
-            type schc:comp-decomp-action-type;
-        }
-        list comp-decomp-action-value {
-            key position;
-            uses target-values-struct;
-        }
+       An entry in a compression rule is composed of 7 elements:
+       - Field ID: The header field to be compressed. The content is a YANG identifer.
+       - Field Length : either a positive integer of a function defined as a YANF id.
+       - Field Position: a positive (and possibly equal to 0) integer.
+       - Direction Indicator: a YANG identifier giving the direction.
+       - Target value: a value against which the header Field is compared.
+       - Matching Operator: a YANG id giving the operation, paramters may be
+       associated to that operator.
+       - Comp./Decomp. Action: A YANG id giving the compression or decompression
+       action, paramters may be associated to that action.
+      ";
+    leaf field-id {
+      type schc:fid-type;
+      mandatory true;
+      description
+        "Field ID, identify a field in the header with a YANG refenceid.";
     }
+    leaf field-length {
+      type schc:fl-type;
+      mandatory true;
+      description
+        "Field Length in bit or through a function defined as a YANG referenceid";
+    }
+    leaf field-position {
+      type uint8;
+      mandatory true;
+      description
+        "Field position in the header is a integer. If the field is not repeated
+         in the header the value is 1, and incremented for each repetition of the field. Position
+         0 means that the position is not important and order may change when decompressed";
+    }
+    leaf direction-indicator {
+      type schc:di-type;
+      mandatory true;
+      description
+        "Direction Indicator, a YANG referenceid to say if the packet is bidirectional,
+         up or down";
+    }
+    list target-value {
+      key "position";
+      uses tv-struct;
+      description
+        "A list of value to compare with the header field value. If target value
+         is a singleton, position must be 0. For matching-list, should be consecutive position
+         values starting from 1.";
+    }
+    leaf matching-operator {
+      type schc:mo-type;
+      must "../target-value or derived-from-or-self(., 'mo-ignore')" {
+        error-message "mo-equal, mo-msb and mo-match-mapping require target-value";
+        description
+          "target-value is not required for mo-ignore";
+      }
+      must "not (derived-from-or-self(., 'mo-msb')) or ../matching-operator-value" {
+        error-message "mo-msb requires length value";
+      }
+      mandatory true;
+      description
+        "MO: Matching Operator";
+    }
+    list matching-operator-value {
+      key "position";
+      uses tv-struct;
+      description
+        "Matching Operator Arguments, based on TV structure to allow several arguments.
+         In RFC 8724, only MSB define a single argument: length in bits  ";
+    }
+    leaf comp-decomp-action {
+      type schc:cda-type;
+      mandatory true;
+      description
+        "CDA: Compression Decompression Action";
+    }
+    list comp-decomp-action-value {
+      key "position";
+      uses tv-struct;
+      description
+        "CDA Arguments, based on TV structure to allow several arguments.
+         In RFC 8724, no argument is defined for CDA";
+    }
+  }
+
+  grouping compression-content {
+    list entry {
+      key "field-id field-position direction-indicator";
+      uses compression-rule-entry;
+      description
+        "A compression rule is a list of rule entry describing
+         each header field. An entry is identifed through a field-id, its position
+         in the packet and its direction";
+    }
+    description
+      "Define a compression rule composed of a list of entries.";
+  }
 ~~~~~ 
 {: #Fig-comp-entry title='Definition of a compression entry'}
-
-### Rule definition
-
-A compression rule is a list of entries. 
-
-~~~~~ 
-    grouping compression-content {
-        description "define a compression rule composed of a list of entries.";
-        list entry {
-            key "field-id field-position direction-indicator"; 
-            uses compression-rule-entry;
-        }
-    }
-~~~~~ 
-{: #Fig-comp-rule title='Definition of a compression rule'}
-
-To identify a specific entry Field ID, position and direction are needed.
 
 
 ## Fragmentation rule
 
-Parameters for fragmentation are defined in Annex D of {{RFC8724}}. 
+A Fragmentation rule is composed of entries describing the protocol behavior. Some on them are numerical entries,
+others are identifiers defined in {{frag_types}}.
+
+The data model defines some relations between the entries:
+
+* direction must be either up or down (not bidirectional).
+* W size is only needed for Ack Always and Ack on Error modes.
 
 
-{{Fig-frag-header}} gives the first elements found in this structure. It starts with 
-a direction. Since fragmentation rules work for a specific direction, they contain a mandatory direction.
-The type is the same as the one used in compression entries, but the use of bidirectionnal is 
-forbidden. 
-
-The next elements describe size of SCHC fragmentation header fields. Only the FCN size is mandatory
-and value must be higher or equal to 1. 
-
-~~~~~ 
-    grouping fragmentation-content {
-        description "This grouping defines the fragmentation parameters for
-        all the modes (No Ack, Ack Always and Ack on Error) specified in 
-        RFC 8724.";
-
-        leaf direction {
-            type schc:direction-indicator-type;
-            description "should be up or down, bi directionnal is forbidden.";
-            mandatory true;
+~~~~~~
+   grouping fragmentation-content {
+    description
+      "This grouping defines the fragmentation parameters for
+       all the modes (No Ack, Ack Always and Ack on Error) specified in
+       RFC 8724.";
+    leaf l2-word-size {
+      type uint8;
+      default "8";
+      description
+        "Size in bit of the layer 2 word";
+    }
+    leaf direction {
+      must "derived-from-or-self(., 'di-up') or derived-from-or-self(., 'di-down')" {
+        error-message "direction for fragmentation rules is up or down";
+      }
+      type schc:direction-indicator-type;
+      mandatory true;
+      description
+        "Should be up or down, bi directionnal is forbiden.";
+    }
+    leaf dtag-size {
+      type uint8;
+      default "0";
+      description
+        "Size in bit of the DTag field";
+    }
+    leaf w-size {
+      when "not(derived-from(../fragmentation-mode, 'fragmentation-mode-no-ack'))";
+      type uint8;
+      description
+        "Size in bit of the window field";
+    }
+    leaf fcn-size {
+      type uint8;
+      mandatory true;
+      description
+        "Size in bit of the FCN field";
+    }
+    leaf rcs-algorithm {
+      type rcs-algorithm-type;
+      default "schc:rcs-RFC8724";
+      description
+        "Algorithm used for RCS";
+    }
+    leaf maximum-window-size {
+      type uint16;
+      description
+        "By default 2^wsize - 1";
+    }
+    leaf retransmission-timer {
+      type uint64 {
+        range "1..max";
+      }
+      description
+        "Duration in seconds of the retransmission timer"; // Check the units
+    }
+    leaf inactivity-timer {
+      type uint64;
+      description
+        "Duration is seconds of the inactivity timer, 0 indicates the timer is disabled"; // check units
+    }
+    leaf max-ack-requests {
+      type uint8 {
+        range "1..max";
+      }
+      description
+        "The maximum number of retries for a specific SCHC ACK.";
+    }
+    leaf maximum-packet-size {
+      type uint16;
+      default "1280";
+      description
+        "When decompression is done, packet size must not strictly exceed this limit in Bytes";
+    }
+    leaf fragmentation-mode {
+      type schc:fragmentation-mode-type;
+      mandatory true;
+      description
+        "Which fragmentation mode is used (noAck, AckAlways, AckonError)";
+    }
+    choice mode {
+      case no-ack;
+      case ack-always;
+      case ack-on-error {
+        leaf tile-size {
+          type uint8;
+          when "derived-from(../fragmentation-mode, 'fragmentation-mode-ack-on-error')";
+          description
+            "Size in bit of tiles, if not specified or set to 0: tile fills the fragment.";
         }
-        leaf dtagsize {
-            type uint8;
-            description "size in bit of the DTag field";
-
+        leaf tile-in-All1 {
+          type schc:all1-data-type;
+          when "derived-from(../fragmentation-mode, 'fragmentation-mode-ack-on-error')";
+          description
+            "When true, sender and receiver except a tile in All-1 frag";
         }
-        leaf wsize {
-            type uint8;
-            description "size in bit of the window field";
+        leaf ack-behavior {
+          type schc:ack-behavior-type;
+          when "derived-from(../fragmentation-mode, 'fragmentation-mode-ack-on-error')";
+          description
+            "Sender behavior to acknowledge, after All-0, All-1 or when the
+             LPWAN allows it (Always)";
         }
-        leaf fcnsize {
-            type uint8 {
-                range 1..max;
-            }
-            description "size in bit of the FCN field";
-            mandatory true;
+        leaf bitmap-format {
+          type schc:bitmap-format-type;
+          when "derived-from(../fragmentation-mode, 'fragmentation-mode-ack-on-error')";
+          default "schc:bitmap-RFC8724";
+          description
+            "How the bitmaps are included in the Ack message.";
         }
-...
-~~~~~ 
-{: #Fig-frag-header title='Definition of a fragmentation parameters, SCHC header'}
-
-RCS algorithm is defined ({{Fig-frag-header2}}), by default with the CRC computation proposed in {{RFC8724}}.
-The algorithms are identified through an identityref specified in the SCHC Data Model and with the type RCS-algorithm-type ({{Fig-ex-RCS}}).
-
-
-~~~~~ 
-...
-        leaf RCS-algorithm {
-            type RCS-algorithm-type;
-            default schc:RFC8724-RCS;
-            description "Algoritm used for RCS";
-        }
-...
-~~~~~ 
-{: #Fig-frag-header2 title='Definition of a fragmentation parameters, RCS algorithm'}
-
-~~~~~
-    identity RCS-algorithm-base-type {
-        description "identify which algorithm is used to compute RSC.
-        The algorithm defines also the size if the RSC field.";
+      }
+      description
+        "RFC 8724 defines 3 fragmentation modes";
     }
-
-    identity RFC8724-RCS {
-        description "CRC 32 defined as default RCS in RFC8724.";
-        base RCS-algorithm-base-type;
-    }
-
-    typedef RCS-algorithm-type {
-        type identityref {
-            base RCS-algorithm-base-type;
-        }
-    }
-~~~~~
-{: #Fig-ex-RCS title='Definition of identityref for RCS Algorithm'}
-
-{{Fig-frag-header3}} gives the parameters used by the state machine to handle fragmentation:
-
-* maximum-window-size contains the maximum FCN value that can be used. 
-* retransmission-timer gives in seconds the duration before sending an ack request (cf. section 8.2.2.4. of {{RFC8724}}). If specifed, value must be higher or equal to 1. 
-* inactivity-timer gives in seconds the duration before aborting (cf. section 8.2.2.4. of {{RFC8724}}), value of 0 explicitly indicates that this timer is disabled.
-* max-ack-requests gives the number of attempts before aborting (cf. section 8.2.2.4. of {{RFC8724}}).
-* maximum-packet-size gives in bytes the larger packet size that can be reassembled. 
-
-~~~~~
-...
-        leaf maximum-window-size {
-            type uint16;
-            description "by default 2^wsize - 2";
-        }
-
-        leaf retransmission-timer {
-            type uint64 {
-                range 1..max;
-            }
-            description "duration in seconds of the retransmission timer"; // Check the units
-        }
-
-        leaf inactivity-timer {
-            type uint64;
-            description "duration is seconds of the inactivity timer, 0 indicates the timer is disabled"; // check units
-        }
-
-        leaf max-ack-requests {
-            type uint8 {
-                range 1..max;
-            }
-            description "the maximum number of retries for a specific SCHC ACK.";        
-        }
-
-        leaf maximum-packet-size {
-            type uint16;
-            default 1280;
-            description "When decompression is done, packet size must not strictly exceed this limit in Bytes";
-        }
-...
-~~~~~
-{: #Fig-frag-header3 title='Definition of a fragmentation state machine parameters'}
-
-{{Fig-frag-header4}} gives information related to a specific compression mode: fragmentation-mode MUST be set with a specific behavior. Identityref are given {{Fig-frag-AoE-val}}. 
-
-For Ack on Error some specific information may be provided:
-
-* tile-size gives in bits the size of the tile; If set to 0 a single tile is inserted inside a fragment.
-* tile-in-All1 indicates if All1 contains only the RCS (all1-data-no) or may contain a single tile (all1-data-yes). Since the reassembly process may detect this behavior, the choice can be left to the fragmentation process. In that case identityref all1-data-sender-choice as to be specified. All possible values are given {{Fig-frag-AoE-val}}.  
-* ack-behavior tells when the fragmentation process may send acknowledgments. When ack-behavior-after-All0 is specified, the ack may be sent after the reception of All-0 fragment. When ack-behavior-after-All1 is specified, the ack may be sent after the reception of All-1 fragment at the end of the fragmentation process.  ack-behavior-always do not impose a limitation at the SCHC level. The constraint may come from the LPWAN technology.  All possible values are given {{Fig-frag-AoE-val}}.  
-
-~~~~~
-...
-        leaf fragmentation-mode {
-            type schc:fragmentation-mode-type;
-            description "which fragmentation mode is used (noAck, AckAlways, AckonError)";
-            mandatory true;
-        }
-
-        choice mode {
-            case no-ack;
-            case ack-always;
-            case ack-on-error {
-                leaf tile-size {
-                    type uint8;
-                    description "size in bit of tiles, if not specified or set to 0: tile fills the fragment.";
-                }
-                leaf tile-in-All1 {
-                    type schc:all1-data-type;
-                    description "When true, sender and receiver except a tile in All-1 frag";
-                }
-                leaf ack-behavior {
-                    type schc:ack-behavior-type;
-                    description "Sender behavior to acknowledge, after All-0, All-1 or when the
-                    LPWAN allows it (Always)";
-                }
-            }
-       }
-...
-~~~~~ 
-{: #Fig-frag-header4 title='Definition of a fragmentation specific information'}
-
-~~~~~
-// -- FRAGMENTATION TYPE
-
-// -- fragmentation modes
-
-    identity fragmentation-mode-base-type {
-        description "fragmentation mode";
-    }
-
-    identity fragmentation-mode-no-ack {
-        description "No Ack of RFC 8724.";
-        base fragmentation-mode-base-type;
-    }
-
-    identity fragmentation-mode-ack-always {
-        description "Ack Always of RFC8724.";
-        base fragmentation-mode-base-type;
-    }
-    identity fragmentation-mode-ack-on-error {
-        description "Ack on Error of RFC8724.";
-        base fragmentation-mode-base-type;
-    }
-
-    typedef fragmentation-mode-type {
-        type identityref {
-            base fragmentation-mode-base-type;
-        }
-    }
-    
-// -- Ack behavior 
-
-    identity ack-behavior-base-type {
-        description "define when to send an Acknowledgment message";
-    }
-
-    identity ack-behavior-after-All0 {
-        description "fragmentation expects Ack after sending All0 fragment."; 
-        base ack-behavior-base-type;
-    }
-
-    identity ack-behavior-after-All1 {
-        description "fragmentation expects Ack after sending All1 fragment.";
-        base ack-behavior-base-type;
-    }
-
-    identity ack-behavior-always {
-        description "fragmentation expects Ack after sending every fragment.";
-        base ack-behavior-base-type;
-    }
-
-    typedef ack-behavior-type {
-        type identityref {
-            base ack-behavior-base-type;
-        }
-    }
-
-// -- All1 with data types
-
-    identity all1-data-base-type {
-        description "type to define when to send an Acknowledgment message";
-    }
-
-    identity all1-data-no {
-        description "All1 contains no tiles."; 
-        base all1-data-base-type;
-    }
-
-    identity all1-data-yes {
-        description "All1 MUST contain a tile";
-        base all1-data-base-type;
-    }
-
-    identity all1-data-sender-choice {
-        description "Fragmentation process choose to send tiles or not in all1.";
-        base all1-data-base-type;
-    }
-
-    typedef all1-data-type {
-        type identityref {
-            base all1-data-base-type;
-        }
-    }
+  }
+~~~~~~
 
 
-~~~~~ 
-{: #Fig-frag-AoE-val title='Specific types for Ack On Error mode'}
+
 ## YANG Tree
 
 
 ~~~~~ 
-module: schc
+module: ietf-schc
   +--rw schc
-     +--rw version?   uint64
-     +--rw rule* [rule-id rule-length]
-        +--rw rule-id                       uint32
-        +--rw rule-length                   uint8
+     +--rw rule* [rule-id-value rule-id-length]
+        +--rw rule-id-value                 uint32
+        +--rw rule-id-length                uint8
         +--rw (nature)?
-           +--:(fragmentation)
-           |  +--rw direction               schc:direction-indicator-type
-           |  +--rw dtagsize?               uint8
-           |  +--rw wsize?                  uint8
-           |  +--rw fcnsize                 uint8
-           |  +--rw RCS-algorithm?          RCS-algorithm-type
+           +--:(fragmentation) {fragmentation}?
+           |  +--rw l2-word-size?           uint8
+           |  +--rw direction               schc:di-type
+           |  +--rw dtag-size?              uint8
+           |  +--rw w-size?                 uint8
+           |  +--rw fcn-size                uint8
+           |  +--rw rcs-algorithm?          rcs-algorithm-type
            |  +--rw maximum-window-size?    uint16
            |  +--rw retransmission-timer?   uint64
            |  +--rw inactivity-timer?       uint64
@@ -833,23 +1110,25 @@ module: schc
            |        +--rw tile-size?        uint8
            |        +--rw tile-in-All1?     schc:all1-data-type
            |        +--rw ack-behavior?     schc:ack-behavior-type
+           |        +--rw bitmap-format?    schc:bitmap-format-type
            +--:(compression)
-              +--rw entry* [field-id field-position direction-indicator]
-                 +--rw field-id                    schc:field-id-type
-                 +--rw field-length                schc:field-length-type
-                 +--rw field-position              uint8
-                 +--rw direction-indicator         schc:direction-indicator-type
-                 +--rw target-values* [position]
-                 |  +--rw value?      union
-                 |  +--rw position    uint16
-                 +--rw matching-operator           schc:matching-operator-type
-                 +--rw matching-operator-value* [position]
-                 |  +--rw value?      union
-                 |  +--rw position    uint16
-                 +--rw comp-decomp-action          schc:comp-decomp-action-type
-                 +--rw comp-decomp-action-value* [position]
-                    +--rw value?      union
-                    +--rw position    uint16
+           |  +--rw entry* [field-id field-position direction-indicator]
+           |     +--rw field-id                    schc:fid-type
+           |     +--rw field-length                schc:fl-type
+           |     +--rw field-position              uint8
+           |     +--rw direction-indicator         schc:di-type
+           |     +--rw target-value* [position]
+           |     |  +--rw value?      binary
+           |     |  +--rw position    uint16
+           |     +--rw matching-operator           schc:mo-type
+           |     +--rw matching-operator-value* [position]
+           |     |  +--rw value?      binary
+           |     |  +--rw position    uint16
+           |     +--rw comp-decomp-action          schc:cda-type
+           |     +--rw comp-decomp-action-value* [position]
+           |        +--rw value?      binary
+           |        +--rw position    uint16
+           +--:(no-compression)
 
 ~~~~~ 
 {: #Fig-model-overview title='Overview of SCHC data model}
@@ -870,8 +1149,8 @@ The authors would like to thank Dominique Barthel, Carsten Bormann, Alexander Pe
 
 
 ~~~~
-<code begins> file schc@2020-06-15.yang
-{::include schc@2020-06-15.yang}
+<code begins> file ietf-schc@2021-08-17.yang
+{::include ietf-schc@2021-08-17.yang}
 <code ends>
 ~~~~
 {: #Fig-schc title="SCHC data model}
