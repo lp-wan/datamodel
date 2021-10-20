@@ -447,14 +447,14 @@ module ietf-schc {
   identity fl-variable {
     base fl-base-type;
     description
-      "Residue length in Byte is sent defined in 
+      "Residue length in Byte is sent as defined in 
       for CoAP in RFC 8824 (cf. 5.3)";
   }
 
   identity fl-token-length {
     base fl-base-type;
     description
-      "Residue length in Byte is sent defined in 
+      "Residue length in Byte is sent as defined in 
       for CoAP in RFC 8824 (cf. 4.5)";
   }
 
@@ -464,7 +464,7 @@ module ietf-schc {
 
   identity di-base-type {
     description
-      "Used to extend field length functions";
+      "Used to extend direction indicators";
   }
 
   identity di-bidirectional {
@@ -788,7 +788,7 @@ module ietf-schc {
       type uint16;
       description
         "If only one element position is 0, otherwise position is the
-         matching list.";
+         the position in the matching list.";
     }
   }
 

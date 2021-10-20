@@ -1,7 +1,7 @@
 ---
 stand_alone: true
 ipr: trust200902
-docname: draft-ietf-lpwan-schc-yang-data-model-05
+docname: draft-ietf-lpwan-schc-yang-data-model-06
 cat: std
 pi:
   symrefs: 'yes'
@@ -50,19 +50,19 @@ compression and fragmentation rules.
 # SCHC rules
 
 SCHC is a compression and fragmentation mechanism for constrained networks defined in {{RFC8724}}.
-It is based on a static context shared by two entities at the boundary this constrained network.
-Draft {{RFC8724}} provides a non formal representation of the rules used either for compression/decompression (or C/D)
+It is based on a static context shared by two entities at the boundary of the constrained network.
+{{RFC8724}} provides a non formal representation of the rules used either for compression/decompression (or C/D)
 or fragmentation/reassembly (or F/R). The goal of this document is to formalize the description of the rules to offer:
 
 * the same definition on both ends, even if the internal representation is different. 
-* an update the other end to set up some specific values (e.g. IPv6 prefix, Destination address,...)
+* an update of the other end to set up some specific values (e.g. IPv6 prefix, Destination address,...)
 * ...
 
 This document defines a YANG module to represent both compression and fragmentation rules, which leads to common representation for values for all the rules elements. 
 
 SCHC compression is generic, the main mechanism does not refer
 to a specific protocol. Any header field is abstracted through an ID, a position, a direction, and a value that can be a numerical
-value or a string. {{RFC8724}} and {{RFC8824}} specifies fields for IPv6, UDP, CoAP and OSCORE. {{I-D.barthel-lpwan-oam-schc}} describes 
+value or a string. {{RFC8724}} and {{RFC8824}} specify fields for IPv6, UDP, CoAP and OSCORE. {{I-D.barthel-lpwan-oam-schc}} describes 
 ICMPv6 header compression and {{I-D.ietf-lpwan-schc-compound-ack}} includes a new fragmentation behavior.
 
 SCHC fragmentation requires a set of common parameters that are included in a rule. These parameters are defined in {{RFC8724}}.
@@ -99,7 +99,7 @@ describe a specific field in the header to be compressed.
 
 ##Identifier generation
 
-Identifier used un the SCHC YANG Data Model are from the identityref statement to ensure to be globally unique and be easily augmented if needed.  The principle to define a new type based on a group of identityref is the following:
+Identifier used in the SCHC YANG Data Model are from the identityref statement to ensure to be globally unique and be easily augmented if needed.  The principle to define a new type based on a group of identityref is the following:
 
 * define a main identity ending with the keyword base-type.
 
@@ -139,8 +139,7 @@ The example ({{Fig-identityref}}) shows how an identityref is created for RCS al
 
 ##Field Identifier
 
-In the process of compression, the headers of the original packet are first parsed to create a list of fields. This list of fields is matched against the rules to find the appropriate one and apply compression. The link between the list given by the parsed fields and the
-rules is done through a field ID.  {{RFC8724}}  do not state how the field ID value can be constructed. 
+In the process of compression, the headers of the original packet are first parsed to create a list of fields. This list of fields is matched against the rules to find the appropriate rule and apply compression.  {{RFC8724}}  do not state how the field ID value can be constructed. 
 In examples, identification is done through a string indexed by the protocol name (e.g. IPv6.version, CoAP.version,...).
 
 The current YANG Data Model includes fields definitions found in {{RFC8724}}, {{RFC8824}}, and {{I-D.barthel-lpwan-oam-schc}}.
@@ -225,20 +224,20 @@ The naming convention is "fl" followed by the function name.
   identity fl-variable {
     base fl-base-type;
     description
-      "Residue length in Byte is sent defined in 
+      "Residue length in Byte is sent as defined in 
       for CoAP in RFC 8824 (cf. 5.3)";
   }
 
   identity fl-token-length {
     base fl-base-type;
     description
-      "Residue length in Byte is sent defined in 
+      "Residue length in Byte is sent as defined in 
       for CoAP in RFC 8824 (cf. 4.5)";
   }
 ~~~~~
 {: #Fig-ex-field-length title='Definition of identityref for Field Length'}
 
-As for field ID, field length function can be defined as an identityref as shown in {{Fig-ex-field-length}}.
+Field ID, field length function can be defined as an identityref as shown in {{Fig-ex-field-length}}.
 
 Therefore, the type for field length is a union between an integer giving in bits the size of the length and the identityref (cf. {{Fig-ex-field-length-union}}).
 
@@ -260,7 +259,7 @@ Therefore, the type for field length is a union between an integer giving in bit
 
 ## Field position
 
-Field position is a positive integer which gives the position of a field, the default value is 1, but if the field is repeated several times, the value is higher. 
+Field position is a positive integer which gives the position of a field, the default value is 1, and incremented at each repetition. 
 value 0 indicates that the position is not important and is not considered during the rule selection process. 
 
 Field position is a positive integer. The type is an uint8.
@@ -273,7 +272,7 @@ The Direction Indicator (di) is used to tell if a field appears in both directio
  
   identity di-base-type {
     description
-      "Used to extend field length functions";
+      "Used to extend direction indicators";
   }
 
   identity di-bidirectional {
@@ -302,7 +301,7 @@ The Direction Indicator (di) is used to tell if a field appears in both directio
 
 {{Fig-ex-field-DI}} gives the identityref for Direction Indicators. The naming convention is "di" followed by the Direction Indicator name.
 
-The type is "direction-indicator-type" (cf. {{Fig-field-DI-type}}).
+The type is "di-type" (cf. {{Fig-field-DI-type}}).
 
 ~~~~~
   typedef di-type {
@@ -323,7 +322,7 @@ The Target Value is a list of binary sequences of any length, aligned on the lef
 
 * For Equal and LSB, a single value is used, such as for the equal or LSB CDA, the position is set to 0.
 
-* For match-mapping, several of these values can be contained in a Target Value field. In the data model, this is generalized by adding a position, which orders the list of values. Position values must start from 0 and be contiguous. 
+* For match-mapping, several of these values can be contained in a Target Value field.  Position values must start from 0 and be contiguous. 
 
 
 ~~~~~
@@ -339,7 +338,7 @@ The Target Value is a list of binary sequences of any length, aligned on the lef
       type uint16;
       description
         "If only one element position is 0, otherwise position is the
-         matching list.";
+         the position in the matching list.";
     }
   }
 ~~~~~
@@ -374,7 +373,7 @@ Matching Operator (MO) is a function applied between a field value provided by t
       "MSB MO as defined RFC 8724 (cf. 7.3)";
   }
 
-  identity mo-matching {
+  identity mo-match-mapping {
     base mo-base-type;
     description
       "match-mapping MO as defined RFC 8724 (cf. 7.3)";
@@ -385,7 +384,7 @@ Matching Operator (MO) is a function applied between a field value provided by t
 
 The naming convention is "mo" followed by the MO name.
 
-The type is "matching-operator-type" (cf. {{Fig-MO-type}})
+The type is "mo-type" (cf. {{Fig-MO-type}})
 
 ~~~~~
   typedef mo-type {
@@ -400,8 +399,8 @@ The type is "matching-operator-type" (cf. {{Fig-MO-type}})
 
 ### Matching Operator arguments
 
-Some Matching Operator such as MSB can take some values. Even if currently LSB is the only MO takes only one argument, in the future some MO may require several arguments.
-They are viewed as a list of target-values-type.
+
+They are viewed as a list of tv-struct.
 
 ## Compression Decompression Actions
 
