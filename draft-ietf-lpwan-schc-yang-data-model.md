@@ -1,7 +1,7 @@
 ---
 stand_alone: true
 ipr: trust200902
-docname: draft-ietf-lpwan-schc-yang-data-model-07
+docname: draft-ietf-lpwan-schc-yang-data-model-06
 cat: std
 pi:
   symrefs: 'yes'
