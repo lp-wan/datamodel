@@ -11,11 +11,9 @@ module ietf-schc-compound-ack {
     "IETF IPv6 over Low Power Wide-Area Networks (lpwan) working group";
   contact
     "WG Web:   <https://datatracker.ietf.org/wg/lpwan/about/>
-     WG List:  <mailto:p-wan@ietf.org>
-     Editor:   Laurent Toutain
-       <mailto:laurent.toutain@imt-atlantique.fr>
-     Editor:   Ana Minaburo
-       <mailto:ana@ackl.io>";
+     WG List:  <mailto:lp-wan@ietf.org>
+     Editor:   Juan-Carlos Zuniga
+       <mailto:juancarlos.zuniga@sigfox.com>";
   description
      "
      Copyright (c) 2021 IETF Trust and the persons identified as
