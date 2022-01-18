@@ -910,6 +910,8 @@ module ietf-schc {
       type uint64 {
         range "1..max";
       }
+      when "derived-from(../fragmentation-mode, 'fragmentation-mode-ack-on-error') or
+            derived-from(../fragmentation-mode, 'fragmentation-mode-ack-always') ";
       description
         "Duration in seconds of the retransmission timer."; 
     }
