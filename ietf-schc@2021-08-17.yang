@@ -41,7 +41,7 @@ module ietf-schc {
      rules and fragmentation rules.
 
      This module is a YANG model for SCHC rules (RFc 8724).
-     RFC 8724 describes a rule in a abstract way through a table.
+     RFC 8724 describes compression rules in a abstract way through a table.
 
      |-----------------------------------------------------------------|
      |  (FID)            Rule 1                                        |
@@ -58,8 +58,8 @@ module ietf-schc {
 
      This module proposes a global data model that can be used for rule
      exchanges or modification. It proposes both the data model format and
-     the global identifiers used to describes some operations in fields.
-     This data model applies both to compression and fragmentation.";
+     the global identifiers used to describe some operations in fields.
+     This data model applies to both compression and fragmentation.";
 
   revision 2021-08-17 {
     description
@@ -71,6 +71,7 @@ module ietf-schc {
   feature fragmentation {
     description
       "Fragmentation is usually required only at the transportation level.";
+      // DB: what does this mean?
   }
 
   // -------------------------
@@ -86,7 +87,7 @@ module ietf-schc {
   identity fid-ipv6-base-type {
     base fid-base-type;
     description
-      "Field IP base type for IPv6 headers described in RFC 8200";
+      "Field ID base type for IPv6 headers described in RFC 8200";
   }
 
   identity fid-ipv6-version {
@@ -142,51 +143,51 @@ module ietf-schc {
   identity fid-ipv6-devprefix {
     base fid-ipv6-base-type;
     description
-      "correspond either to the source address or the desdination
+      "corresponds to either the source address or the destination
               address prefix of RFC 8200. Depending if it is respectively
-              a uplink or an downklink message.";
+              an uplink or a downlink message.";
   }
 
   identity fid-ipv6-deviid {
     base fid-ipv6-base-type;
     description
-      "correspond either to the source address or the desdination
+      "corresponds to either the source address or the destination
               address prefix of RFC 8200. Depending if it is respectively
-              a uplink or an downklink message.";
+              an uplink or a downlink message.";
   }
 
   identity fid-ipv6-appprefix {
     base fid-ipv6-base-type;
     description
-      "correspond either to the source address or the desdination
-              address prefix of RFC 768. Depending if it is respectively
+      "corresponds to either the source address or the destination
+              address prefix of RFC 8200. Depending if it is respectively
               a downlink or an uplink message.";
   }
 
   identity fid-ipv6-appiid {
     base fid-ipv6-base-type;
     description
-      "correspond either to the source address or the desdination
-              address prefix of RFC 768. Depending if it is respectively
+      "corresponds to either the source address or the destination
+              address prefix of RFC 8200. Depending if it is respectively
               a downlink or an uplink message.";
   }
 
   identity fid-udp-base-type {
     base fid-base-type;
     description
-      "Field IP base type for UDP headers described in RFC 768";
+      "Field ID base type for UDP headers described in RFC 768";
   }
 
   identity fid-udp-dev-port {
     base fid-udp-base-type;
     description
-      "UDP length from RFC 768";
+      "UDP source or destination port from RFC 768, if uplink or downlink communication, respectively.";
   }
 
   identity fid-udp-app-port {
     base fid-udp-base-type;
     description
-      "UDP length from RFC 768";
+      "UDP destination or source port from RFC 768, if uplink or downlink communication, respectively.";
   }
 
   identity fid-udp-length {
@@ -204,7 +205,7 @@ module ietf-schc {
   identity fid-coap-base-type {
     base fid-base-type;
     description
-      "Field IP base type for UDP headers described in RFC 768";
+      "Field ID base type for UDP headers described in RFC 7252";
   }
 
   identity fid-coap-version {
@@ -324,7 +325,7 @@ module ietf-schc {
   identity fid-coap-option-accept {
     base fid-coap-base-type;
     description
-      "CoAP option Max-Age from RFC 7252";
+      "CoAP option Accept from RFC 7252";
   }
 
   identity fid-coap-option-location-query {
@@ -379,6 +380,7 @@ module ietf-schc {
     base fid-coap-base-type;
     description
       "CoAP option oscore flags (see draft schc coap, section 6.4)";
+      // DB: update reference?
   }
 
   identity fid-coap-option-oscore-piv {
@@ -403,6 +405,7 @@ module ietf-schc {
     base fid-base-type;
     description
       "Field IP base type for UDP headers described in RFC 768";
+      // DB: fix reference
   }
 
   identity fid-icmpv6-type {
@@ -479,6 +482,7 @@ module ietf-schc {
     description
       "Direction Indication of upstream defined in 
       RFC 8724 (cf. 7.1)";
+      // DB: uplink and downlink, I think
   }
 
   identity di-down {
@@ -636,19 +640,19 @@ module ietf-schc {
   identity fragmentation-mode-no-ack {
     base fragmentation-mode-base-type;
     description
-      "No Ack of RFC 8724.";
+      "No-ACK of RFC8724.";
   }
 
   identity fragmentation-mode-ack-always {
     base fragmentation-mode-base-type;
     description
-      "Ack Always of RFC8724.";
+      "ACK-Always of RFC8724.";
   }
 
   identity fragmentation-mode-ack-on-error {
     base fragmentation-mode-base-type;
     description
-      "Ack on Error of RFC8724.";
+      "ACK-on-Error of RFC8724.";
   }
 
   typedef fragmentation-mode-type {
@@ -682,6 +686,7 @@ module ietf-schc {
     base ack-behavior-base-type;
     description
       "Fragmentation expects Ack after sending every fragment.";
+      // DB: better comment neeeded. They are not accurate as is.
   }
 
   typedef ack-behavior-type {
