@@ -712,7 +712,7 @@ module ietf-schc {
   identity rcs-RFC8724 {
     base rcs-algorithm-base-type;
     description
-      "CRC 32 defined as default RCS in RFC8724.";
+      "CRC 32 defined as default RCS in RFC8724. RCS is 4 byte-long";
   }
 
   typedef rcs-algorithm-type {
@@ -881,18 +881,14 @@ module ietf-schc {
       description
         "Should be up or down, bi directionnal is forbiden.";
     }
+
+    // SCHC Frang header format 
+
     leaf dtag-size {
       type uint8;
       default "0";
       description
         "Size in bit of the DTag field (T variable from RFC8724).";
-    }
-    leaf max-interleaved-frames{
-      type uint8;
-      default "1";
-      description
-        "Maximum of simultaneously fragmented frames. Maximum value is
-        2^dtag-size"; 
     }
     leaf w-size {
       when "not(derived-from(../fragmentation-mode, 
@@ -911,13 +907,25 @@ module ietf-schc {
       type rcs-algorithm-type;
       default "schc:rcs-RFC8724";
       description
-        "Algoritm used for RCS";
+        "Algoritm used for RCS. The algorithm spedifies the RCS size";
     }
-    leaf maximum-window-size {
+
+    // SCHC fragmentation protocol paramters
+
+    leaf max-window-size {
       type uint16;
       description
-        "By default 2^wsize - 1";
+        "By default, if not specified 2^w-size - 1. Should not exceed
+        this value.";
     }
+    leaf max-interleaved-frames{
+      type uint8;
+      default "1";
+      description
+        "Maximum of simultaneously fragmented frames. Maximum value is
+        2^dtag-size"; 
+    }
+
     leaf retransmission-timer {
       type uint64 {
         range "1..max";
