@@ -657,7 +657,7 @@ module ietf-schc {
   identity ack-behavior-by-layer2 {
     base ack-behavior-base-type;
     description
-      "Fragmentation expects Ack after sending every fragment.";
+      "Layer 2 defines when to send an Ack.";
   }
 
   typedef ack-behavior-type {
