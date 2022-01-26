@@ -912,18 +912,20 @@ module ietf-schc {
 
     // SCHC fragmentation protocol paramters
 
-    leaf max-window-size {
+    leaf window-size {
       type uint16;
       description
         "By default, if not specified 2^w-size - 1. Should not exceed
-        this value.";
+        this value. Possible FCN values are between 0 and window-size-1.";
     }
+
     leaf max-interleaved-frames{
       type uint8;
       default "1";
       description
         "Maximum of simultaneously fragmented frames. Maximum value is
-        2^dtag-size"; 
+        2^dtag-size. All DTAG values can be used, but only max-interleaved-frames
+        must be active.; 
     }
 
     leaf retransmission-timer {
@@ -935,12 +937,14 @@ module ietf-schc {
       description
         "Duration in seconds of the retransmission timer."; 
     }
+
     leaf inactivity-timer {
       type uint64;
       description
         "Duration is seconds of the inactivity timer, 
         0 indicates the timer is disabled."; 
     }
+
     leaf max-ack-requests {
       type uint8 {
         range "1..max";
@@ -950,6 +954,7 @@ module ietf-schc {
       description
         "The maximum number of retries for a specific SCHC ACK.";
     }
+
     leaf maximum-packet-size {
       type uint16;
       default "1280";
@@ -957,6 +962,7 @@ module ietf-schc {
         "When decompression is done, packet size must not 
         strictly exceed this limit in Bytes.";
     }
+
     leaf fragmentation-mode {
       type schc:fragmentation-mode-type;
       mandatory true;
@@ -964,6 +970,7 @@ module ietf-schc {
         "which fragmentation mode is used (noAck, AckAlways, 
         AckonError)";
     }
+
     choice mode {
       case no-ack;
       case ack-always;
@@ -1008,6 +1015,7 @@ module ietf-schc {
         "Rule ID value, this value must be unique combined with 
         the length.";
     }
+    
     leaf rule-id-length {
       type uint8 {
         range "0..32";
@@ -1035,7 +1043,6 @@ module ietf-schc {
           uses compression-content;
         }
         case no-compression {
-          if-feature "compression";
           description
             "RFC8724 allows a rule for uncompressed headers.";
         }
