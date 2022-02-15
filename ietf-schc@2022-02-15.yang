@@ -386,7 +386,6 @@ module ietf-schc {
     base fid-coap-base-type;
     description
       "CoAP option oscore flags (see RFC 8824, section 6.4)";
-      // DB: update reference?
   }
 
   identity fid-coap-option-oscore-piv {
