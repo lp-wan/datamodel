@@ -36,8 +36,8 @@ module ietf-schc {
 
      *****************************************************************
 
-     Generic Data model for Static Context Header Compression Rule for 
-     SCHC, based on RFC 8724 and RFC8824. Include compression, no 
+     Generic Data model for Static Context Header Compression Rule for
+     SCHC, based on RFC 8724 and RFC8824. Include compression, no
      compression and fragmentation rules.
 
      This module is a YANG model for SCHC rules (RFc 8724).
@@ -57,8 +57,8 @@ module ietf-schc {
      |-----------------------------------------------------------------|
 
      This module proposes a global data model that can be used for rule
-     exchanges or modification. It proposes both the data model format 
-     and the global identifiers used to describe some operations in 
+     exchanges or modification. It proposes both the data model format
+     and the global identifiers used to describe some operations in
      fields.
      This data model applies to both compression and fragmentation.";
 
@@ -66,16 +66,18 @@ module ietf-schc {
     description
       "Initial version from RFC XXXX ";
     reference
-      "RFC XXX: Data Model for Static Context Header Compression 
-      (SCHC)";
+      "RFC XXX: Data Model for Static Context Header Compression
+       (SCHC)";
   }
 
   feature compression {
-    description "SCHC compression capabilities are taken into account";
+    description
+      "SCHC compression capabilities are taken into account";
   }
 
   feature fragmentation {
-    description "SCHC fragmentation capabilities are taken into account";
+    description
+      "SCHC fragmentation capabilities are taken into account";
   }
 
   // -------------------------
@@ -148,7 +150,7 @@ module ietf-schc {
     base fid-ipv6-base-type;
     description
       "corresponds to either the source address or the destination
-              address prefix of RFC 8200. Depending if it is 
+              address prefix of RFC 8200. Depending if it is
               respectively an uplink or a downklink message.";
   }
 
@@ -164,8 +166,8 @@ module ietf-schc {
     base fid-ipv6-base-type;
     description
       "corresponds to either the source address or the destination
-      address prefix of RFC 8200. Depending if it is respectively
-      a downlink or an uplink message.";
+       address prefix of RFC 8200. Depending if it is respectively
+       a downlink or an uplink message.";
   }
 
   identity fid-ipv6-appiid {
@@ -185,15 +187,15 @@ module ietf-schc {
   identity fid-udp-dev-port {
     base fid-udp-base-type;
     description
-      "UDP source or destination port from RFC 768, if uplink or downlink 
-      communication, respectively.";
+      "UDP source or destination port from RFC 768, if uplink or downlink
+       communication, respectively.";
   }
 
   identity fid-udp-app-port {
     base fid-udp-base-type;
     description
-      "UDP destination or source port from RFC 768, if uplink or downlink 
-      communication, respectively.";
+      "UDP destination or source port from RFC 768, if uplink or downlink
+       communication, respectively.";
   }
 
   identity fid-udp-length {
@@ -406,7 +408,6 @@ module ietf-schc {
       "CoAP option oscore flags (see RFC 8824, section 6.4)";
   }
 
-  
   //----------------------------------
   // Field Length type definition
   //----------------------------------
@@ -578,7 +579,7 @@ module ietf-schc {
     }
     description
       "Direction in LPWAN network, up when emitted by the device,
-       down when received by the device, bi when emitted or 
+       down when received by the device, bi when emitted or
        received by the device.";
   }
 
@@ -587,8 +588,8 @@ module ietf-schc {
       base mo-base-type;
     }
     description
-      "Matching Operator (MO) to compare fields values with 
-      target values";
+      "Matching Operator (MO) to compare fields values with
+       target values";
   }
 
   typedef cda-type {
@@ -596,8 +597,8 @@ module ietf-schc {
       base cda-base-type;
     }
     description
-      "Compression Decompression Action to compression or 
-      decompress a field.";
+      "Compression Decompression Action to compression or
+       decompress a field.";
   }
 
   // -- FRAGMENTATION TYPE
@@ -727,7 +728,7 @@ module ietf-schc {
   grouping tv-struct {
     description
       "Define the target value element. Always a binary type, strings
-       must be converted to binary. field-id allows the conversion 
+       must be converted to binary. field-id allows the conversion
        to the appropriate type.";
     leaf value {
       type binary;
@@ -747,73 +748,72 @@ module ietf-schc {
       "These entries defines a compression entry (i.e. a line)
        as defined in RFC 8724 and fragmentation parameters.
 
-      +-------+--+--+--+------------+-----------------+---------------+
-      |Field 1|FL|FP|DI|Target Value|Matching Operator|Comp/Decomp Act|
-      +-------+--+--+--+------------+-----------------+---------------+
+       +-------+--+--+--+------------+-----------------+---------------+
+       |Field 1|FL|FP|DI|Target Value|Matching Operator|Comp/Decomp Act|
+       +-------+--+--+--+------------+-----------------+---------------+
 
        An entry in a compression rule is composed of 7 elements:
-       - Field ID: The header field to be compressed. The content is a 
+       - Field ID: The header field to be compressed. The content is a
          YANG identifer.
-       - Field Length : either a positive integer of a function defined 
+       - Field Length : either a positive integer of a function defined
          as a YANF id.
        - Field Position: a positive (and possibly equal to 0) integer.
        - Direction Indicator: a YANG identifier giving the direction.
-       - Target value: a value against which the header Field is 
+       - Target value: a value against which the header Field is
          compared.
-       - Matching Operator: a YANG id giving the operation, paramters 
+       - Matching Operator: a YANG id giving the operation, paramters
          may be associated to that operator.
-       - Comp./Decomp. Action: A YANG id giving the compression or 
-         decompression action, paramters may be associated to that 
+       - Comp./Decomp. Action: A YANG id giving the compression or
+         decompression action, paramters may be associated to that
          action.
       ";
     leaf field-id {
       type schc:fid-type;
       mandatory true;
       description
-        "Field ID, identify a field in the header with a YANG 
+        "Field ID, identify a field in the header with a YANG
          referenceid.";
     }
     leaf field-length {
       type schc:fl-type;
       mandatory true;
       description
-        "Field Length in bit or through a function defined as a 
-        YANG referenceid.";
+        "Field Length in bit or through a function defined as a
+         YANG referenceid.";
     }
     leaf field-position {
       type uint8;
       mandatory true;
       description
-        "Field position in the header is a integer. If the field is not 
-        repeated in the header the value is 1, and incremented for each 
-        repetition of the field. Position 0 means that the position is 
-        not important and order may change when decompressed";
+        "Field position in the header is a integer. If the field is not
+         repeated in the header the value is 1, and incremented for each
+         repetition of the field. Position 0 means that the position is
+         not important and order may change when decompressed";
     }
     leaf direction-indicator {
       type schc:di-type;
       mandatory true;
       description
-        "Direction Indicator, a YANG referenceid to say if the packet 
-        is bidirectional, up or down";
+        "Direction Indicator, a YANG referenceid to say if the packet
+         is bidirectional, up or down";
     }
     list target-value {
       key "position";
       uses tv-struct;
       description
-        "A list of value to compare with the header field value. 
-         If target value is a singleton, position must be 0. 
-         For matching-list, should be consecutive position 
+        "A list of value to compare with the header field value.
+         If target value is a singleton, position must be 0.
+         For matching-list, should be consecutive position
          values starting from 1.";
     }
     leaf matching-operator {
       type schc:mo-type;
       must "../target-value or derived-from-or-self(., 'mo-ignore')" {
-        error-message 
-          "mo-equal, mo-msb and mo-match-mapping need target-value";
+        error-message "mo-equal, mo-msb and mo-match-mapping need target-value";
         description
           "target-value is not required for mo-ignore";
       }
-      must "not (derived-from-or-self(., 'mo-msb')) or 
+      must "not (derived-from-or-self(., 'mo-msb')) or
             ../matching-operator-value" {
         error-message "mo-msb requires length value";
       }
@@ -825,9 +825,9 @@ module ietf-schc {
       key "position";
       uses tv-struct;
       description
-        "Matching Operator Arguments, based on TV structure to allow 
-         several arguments. 
-         In RFC 8724, only MSB define a single argument: length in 
+        "Matching Operator Arguments, based on TV structure to allow
+         several arguments.
+         In RFC 8724, only MSB define a single argument: length in
          bits";
     }
     leaf comp-decomp-action {
@@ -840,7 +840,7 @@ module ietf-schc {
       key "position";
       uses tv-struct;
       description
-        "CDA Arguments, based on TV structure to allow several 
+        "CDA Arguments, based on TV structure to allow several
          arguments. In RFC 8724, no argument is defined for CDA.";
     }
   }
@@ -851,7 +851,7 @@ module ietf-schc {
       uses compression-rule-entry;
       description
         "A compression rule is a list of rule entry describing
-         each header field. An entry is identifed through a field-id, 
+         each header field. An entry is identifed through a field-id,
          its position in the packet and its direction.";
     }
     description
@@ -871,18 +871,15 @@ module ietf-schc {
     }
     leaf direction {
       type schc:di-type;
-      must "derived-from-or-self(., 'di-up') or 
+      must "derived-from-or-self(., 'di-up') or
             derived-from-or-self(., 'di-down')" {
-        error-message 
-          "direction for fragmentation rules are up or down.";
+        error-message "direction for fragmentation rules are up or down.";
       }
       mandatory true;
       description
         "Should be up or down, bi directionnal is forbiden.";
     }
-
-    // SCHC Frang header format 
-
+    // SCHC Frag header format 
     leaf dtag-size {
       type uint8;
       default "0";
@@ -890,7 +887,7 @@ module ietf-schc {
         "Size in bit of the DTag field (T variable from RFC8724).";
     }
     leaf w-size {
-      when "not(derived-from(../fragmentation-mode, 
+      when "not(derived-from(../fragmentation-mode,
                              'fragmentation-mode-no-ack'))";
       type uint8;
       description
@@ -908,74 +905,64 @@ module ietf-schc {
       description
         "Algoritm used for RCS. The algorithm spedifies the RCS size";
     }
-
     // SCHC fragmentation protocol paramters
-
     leaf window-size {
       type uint16;
       description
         "By default, if not specified 2^w-size - 1. Should not exceed
-        this value. Possible FCN values are between 0 and window-size-1.";
+         this value. Possible FCN values are between 0 and window-size-1.";
     }
-
-    leaf max-interleaved-frames{
+    leaf max-interleaved-frames {
       type uint8;
       default "1";
       description
         "Maximum of simultaneously fragmented frames. Maximum value is
-        2^dtag-size. All DTAG values can be used, but only max-interleaved-frames
-        must be active.; 
+         2^dtag-size. All DTAG values can be used, but only max-interleaved-frames
+         must be active.";
     }
-
     leaf retransmission-timer {
+      when "derived-from(../fragmentation-mode, 'fragmentation-mode-ack-on-error') or
+            derived-from(../fragmentation-mode, 'fragmentation-mode-ack-always') ";
       type uint64 {
         range "1..max";
       }
-      when "derived-from(../fragmentation-mode, 'fragmentation-mode-ack-on-error') or
-            derived-from(../fragmentation-mode, 'fragmentation-mode-ack-always') ";
       description
-        "Duration in seconds of the retransmission timer."; 
+        "Duration in seconds of the retransmission timer.";
     }
-
     leaf inactivity-timer {
       type uint64;
       description
-        "Duration is seconds of the inactivity timer, 
-        0 indicates the timer is disabled."; 
+        "Duration is seconds of the inactivity timer, 0 indicates the timer is disabled.";
     }
-
     leaf max-ack-requests {
+      when "derived-from(../fragmentation-mode, 'fragmentation-mode-ack-on-error') or
+            derived-from(../fragmentation-mode, 'fragmentation-mode-ack-always') ";
       type uint8 {
         range "1..max";
       }
-      when "derived-from(../fragmentation-mode, 'fragmentation-mode-ack-on-error') or
-            derived-from(../fragmentation-mode, 'fragmentation-mode-ack-always') ";
       description
         "The maximum number of retries for a specific SCHC ACK.";
     }
-
     leaf maximum-packet-size {
       type uint16;
       default "1280";
       description
-        "When decompression is done, packet size must not 
-        strictly exceed this limit in Bytes.";
+        "When decompression is done, packet size must not
+         strictly exceed this limit in Bytes.";
     }
-
     leaf fragmentation-mode {
       type schc:fragmentation-mode-type;
       mandatory true;
       description
-        "which fragmentation mode is used (noAck, AckAlways, 
-        AckonError)";
+        "which fragmentation mode is used (noAck, AckAlways,
+         AckonError)";
     }
-
     choice mode {
       case no-ack;
       case ack-always;
       case ack-on-error {
         leaf tile-size {
-          when "derived-from(../fragmentation-mode, 
+          when "derived-from(../fragmentation-mode,
                              'fragmentation-mode-ack-on-error')";
           type uint8;
           description
@@ -983,19 +970,19 @@ module ietf-schc {
              tile fills the fragment.";
         }
         leaf tile-in-All1 {
-          when "derived-from(../fragmentation-mode, 
+          when "derived-from(../fragmentation-mode,
                              'fragmentation-mode-ack-on-error')";
           type schc:all1-data-type;
           description
-            "When true, sender and receiver except a tile in 
-            All-1 frag.";
+            "When true, sender and receiver except a tile in
+             All-1 frag.";
         }
         leaf ack-behavior {
-          when "derived-from(../fragmentation-mode, 
+          when "derived-from(../fragmentation-mode,
                              'fragmentation-mode-ack-on-error')";
           type schc:ack-behavior-type;
           description
-            "Sender behavior to acknowledge, after All-0, All-1 or 
+            "Sender behavior to acknowledge, after All-0, All-1 or
              when the LPWAN allows it (Always).";
         }
       }
@@ -1011,10 +998,9 @@ module ietf-schc {
     leaf rule-id-value {
       type uint32;
       description
-        "Rule ID value, this value must be unique combined with 
-        the length.";
+        "Rule ID value, this value must be unique combined with
+         the length.";
     }
-    
     leaf rule-id-length {
       type uint8 {
         range "0..32";
@@ -1046,15 +1032,15 @@ module ietf-schc {
             "RFC8724 allows a rule for uncompressed headers.";
         }
         description
-          "A rule is either for compression, no compression or 
-          fragmentation.";
+          "A rule is either for compression, no compression or
+           fragmentation.";
       }
       description
-        "Set of rules compression, no compression or fragmentation 
-        rules identified by their rule-id.";
+        "Set of rules compression, no compression or fragmentation
+         rules identified by their rule-id.";
     }
     description
-      "a SCHC set of rules is composed of a list of rule which are 
+      "a SCHC set of rules is composed of a list of rule which are
        either compression or fragmentation.";
   }
 }
