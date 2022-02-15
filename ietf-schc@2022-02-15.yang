@@ -41,7 +41,8 @@ module ietf-schc {
      compression and fragmentation rules.
 
      This module is a YANG model for SCHC rules (RFc 8724).
-     RFC 8724 describes compression rules in a abstract way through a table.
+     RFC 8724 describes compression rules in a abstract way through a 
+     table.
 
      |-----------------------------------------------------------------|
      |  (FID)            Rule 1                                        |
@@ -187,15 +188,15 @@ module ietf-schc {
   identity fid-udp-dev-port {
     base fid-udp-base-type;
     description
-      "UDP source or destination port from RFC 768, if uplink or downlink
-       communication, respectively.";
+      "UDP source or destination port from RFC 768, if uplink or 
+      downlink communication, respectively.";
   }
 
   identity fid-udp-app-port {
     base fid-udp-base-type;
     description
-      "UDP destination or source port from RFC 768, if uplink or downlink
-       communication, respectively.";
+      "UDP destination or source port from RFC 768, if uplink or 
+      downlink communication, respectively.";
   }
 
   identity fid-udp-length {
@@ -809,7 +810,8 @@ module ietf-schc {
     leaf matching-operator {
       type schc:mo-type;
       must "../target-value or derived-from-or-self(., 'mo-ignore')" {
-        error-message "mo-equal, mo-msb and mo-match-mapping need target-value";
+        error-message 
+            "mo-equal, mo-msb and mo-match-mapping need target-value";
         description
           "target-value is not required for mo-ignore";
       }
@@ -873,7 +875,8 @@ module ietf-schc {
       type schc:di-type;
       must "derived-from-or-self(., 'di-up') or
             derived-from-or-self(., 'di-down')" {
-        error-message "direction for fragmentation rules are up or down.";
+        error-message 
+            "direction for fragmentation rules are up or down.";
       }
       mandatory true;
       description
@@ -910,19 +913,23 @@ module ietf-schc {
       type uint16;
       description
         "By default, if not specified 2^w-size - 1. Should not exceed
-         this value. Possible FCN values are between 0 and window-size-1.";
+         this value. Possible FCN values are between 0 and 
+         window-size-1.";
     }
     leaf max-interleaved-frames {
       type uint8;
       default "1";
       description
         "Maximum of simultaneously fragmented frames. Maximum value is
-         2^dtag-size. All DTAG values can be used, but only max-interleaved-frames
-         must be active.";
-    }
+        2^dtag-size. All DTAG values can be used, but only 
+        max-interleaved-frames must be active.";
+    
     leaf retransmission-timer {
-      when "derived-from(../fragmentation-mode, 'fragmentation-mode-ack-on-error') or
-            derived-from(../fragmentation-mode, 'fragmentation-mode-ack-always') ";
+      when "derived-from(../fragmentation-mode, 
+                                'fragmentation-mode-ack-on-error') 
+            or
+            derived-from(../fragmentation-mode, 
+                                'fragmentation-mode-ack-always') ";
       type uint64 {
         range "1..max";
       }
@@ -932,11 +939,15 @@ module ietf-schc {
     leaf inactivity-timer {
       type uint64;
       description
-        "Duration is seconds of the inactivity timer, 0 indicates the timer is disabled.";
+        "Duration is seconds of the inactivity timer, 0 indicates 
+        the timer is disabled.";
     }
     leaf max-ack-requests {
-      when "derived-from(../fragmentation-mode, 'fragmentation-mode-ack-on-error') or
-            derived-from(../fragmentation-mode, 'fragmentation-mode-ack-always') ";
+      when "derived-from(../fragmentation-mode, 
+                                'fragmentation-mode-ack-on-error') 
+            or
+            derived-from(../fragmentation-mode, 
+                                'fragmentation-mode-ack-always') ";
       type uint8 {
         range "1..max";
       }
