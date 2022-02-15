@@ -62,7 +62,7 @@ module ietf-schc {
      fields.
      This data model applies to both compression and fragmentation.";
 
-  revision 2022-02-15 {
+  revision 2021-11-10 {
     description
       "Initial version from RFC XXXX ";
     reference
@@ -70,11 +70,12 @@ module ietf-schc {
       (SCHC)";
   }
 
+  feature compression {
+    description "SCHC compression capabilities are taken into account";
+  }
+
   feature fragmentation {
-    description
-      "Fragmentation is usually required only at the transportation 
-      level.";
-      // DB: what does this mean?
+    description "SCHC fragmentation capabilities are taken into account";
   }
 
   // -------------------------
@@ -184,13 +185,15 @@ module ietf-schc {
   identity fid-udp-dev-port {
     base fid-udp-base-type;
     description
-      "UDP source or destination port from RFC 768, if uplink or downlink communication, respectively.";
+      "UDP source or destination port from RFC 768, if uplink or downlink 
+      communication, respectively.";
   }
 
   identity fid-udp-app-port {
     base fid-udp-base-type;
     description
-      "UDP destination or source port from RFC 768, if uplink or downlink communication, respectively.";
+      "UDP destination or source port from RFC 768, if uplink or downlink 
+      communication, respectively.";
   }
 
   identity fid-udp-length {
@@ -382,26 +385,26 @@ module ietf-schc {
   identity fid-coap-option-oscore-flags {
     base fid-coap-base-type;
     description
-      "CoAP option oscore flags (see draft schc coap, section 6.4)";
+      "CoAP option oscore flags (see RFC 8824, section 6.4)";
       // DB: update reference?
   }
 
   identity fid-coap-option-oscore-piv {
     base fid-coap-base-type;
     description
-      "CoAP option oscore flags (see draft schc coap, section 6.4)";
+      "CoAP option oscore flags (see RFC 8824, section 6.4)";
   }
 
   identity fid-coap-option-oscore-kid {
     base fid-coap-base-type;
     description
-      "CoAP option oscore flags (see draft schc coap, section 6.4)";
+      "CoAP option oscore flags (see RFC 8824, section 6.4)";
   }
 
   identity fid-coap-option-oscore-kidctx {
     base fid-coap-base-type;
     description
-      "CoAP option oscore flags (see draft schc coap, section 6.4)";
+      "CoAP option oscore flags (see RFC 8824, section 6.4)";
   }
 
   
@@ -447,15 +450,14 @@ module ietf-schc {
   identity di-up {
     base di-base-type;
     description
-      "Direction Indication of upstream defined in
+      "Direction Indication of uplink defined in
        RFC 8724 (cf. 7.1).";
-      // DB: uplink and downlink, I think
   }
 
   identity di-down {
     base di-base-type;
     description
-      "Direction Indication of downstream defined in
+      "Direction Indication of downlink defined in
        RFC 8724 (cf. 7.1).";
   }
 
@@ -652,11 +654,10 @@ module ietf-schc {
       "Fragmentation expects Ack after sending All1 fragment.";
   }
 
-  identity ack-behavior-always {
+  identity ack-behavior-by-layer2 {
     base ack-behavior-base-type;
     description
-      "Fragmentation expects Ack after sending every fragment.";
-      // DB: better comment neeeded. They are not accurate as is.
+      "Layer 2 defines when to send an Ack.";
   }
 
   typedef ack-behavior-type {
@@ -711,7 +712,7 @@ module ietf-schc {
   identity rcs-RFC8724 {
     base rcs-algorithm-base-type;
     description
-      "CRC 32 defined as default RCS in RFC8724.";
+      "CRC 32 defined as default RCS in RFC8724. RCS is 4 byte-long";
   }
 
   typedef rcs-algorithm-type {
@@ -880,6 +881,9 @@ module ietf-schc {
       description
         "Should be up or down, bi directionnal is forbiden.";
     }
+
+    // SCHC Frang header format 
+
     leaf dtag-size {
       type uint8;
       default "0";
@@ -903,13 +907,27 @@ module ietf-schc {
       type rcs-algorithm-type;
       default "schc:rcs-RFC8724";
       description
-        "Algoritm used for RCS";
+        "Algoritm used for RCS. The algorithm spedifies the RCS size";
     }
-    leaf maximum-window-size {
+
+    // SCHC fragmentation protocol paramters
+
+    leaf window-size {
       type uint16;
       description
-        "By default 2^wsize - 1";
+        "By default, if not specified 2^w-size - 1. Should not exceed
+        this value. Possible FCN values are between 0 and window-size-1.";
     }
+
+    leaf max-interleaved-frames{
+      type uint8;
+      default "1";
+      description
+        "Maximum of simultaneously fragmented frames. Maximum value is
+        2^dtag-size. All DTAG values can be used, but only max-interleaved-frames
+        must be active.; 
+    }
+
     leaf retransmission-timer {
       type uint64 {
         range "1..max";
@@ -919,19 +937,24 @@ module ietf-schc {
       description
         "Duration in seconds of the retransmission timer."; 
     }
+
     leaf inactivity-timer {
       type uint64;
       description
         "Duration is seconds of the inactivity timer, 
         0 indicates the timer is disabled."; 
     }
+
     leaf max-ack-requests {
       type uint8 {
         range "1..max";
       }
+      when "derived-from(../fragmentation-mode, 'fragmentation-mode-ack-on-error') or
+            derived-from(../fragmentation-mode, 'fragmentation-mode-ack-always') ";
       description
         "The maximum number of retries for a specific SCHC ACK.";
     }
+
     leaf maximum-packet-size {
       type uint16;
       default "1280";
@@ -939,6 +962,7 @@ module ietf-schc {
         "When decompression is done, packet size must not 
         strictly exceed this limit in Bytes.";
     }
+
     leaf fragmentation-mode {
       type schc:fragmentation-mode-type;
       mandatory true;
@@ -946,6 +970,7 @@ module ietf-schc {
         "which fragmentation mode is used (noAck, AckAlways, 
         AckonError)";
     }
+
     choice mode {
       case no-ack;
       case ack-always;
@@ -990,6 +1015,7 @@ module ietf-schc {
         "Rule ID value, this value must be unique combined with 
         the length.";
     }
+    
     leaf rule-id-length {
       type uint8 {
         range "0..32";
@@ -1009,10 +1035,11 @@ module ietf-schc {
       uses rule-id-type;
       choice nature {
         case fragmentation {
-          //if-feature "fragmentation";
+          if-feature "fragmentation";
           uses fragmentation-content;
         }
         case compression {
+          if-feature "compression";
           uses compression-content;
         }
         case no-compression {
