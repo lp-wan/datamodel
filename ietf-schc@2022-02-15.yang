@@ -62,7 +62,7 @@ module ietf-schc {
      fields.
      This data model applies to both compression and fragmentation.";
 
-  revision 2021-11-10 {
+  revision 2022-02-15 {
     description
       "Initial version from RFC XXXX ";
     reference
