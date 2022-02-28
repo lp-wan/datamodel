@@ -938,12 +938,14 @@ Some controls are made on the values:
 ## Fragmentation rule
 
 A Fragmentation rule is composed of entries describing the protocol behavior. Some on them are numerical entries,
-others are identifiers defined in {{frag_types}}.
+others are identifiers defined in {{frag_types}}. 
 
-The data model defines some relations between the entries:
+The definition of a Fragmentation rule is divided into three sub-parts:
 
-* direction must be either up or down (not bidirectional).
-* W size is only needed for Ack Always and Ack on Error modes.
+* parameters such as the the fragmnetation-mode, the l2-word-size and the direction. Since Fragmentation rules are always defined for a specific direction, the value must be must be either di-up or di-down (bi-bidirectional is not allowed).
+* parameters defining the Fragmentation header format (dtag-size, w-size, fcn-size and rcs-algorithm). 
+* Protocol parameters for timers (inactivity-timer, retransmission-timer) or behavior (maximum-packet-size, max-interleaved-frames, max-ack-requests). If these parameters are specific to a single fragmentation mode, they are regrouped in a choice structure dedicated to that Fragmentation mode. If some parameters can be find in several modes, typically ACK-Always and ACK-on-Error. They are defined in a common part and a when statement indicates which modes are allowed.
+
 
 
 ~~~~~~
@@ -952,6 +954,13 @@ The data model defines some relations between the entries:
       "This grouping defines the fragmentation parameters for
        all the modes (No Ack, Ack Always and Ack on Error) specified in
        RFC 8724.";
+    leaf fragmentation-mode {
+      type schc:fragmentation-mode-type;
+      mandatory true;
+      description
+        "which fragmentation mode is used (noAck, AckAlways,
+         AckonError)";
+    }
     leaf l2-word-size {
       type uint8;
       default "8";
@@ -977,8 +986,11 @@ The data model defines some relations between the entries:
         "Size in bit of the DTag field (T variable from RFC8724).";
     }
     leaf w-size {
-      when "not(derived-from(../fragmentation-mode,
-                             'fragmentation-mode-no-ack'))";
+      when "derived-from(../fragmentation-mode, 
+                                'fragmentation-mode-ack-on-error') 
+            or
+            derived-from(../fragmentation-mode, 
+                                'fragmentation-mode-ack-always') ";
       type uint8;
       description
         "Size in bit of the window field (M variable from RFC8724).";
@@ -996,6 +1008,13 @@ The data model defines some relations between the entries:
         "Algoritm used for RCS. The algorithm spedifies the RCS size";
     }
     // SCHC fragmentation protocol paramters
+    leaf maximum-packet-size {
+      type uint16;
+      default "1280";
+      description
+        "When decompression is done, packet size must not
+         strictly exceed this limit in Bytes.";
+    }
     leaf window-size {
       type uint16;
       description
@@ -1010,7 +1029,13 @@ The data model defines some relations between the entries:
         "Maximum of simultaneously fragmented frames. Maximum value is
         2^dtag-size. All DTAG values can be used, but only 
         max-interleaved-frames must be active.";
-    
+    }
+    leaf inactivity-timer {
+      type uint64;
+      description
+        "Duration is seconds of the inactivity timer, 0 indicates 
+        the timer is disabled.";
+    }
     leaf retransmission-timer {
       when "derived-from(../fragmentation-mode, 
                                 'fragmentation-mode-ack-on-error') 
@@ -1023,12 +1048,6 @@ The data model defines some relations between the entries:
       description
         "Duration in seconds of the retransmission timer.";
     }
-    leaf inactivity-timer {
-      type uint64;
-      description
-        "Duration is seconds of the inactivity timer, 0 indicates 
-        the timer is disabled.";
-    }
     leaf max-ack-requests {
       when "derived-from(../fragmentation-mode, 
                                 'fragmentation-mode-ack-on-error') 
@@ -1040,20 +1059,6 @@ The data model defines some relations between the entries:
       }
       description
         "The maximum number of retries for a specific SCHC ACK.";
-    }
-    leaf maximum-packet-size {
-      type uint16;
-      default "1280";
-      description
-        "When decompression is done, packet size must not
-         strictly exceed this limit in Bytes.";
-    }
-    leaf fragmentation-mode {
-      type schc:fragmentation-mode-type;
-      mandatory true;
-      description
-        "which fragmentation mode is used (noAck, AckAlways,
-         AckonError)";
     }
     choice mode {
       case no-ack;
@@ -1086,8 +1091,9 @@ The data model defines some relations between the entries:
       }
       description
         "RFC 8724 defines 3 fragmentation modes.";
-    }
+    } 
   }
+
 ~~~~~~
 
 
@@ -1099,30 +1105,31 @@ The data model defines some relations between the entries:
 module: ietf-schc
   +--rw schc
      +--rw rule* [rule-id-value rule-id-length]
-        +--rw rule-id-value                 uint32
-        +--rw rule-id-length                uint8
+        +--rw rule-id-value                   uint32
+        +--rw rule-id-length                  uint8
         +--rw (nature)?
-           +--:(fragmentation)
-           |  +--rw l2-word-size?           uint8
-           |  +--rw direction               schc:di-type
-           |  +--rw dtag-size?              uint8
-           |  +--rw w-size?                 uint8
-           |  +--rw fcn-size                uint8
-           |  +--rw rcs-algorithm?          rcs-algorithm-type
-           |  +--rw maximum-window-size?    uint16
-           |  +--rw retransmission-timer?   uint64
-           |  +--rw inactivity-timer?       uint64
-           |  +--rw max-ack-requests?       uint8
-           |  +--rw maximum-packet-size?    uint16
-           |  +--rw fragmentation-mode      schc:fragmentation-mode-type
+           +--:(fragmentation) {fragmentation}?
+           |  +--rw fragmentation-mode        schc:fragmentation-mode-type
+           |  +--rw l2-word-size?             uint8
+           |  +--rw direction                 schc:di-type
+           |  +--rw dtag-size?                uint8
+           |  +--rw w-size?                   uint8
+           |  +--rw fcn-size                  uint8
+           |  +--rw rcs-algorithm?            rcs-algorithm-type
+           |  +--rw maximum-packet-size?      uint16
+           |  +--rw window-size?              uint16
+           |  +--rw max-interleaved-frames?   uint8
+           |  +--rw inactivity-timer?         uint64
+           |  +--rw retransmission-timer?     uint64
+           |  +--rw max-ack-requests?         uint8
            |  +--rw (mode)?
            |     +--:(no-ack)
            |     +--:(ack-always)
            |     +--:(ack-on-error)
-           |        +--rw tile-size?        uint8
-           |        +--rw tile-in-All1?     schc:all1-data-type
-           |        +--rw ack-behavior?     schc:ack-behavior-type
-           +--:(compression)
+           |        +--rw tile-size?          uint8
+           |        +--rw tile-in-All1?       schc:all1-data-type
+           |        +--rw ack-behavior?       schc:ack-behavior-type
+           +--:(compression) {compression}?
            |  +--rw entry* [field-id field-position direction-indicator]
            |     +--rw field-id                    schc:fid-type
            |     +--rw field-length                schc:fl-type

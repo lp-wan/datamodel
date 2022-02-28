@@ -865,6 +865,13 @@ module ietf-schc {
       "This grouping defines the fragmentation parameters for
        all the modes (No Ack, Ack Always and Ack on Error) specified in
        RFC 8724.";
+    leaf fragmentation-mode {
+      type schc:fragmentation-mode-type;
+      mandatory true;
+      description
+        "which fragmentation mode is used (noAck, AckAlways,
+         AckonError)";
+    }
     leaf l2-word-size {
       type uint8;
       default "8";
@@ -890,8 +897,11 @@ module ietf-schc {
         "Size in bit of the DTag field (T variable from RFC8724).";
     }
     leaf w-size {
-      when "not(derived-from(../fragmentation-mode,
-                             'fragmentation-mode-no-ack'))";
+      when "derived-from(../fragmentation-mode, 
+                                'fragmentation-mode-ack-on-error') 
+            or
+            derived-from(../fragmentation-mode, 
+                                'fragmentation-mode-ack-always') ";
       type uint8;
       description
         "Size in bit of the window field (M variable from RFC8724).";
@@ -909,6 +919,13 @@ module ietf-schc {
         "Algoritm used for RCS. The algorithm spedifies the RCS size";
     }
     // SCHC fragmentation protocol paramters
+    leaf maximum-packet-size {
+      type uint16;
+      default "1280";
+      description
+        "When decompression is done, packet size must not
+         strictly exceed this limit in Bytes.";
+    }
     leaf window-size {
       type uint16;
       description
@@ -923,7 +940,13 @@ module ietf-schc {
         "Maximum of simultaneously fragmented frames. Maximum value is
         2^dtag-size. All DTAG values can be used, but only 
         max-interleaved-frames must be active.";
-    
+    }
+    leaf inactivity-timer {
+      type uint64;
+      description
+        "Duration is seconds of the inactivity timer, 0 indicates 
+        the timer is disabled.";
+    }
     leaf retransmission-timer {
       when "derived-from(../fragmentation-mode, 
                                 'fragmentation-mode-ack-on-error') 
@@ -936,12 +959,6 @@ module ietf-schc {
       description
         "Duration in seconds of the retransmission timer.";
     }
-    leaf inactivity-timer {
-      type uint64;
-      description
-        "Duration is seconds of the inactivity timer, 0 indicates 
-        the timer is disabled.";
-    }
     leaf max-ack-requests {
       when "derived-from(../fragmentation-mode, 
                                 'fragmentation-mode-ack-on-error') 
@@ -953,20 +970,6 @@ module ietf-schc {
       }
       description
         "The maximum number of retries for a specific SCHC ACK.";
-    }
-    leaf maximum-packet-size {
-      type uint16;
-      default "1280";
-      description
-        "When decompression is done, packet size must not
-         strictly exceed this limit in Bytes.";
-    }
-    leaf fragmentation-mode {
-      type schc:fragmentation-mode-type;
-      mandatory true;
-      description
-        "which fragmentation mode is used (noAck, AckAlways,
-         AckonError)";
     }
     choice mode {
       case no-ack;
@@ -999,7 +1002,7 @@ module ietf-schc {
       }
       description
         "RFC 8724 defines 3 fragmentation modes.";
-    }
+    } 
   }
 
   // Define rule ID. Rule ID is composed of a RuleID value and a 
