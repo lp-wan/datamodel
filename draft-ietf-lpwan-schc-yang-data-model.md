@@ -125,7 +125,7 @@ Identifier used in the SCHC YANG Data Model are from the identityref statement t
 
 * define a main identity ending with the keyword base-type.
 
-* derive all the identity used in the Data Model from this base type.
+* derive all the identities used in the Data Model from this base type.
 
 * create a typedef from this base type.
 
@@ -160,7 +160,7 @@ The example ({{Fig-identityref}}) shows how an identityref is created for RCS al
 
 ##Field Identifier
 
-In the process of compression, the headers of the original packet are first parsed to create a list of fields. This list of fields is matched against the rules to find the appropriate rule and apply compression.  {{RFC8724}}  do not state how the field ID value can be constructed. 
+In the process of compression, the headers of the original packet are first parsed to create a list of fields. This list of fields is matched against the rules to find the appropriate rule and apply compression.  {{RFC8724}}  does not state how the field ID value is constructed. 
 In examples, identification is done through a string indexed by the protocol name (e.g. IPv6.version, CoAP.version,...).
 
 The current YANG Data Model includes fields definitions found in {{RFC8724}}, {{RFC8824}}.
@@ -228,7 +228,7 @@ The type associated to this identity is fid-type (cf. {{Fig-field-id-type}})
 ## Field length 
 
 Field length is either an integer giving the size of a field in bits or a specific function. {{RFC8724}} defines the
-"var" function which allows variable length fields in byte and {{RFC8824}} defines the "tkl" function for managing the CoAP
+"var" function which allows variable length fields (whose length is expressed in bytes) and {{RFC8824}} defines the "tkl" function for managing the CoAP
 Token length field.
 
 The naming convention is "fl" followed by the function name.
@@ -255,7 +255,7 @@ The naming convention is "fl" followed by the function name.
 ~~~~~
 {: #Fig-ex-field-length title='Definition of identityref for Field Length'}
 
-Field ID, field length function can be defined as an identityref as shown in {{Fig-ex-field-length}}.
+The field length function can be defined as an identityref as shown in {{Fig-ex-field-length}}.
 
 Therefore, the type for field length is a union between an integer giving in bits the size of the length and the identityref (cf. {{Fig-ex-field-length-union}}).
 
@@ -335,11 +335,11 @@ The type is "di-type" (cf. {{Fig-field-DI-type}}).
 
 ## Target Value
 
-The Target Value is a list of binary sequences of any length, aligned on the left. {{Fig-ex-TV}} gives the definition of a single element of a Target Value. In the rule, this will be used as a list, with position as a key. The highest position value is used to compute the size of the index sent in residue for LSB CDA. The position allows to specify several values:
+The Target Value is a list of binary sequences of any length, aligned to the left. {{Fig-ex-TV}} shows the definition of a single element of a Target Value. In the rule, the structure will be used as a list, with position as a key. The highest position value is used to compute the size of the index sent in residue for the match-mapping CDA. The position allows to specify several values:
 
-* For Equal and LSB, a single value is used, such as for the equal or LSB CDA, the position is set to 0.
+* For Equal and LSB, Target Value contains a single element. Therefore, the position is set to 0.
 
-* For match-mapping, several of these values can be contained in a Target Value field.  Position values must start from 0 and be contiguous. 
+* For match-mapping, Target Value can contain several elements. Position values must start from 1 and be contiguous. 
 
 
 ~~~~~
@@ -419,14 +419,14 @@ The type is "mo-type" (cf. {{Fig-MO-type}})
 ### Matching Operator arguments
 
 
-They are viewed as a list of tv-struct.
+They are viewed as a list, built with a tv-struct.
 
 ## Compression Decompression Actions
 
-Compression Decompression Action (CDA) identified the function to use either for compression or decompression. 
+Compression Decompression Action (CDA) identifies the function to use for compression or decompression. 
 {{RFC8724}} defines 6 CDA. 
 
-{{Fig-CDA-type}} gives some CDA definition, the full definition is in {{annexA}}.
+{{Fig-CDA-type}} shows some CDA definition, the full definition is in {{annexA}}.
 
 ~~~~~
   identity cda-base-type {
@@ -478,16 +478,16 @@ The naming convention is "cda" followed by the CDA name.
 
 ### Compression Decompression Action arguments
 
-Currently no CDA requires arguments, but the future some CDA may require several arguments.
-They are viewed as a list of target-values-type.
+Currently no CDA requires arguments, but in the future some CDA may require one or several arguments.
+They are viewed as a list, of target-value type.
 
 ## Fragmentation rule {#frag_types}
 
 Fragmentation is optional in the data model and depends on the presence of the "fragmentation" feature.  
 
-Most of parameters for fragmentation are defined in Annex D of {{RFC8724}}. 
+Most of the fragmentation parameters are listed in Annex D of {{RFC8724}}. 
 
-Since fragmentation rules work for a specific direction, they contain a mandatory direction.
+Since fragmentation rules work for a specific direction, they contain a mandatory direction indicator.
 The type is the same as the one used in compression entries, but the use of bidirectional is 
 forbidden. 
 
@@ -501,7 +501,7 @@ forbidden.
 
 * Ack on Error:  A window is acknowledged only when the receiver detects some missing fragments.
 
-{{Fig-frag-mode}} give the definition for identifiers from these three modes.
+{{Fig-frag-mode}} shows the definition for identifiers from these three modes.
 
 ~~~~
   identity fragmentation-mode-base-type {
@@ -549,7 +549,7 @@ The direction is mandatory and must be up or down. bidirectional is forbidden. T
 
 * a Datagram Tag (Dtag) identifying the datagram being fragmented if the fragmentation applies concurrently on several datagrams. This field in optional and its length is defined by the rule.
 
-* a Window (W) used in Ack-Always and Ack-on-Error modes. In Ack-Always, its size is 1 and depends on the rule in Ack-on-Error. This field is not need in No-Ack mode. 
+* a Window (W) used in Ack-Always and Ack-on-Error modes. In Ack-Always, its size is 1. In Ack-on-Error, it depends on the rule. This field is not needed in No-Ack mode. 
 
 * a Fragment Compressed Number (FCN) indicating the fragment/tile position on the window. This field is mandatory on all modes defined in {{RFC8724}}, its size is defined by the rule.
 
@@ -643,13 +643,12 @@ The naming convention is "all1-data" followed by the behavior identifier.
 
 ### Acknowledgment behavior
 
-A cknowledgment fragment header goes in the opposite direction of data. The header is composed of (see {{Fig-frag-ack}}):
+The acknowledgment fragment header goes in the opposite direction of data. The header is composed of (see {{Fig-frag-ack}}):
 
 * a Dtag (if present).
 * a mandatory window as in the data fragment. 
-* a C bit giving the status of RCS validation.  In case of failure, a bitmap follows, indicating received fragment/tile. The size of the bitmap is given by the FCN value.
+* a C bit giving the status of RCS validation.  In case of failure, a bitmap follows, indicating the received tile. The size of the bitmap is given by the FCN value.
 
-NOTE: IN THE DATA MODEL THERE IS A max-window-size FIELD TO LIMIT THE BITMAP SIZE, BUT IS NO MORE IN RFC8724! DO WE KEEP IT?
 
 ~~~~~~
 |--- SCHC ACK Header ----|
@@ -665,8 +664,8 @@ NOTE: IN THE DATA MODEL THERE IS A max-window-size FIELD TO LIMIT THE BITMAP SIZ
 ~~~~~~
 {: #Fig-frag-ack title='Acknowledgment fragment header for RFC8724'}
 
-For Ack-on-Error, SCHC defined  when acknowledgment can be sent. This can be at any time defined by the layer 2, at the end of a window (FCN All-0) 
-or at the end of the fragment (FCN All-1). The following identifiers (cf. {{Fig-frag-ack-behavior}}) define the acknowledgment behavior.
+For Ack-on-Error, SCHC defines when an acknowledgment can be sent. This can be at any time defined by the layer 2, at the end of a window (FCN All-0) 
+or as a response to receiving the last fragment (FCN All-1). The following identifiers (cf. {{Fig-frag-ack-behavior}}) define the acknowledgment behavior.
 
 ~~~~~
   identity ack-behavior-base-type {
@@ -710,12 +709,12 @@ The naming convention is "ack-behavior" followed by the algorithm name.
 
 The state machine requires some common values to handle fragmentation:
 
-* retransmission-timer gives in seconds the duration before sending an ack request (cf. section 8.2.2.4. of {{RFC8724}}). If specified, value must be higher or equal to 1. 
-* inactivity-timer gives in seconds the duration before aborting (cf. section 8.2.2.4. of {{RFC8724}}), value of 0 explicitly indicates that this timer is disabled.
-* max-ack-requests gives the number of attempts before aborting (cf. section 8.2.2.4. of {{RFC8724}}).
-* maximum-packet-size gives in bytes the larger packet size that can be reassembled. 
+* retransmission-timer expresses, in seconds, the duration before sending an ack request (cf. section 8.2.2.4. of {{RFC8724}}). If specified, value must be higher or equal to 1. 
+* inactivity-timer expresses, in seconds, the duration before aborting a fragmentation session (cf. section 8.2.2.4. of {{RFC8724}}). The value 0 explicitly indicates that this timer is disabled.
+* max-ack-requests expresses the number of attempts before aborting (cf. section 8.2.2.4. of {{RFC8724}}).
+* maximum-packet-size rexpresses, in bytes, the larger packet size that can be reassembled. 
 
-The are defined as unsigned integer, see {{annexA}}.
+They are defined as unsigned integers, see {{annexA}}.
 
 ### Layer 2 parameters
 
@@ -732,14 +731,14 @@ They are defined as unsigned integer, see {{annexA}}.
 
 # Rule definition
 
-A rule is either a C/D or an F/R rule. A rule is identified by the rule ID value and its associated length. 
-The YANG grouping rule-id-type defines the structure used to represent a rule ID. Length of 0 is allowed to represent an implicit rule. 
+A rule is either a C/D or an F/R rule. A rule is identified by the length and value of its rule ID. 
+The YANG grouping rule-id-type defines the structure used to represent a rule ID. A length of 0 is allowed to represent an implicit rule. 
 
 Three types of rules are defined in {{RFC8724}}:
 
-* Compression: a compression rule is associated to the rule ID.
-* No compression: nothing is associated to the rule ID.
-* Fragmentation: fragmentation parameters are associated to the rule ID. Fragmentation is optional and feature "fragmentation" should be set. 
+* Compression: a compression rule is associated with the rule ID.
+* No compression: nothing is associated with the rule ID.
+* Fragmentation: fragmentation parameters are associated with the rule ID. Fragmentation is optional and feature "fragmentation" should be set. 
 
 
 ~~~~~
@@ -796,10 +795,10 @@ Three types of rules are defined in {{RFC8724}}:
 ~~~~~ 
 {: #Fig-yang-schc title='Definition of a SCHC Context'}
 
-To access to a specific rule, rule-id and its specific length is used as a key. The rule is either
+To access a specific rule, the rule ID length and value are used as a key. The rule is either
 a compression or a fragmentation rule.  
 
-Each context can be identified though a version id. 
+Each context can be identified through a version id. 
 
 ## Compression rule
 
@@ -810,7 +809,7 @@ compression-rule-entry, indexed by their field id, position and direction. The c
 element represent a line of the table {{Fig-ctxt}}. Their type reflects the identifier types defined in
 {{comp_types}}
 
-Some controls are made on the values:
+Some checks are performed on the values:
 
 * target value must be present for MO different from ignore.
 * when MSB MO is specified, the matching-operator-value must be present
@@ -942,9 +941,9 @@ others are identifiers defined in {{frag_types}}.
 
 The definition of a Fragmentation rule is divided into three sub-parts:
 
-* parameters such as the the fragmnetation-mode, the l2-word-size and the direction. Since Fragmentation rules are always defined for a specific direction, the value must be must be either di-up or di-down (bi-bidirectional is not allowed).
+* parameters such as the fragmentation-mode, the l2-word-size and the direction. Since Fragmentation rules are always defined for a specific direction, the value must be either di-up or di-down (di-bidirectional is not allowed).
 * parameters defining the Fragmentation header format (dtag-size, w-size, fcn-size and rcs-algorithm). 
-* Protocol parameters for timers (inactivity-timer, retransmission-timer) or behavior (maximum-packet-size, max-interleaved-frames, max-ack-requests). If these parameters are specific to a single fragmentation mode, they are regrouped in a choice structure dedicated to that Fragmentation mode. If some parameters can be find in several modes, typically ACK-Always and ACK-on-Error. They are defined in a common part and a when statement indicates which modes are allowed.
+* Protocol parameters for timers (inactivity-timer, retransmission-timer) or behavior (maximum-packet-size, max-interleaved-frames, max-ack-requests). If these parameters are specific to a single fragmentation mode, they are grouped in a structure dedicated to that Fragmentation mode. If some parameters can be found in several modes, typically ACK-Always and ACK-on-Error, they are defined in a common part and a when statement indicates which modes are allowed.
 
 
 
@@ -1157,7 +1156,7 @@ This document has no request to IANA.
 
 # Security considerations {#SecConsiderations}
 
-This document does not have any more Security consideration than the ones already raised on {{RFC8724}}
+This document does not have any more Security consideration than the ones already raised in {{RFC8724}} and {{RFC8824}}.
 
 # Acknowledgements
 
