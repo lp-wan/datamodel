@@ -786,10 +786,10 @@ module ietf-schc {
       type uint8;
       mandatory true;
       description
-        "Field position in the header is an integer. If the field appears
-         only once in the header, its position is 1. The position is incremented for each
-         repeated occurence of the field. Position 0 means that the position of occurence is
-         not important. Be aware that the decompressed header may have position-0 fields ordered
+        "Field position in the header is an integer. Position 1 matches the first occurence of a field
+         in the header, while incremented position values match subsequent occurences.
+         Position 0 means that this entry matches a field irrespective of its position of occurence in the header.
+         Be aware that the decompressed header may have position-0 fields ordered
          differently than they appeared in the original packet.";
     }
     leaf direction-indicator {
