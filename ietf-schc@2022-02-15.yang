@@ -528,16 +528,10 @@ module ietf-schc {
       "mapping-sent CDA as defined in RFC 8724 (cf. 7.4).";
   }
 
-  identity cda-compute-length { /* change to compute-* */
+  identity cda-compute { 
     base cda-base-type;
     description
       "compute-length CDA as defined in RFC 8724 (cf. 7.4)";
-  }
-
-  identity cda-compute-checksum {
-    base cda-base-type;
-    description
-      "compute-checksum CDA as defined in RFC 8724 (cf. 7.4)";
   }
 
   identity cda-deviid {
