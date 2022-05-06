@@ -531,7 +531,7 @@ module ietf-schc {
   identity cda-compute { 
     base cda-base-type;
     description
-      "compute-* CDA as defined in RFC 8724 (cf. 7.4)";
+      "compute-length CDA as defined in RFC 8724 (cf. 7.4)";
   }
 
   identity cda-deviid {
@@ -863,7 +863,7 @@ module ietf-schc {
   grouping fragmentation-content {
     description
       "This grouping defines the fragmentation parameters for
-       all the modes (No Ack, Ack Always and Ack on Error) specified in
+       all the modes (No-Ack, Ack-Always and Ack-on-Error) specified in
        RFC 8724.";
     leaf fragmentation-mode {
       type schc:fragmentation-mode-type;

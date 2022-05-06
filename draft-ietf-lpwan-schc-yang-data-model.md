@@ -956,7 +956,7 @@ The definition of a Fragmentation rule is divided into three sub-parts:
  grouping fragmentation-content {
     description
       "This grouping defines the fragmentation parameters for
-       all the modes (No Ack, Ack Always and Ack on Error) specified in
+       all the modes (No-Ack, Ack-Always and Ack-on-Error) specified in
        RFC 8724.";
     leaf fragmentation-mode {
       type schc:fragmentation-mode-type;
