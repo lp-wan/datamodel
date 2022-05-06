@@ -531,7 +531,7 @@ module ietf-schc {
   identity cda-compute { 
     base cda-base-type;
     description
-      "compute-length CDA as defined in RFC 8724 (cf. 7.4)";
+      "compute-* CDA as defined in RFC 8724 (cf. 7.4)";
   }
 
   identity cda-deviid {
