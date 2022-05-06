@@ -333,13 +333,13 @@ The type is "di-type" (cf. {{Fig-field-DI-type}}).
 ~~~~~
 {: #Fig-field-DI-type title='Type definition for direction indicators'}
 
-## Target Value
+## Target Value {#target_value}
 
 The Target Value is a list of binary sequences of any length, aligned to the left. {{Fig-ex-TV}} shows the definition of a single element of a Target Value. In the rule, the structure will be used as a list, with position as a key. The highest position value is used to compute the size of the index sent in residue for the match-mapping CDA. The position allows to specify several values:
 
 * For Equal and LSB, Target Value contains a single element. Therefore, the position is set to 0.
 
-* For match-mapping, Target Value can contain several elements. Position values must start from 1 and be contiguous. 
+* For match-mapping, Target Value can contain several elements. Position values must start from 1 and MUST be contiguous. 
 
 
 ~~~~~
@@ -419,7 +419,7 @@ The type is "mo-type" (cf. {{Fig-MO-type}})
 ### Matching Operator arguments
 
 
-They are viewed as a list, built with a tv-struct.
+They are viewed as a list, built with a tv-struct (see chapter {{target_value}}).
 
 ## Compression Decompression Actions
 
@@ -487,9 +487,8 @@ Fragmentation is optional in the data model and depends on the presence of the "
 
 Most of the fragmentation parameters are listed in Annex D of {{RFC8724}}. 
 
-Since fragmentation rules work for a specific direction, they contain a mandatory direction indicator.
-The type is the same as the one used in compression entries, but the use of bidirectional is 
-forbidden. 
+Since fragmentation rules work for a specific direction, they MUST contain a mandatory direction indicator.
+The type is the same as the one used in compression entries, but bidirectional MUST NOT be used.
 
 ### Fragmentation mode
 
@@ -544,8 +543,8 @@ The naming convention is "fragmentation-mode" followed by the fragmentation mode
 ### Fragmentation Header
 
 
-A data fragment header, directly following the rule ID can be sent on the fragmentation direction. 
-The direction is mandatory and must be up or down. bidirectional is forbidden. The SCHC header may be composed of (cf. {{Fig-frag-header-8724}}):
+A data fragment header, starting with the rule ID can be sent on the fragmentation direction. 
+The SCHC header may be composed of (cf. {{Fig-frag-header-8724}}):
 
 * a Datagram Tag (Dtag) identifying the datagram being fragmented if the fragmentation applies concurrently on several datagrams. This field in optional and its length is defined by the rule.
 
@@ -647,7 +646,7 @@ The acknowledgment fragment header goes in the opposite direction of data. The h
 
 * a Dtag (if present).
 * a mandatory window as in the data fragment. 
-* a C bit giving the status of RCS validation.  In case of failure, a bitmap follows, indicating the received tile. The size of the bitmap is given by the FCN value.
+* a C bit giving the status of RCS validation.  In case of failure, a bitmap follows, indicating the received tile. 
 
 
 ~~~~~~
@@ -797,8 +796,6 @@ Three types of rules are defined in {{RFC8724}}:
 
 To access a specific rule, the rule ID length and value are used as a key. The rule is either
 a compression or a fragmentation rule.  
-
-Each context can be identified through a version id. 
 
 ## Compression rule
 
