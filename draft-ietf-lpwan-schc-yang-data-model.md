@@ -1,7 +1,7 @@
 ---
 stand_alone: true
 ipr: trust200902
-docname: draft-ietf-lpwan-schc-yang-data-model-08
+docname: draft-ietf-lpwan-schc-yang-data-model-09
 cat: std
 pi:
   symrefs: 'yes'
@@ -33,6 +33,7 @@ author:
 normative:
     RFC8724:
     RFC8824:
+    RFC9011:
 
     
 --- abstract
@@ -336,9 +337,9 @@ The type is "di-type" (cf. {{Fig-field-DI-type}}).
 
 The Target Value is a list of binary sequences of any length, aligned to the left. {{Fig-ex-TV}} shows the definition of a single element of a Target Value. In the rule, the structure will be used as a list, with position as a key. The highest position value is used to compute the size of the index sent in residue for the match-mapping CDA. The position allows to specify several values:
 
-* For Equal and LSB, Target Value contains a single element. Therefore, the position is set to 0.
+* For Equal and LSB, Target Value contains a single element. Therefore, the indicia is set to 0.
 
-* For match-mapping, Target Value can contain several elements. Position values must start from 1 and MUST be contiguous. 
+* For match-mapping, Target Value can contain several elements. Indicia values MUST start from 0 and MUST be contiguous. 
 
 
 ~~~~~
@@ -352,11 +353,12 @@ The Target Value is a list of binary sequences of any length, aligned to the lef
       description
         "Target Value";
     }
-    leaf position {
+    leaf indicia {
       type uint16;
       description
-        "If only one element, position is 0. Otherwise, position is the
-         the order in the matching list, starting at 1.";
+        "Indicia gives the position in the matching-list. If only one 
+         element is present, indicia is 0. Otherwise, indicia is the
+         the order in the matching list, starting at 0.";
     }
   }
 ~~~~~
@@ -944,13 +946,30 @@ Some checks are performed on the values:
 A Fragmentation rule is composed of entries describing the protocol behavior. Some on them are numerical entries,
 others are identifiers defined in {{frag_types}}. 
 
-The definition of a Fragmentation rule is divided into three sub-parts:
+The definition of a Fragmentation rule is divided into three sub-parts (cf. {{Fig-frag-struct}}):
 
 * parameters such as the fragmentation-mode, the l2-word-size and the direction. Since Fragmentation rules are always defined for a specific direction, the value must be either di-up or di-down (di-bidirectional is not allowed).
 * parameters defining the Fragmentation header format (dtag-size, w-size, fcn-size and rcs-algorithm). 
-* Protocol parameters for timers (inactivity-timer, retransmission-timer) or behavior (maximum-packet-size, max-interleaved-frames, max-ack-requests). If these parameters are specific to a single fragmentation mode, they are grouped in a structure dedicated to that Fragmentation mode. If some parameters can be found in several modes, typically ACK-Always and ACK-on-Error, they are defined in a common part and a when statement indicates which modes are allowed.
+* Protocol parameters for timers (inactivity-timer, retransmission-timer). {{RFC8724}} do not specified any range for these timers. {{RFC9011}} recommends a duration of 12 hours. In fact, the value range sould be between milli-seconds for real time systems to several days. {{Fig-timer-duration}} shows the two parameters defined for timers:
+  * the duration of a tick is computed through this formula 2^tick-duration/10^6. When tick-duration is set to 0, the unit is the micro-second. The default value of 20 leads to a unit of about 1.05 second. A value of 32 leads to a tick duration of about 1.19 hours.
+  * the number of ticks in the predefined unit. With the default tick-duration value of 20, the timers can cover a range between 1.0 sec and 19 hours covering {{RFC9011}} recommandation.
+* Protocol behavior (maximum-packet-size, max-interleaved-frames, max-ack-requests). If these parameters are specific to a single fragmentation mode, they are grouped in a structure dedicated to that Fragmentation mode. If some parameters can be found in several modes, typically ACK-Always and ACK-on-Error, they are defined in a common part and a when statement indicates which modes are allowed.
 
 
+~~~~~~
+   grouping timer-duration {
+    leaf ticks-duration {
+      type uint8;
+      default 20;
+      description "duration of one tick in micro-seconds, 2^ticks-duration/10^6 = 1.048s";
+    }
+    leaf ticks-numbers {
+      type uint16;
+      description "timer duration = ticks-numbers * 2^ticks-duration / 10^6";
+    }  
+  }
+~~~~~~
+{: #Fig-timer-duration title='Timer duration values'}
 
 ~~~~~~
  grouping fragmentation-content {
@@ -1099,6 +1118,7 @@ The definition of a Fragmentation rule is divided into three sub-parts:
     } 
   }
 ~~~~~~
+{: #Fig-frag-struct title='Fragmentation Parameters'}
 
 
 
@@ -1123,8 +1143,12 @@ module: ietf-schc
            |  +--rw maximum-packet-size?      uint16
            |  +--rw window-size?              uint16
            |  +--rw max-interleaved-frames?   uint8
-           |  +--rw inactivity-timer?         uint64
-           |  +--rw retransmission-timer?     uint64
+           |  +--rw inactivity-timer
+           |  |  +--rw ticks-duration?   uint8
+           |  |  +--rw ticks-numbers?    uint16
+           |  +--rw retransmission-timer
+           |  |  +--rw ticks-duration?   uint8
+           |  |  +--rw ticks-numbers?    uint16
            |  +--rw max-ack-requests?         uint8
            |  +--rw (mode)?
            |     +--:(no-ack)
@@ -1139,18 +1163,19 @@ module: ietf-schc
            |     +--rw field-length                schc:fl-type
            |     +--rw field-position              uint8
            |     +--rw direction-indicator         schc:di-type
-           |     +--rw target-value* [position]
-           |     |  +--rw value?      binary
-           |     |  +--rw position    uint16
+           |     +--rw target-value* [indicia]
+           |     |  +--rw value?     binary
+           |     |  +--rw indicia    uint16
            |     +--rw matching-operator           schc:mo-type
-           |     +--rw matching-operator-value* [position]
-           |     |  +--rw value?      binary
-           |     |  +--rw position    uint16
+           |     +--rw matching-operator-value* [indicia]
+           |     |  +--rw value?     binary
+           |     |  +--rw indicia    uint16
            |     +--rw comp-decomp-action          schc:cda-type
-           |     +--rw comp-decomp-action-value* [position]
-           |        +--rw value?      binary
-           |        +--rw position    uint16
+           |     +--rw comp-decomp-action-value* [indicia]
+           |        +--rw value?     binary
+           |        +--rw indicia    uint16
            +--:(no-compression)
+
 ~~~~~ 
 {: #Fig-model-overview title='Overview of SCHC data model}
 
@@ -1164,7 +1189,8 @@ This document does not have any more Security consideration than the ones alread
 
 # Acknowledgements
 
-The authors would like to thank Dominique Barthel, Carsten Bormann, Alexander Pelov. 
+The authors would like to thank Dominique Barthel, Carsten Bormann, Alexander Pelov for their careful reading and valuable inputs. A special thanks for 
+Carl Moberg for his patience and wise advices when building the model.
 
 # YANG Module {#annexA}
 

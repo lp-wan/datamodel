@@ -718,6 +718,20 @@ module ietf-schc {
       "type used in rules.";
   }
 
+  // --------- TIMER DURATION -------------------
+  
+   grouping timer-duration {
+    leaf ticks-duration {
+      type uint8;
+      default 20;
+      description "duration of one tick in micro-seconds, 2^ticks-duration/10^6 = 1.048s";
+    }
+    leaf ticks-numbers {
+      type uint16;
+      description "timer duration = ticks-numbers * 2^ticks / 10^6";
+    }  
+  }
+
   // --------  RULE ENTRY DEFINITION ------------
 
   grouping tv-struct {
@@ -730,11 +744,12 @@ module ietf-schc {
       description
         "Target Value";
     }
-    leaf position {
+    leaf indicia {
       type uint16;
       description
-        "If only one element, position is 0. Otherwise, position is the
-         the order in the matching list, starting at 1.";
+        "Indicia gives the position in the matching-list. If only one 
+         element is present, indicia is 0. Otherwise, indicia is the
+         the order in the matching list, starting at 0.";
     }
   }
 
@@ -797,7 +812,7 @@ module ietf-schc {
          is bidirectional, up or down";
     }
     list target-value {
-      key "position";
+      key "indicia";
       uses tv-struct;
       description
         "A list of value to compare with the header field value.
@@ -823,7 +838,7 @@ module ietf-schc {
         "MO: Matching Operator";
     }
     list matching-operator-value {
-      key "position";
+      key "indicia";
       uses tv-struct;
       description
         "Matching Operator Arguments, based on TV structure to allow
@@ -838,7 +853,7 @@ module ietf-schc {
         "CDA: Compression Decompression Action.";
     }
     list comp-decomp-action-value {
-      key "position";
+      key "indicia";
       uses tv-struct;
       description
         "CDA arguments, based on a TV structure, in order to allow for 
@@ -941,21 +956,19 @@ module ietf-schc {
         2^dtag-size. All DTAG values can be used, but at most
         max-interleaved-frames must be active at any time.";
     }
-    leaf inactivity-timer {
-      type uint64;
+    container inactivity-timer {
+      uses timer-duration;
       description
         "Duration is seconds of the inactivity timer, 0 indicates 
         that the timer is disabled.";
     }
-    leaf retransmission-timer {
+    container retransmission-timer {
+      uses timer-duration;
       when "derived-from(../fragmentation-mode, 
                                 'fragmentation-mode-ack-on-error') 
             or
             derived-from(../fragmentation-mode, 
                                 'fragmentation-mode-ack-always') ";
-      type uint64 {
-        range "1..max";
-      }
       description
         "Duration in seconds of the retransmission timer.";
     }
