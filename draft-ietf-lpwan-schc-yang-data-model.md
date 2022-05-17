@@ -556,7 +556,7 @@ The SCHC header may be composed of (cf. {{Fig-frag-header-8724}}):
 
 * a Window (W) used in Ack-Always and Ack-on-Error modes. In Ack-Always, its size is 1. In Ack-on-Error, it depends on the rule. This field is not needed in No-Ack mode. 
 
-* a Fragment Compressed Number (FCN) indicating the fragment/tile position on the window. This field is mandatory on all modes defined in {{RFC8724}}, its size is defined by the rule.
+* a Fragment Compressed Number (FCN) indicating the fragment/tile position within the window. This field is mandatory on all modes defined in {{RFC8724}}, its size is defined by the rule.
 
 ~~~~~
 
