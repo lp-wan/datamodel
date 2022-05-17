@@ -730,6 +730,19 @@ module ietf-schc {
       type uint16;
       description "timer duration = ticks-numbers * 2^ticks / 10^6";
     }  
+    description "used by inactivity and retransmission timer. Allows a precision from
+      micro-second to year by sending the tick-duration value. For instance:
+      
+      tick-duration /    smallest value          highest value
+       v                 
+      20: 00000y 000d 00h 00m 01s.048575<->00000y 000d 19h 05m 18s.428159
+      21: 00000y 000d 00h 00m 02s.097151<->00000y 001d 14h 10m 36s.856319
+      22: 00000y 000d 00h 00m 04s.194303<->00000y 003d 04h 21m 13s.712639
+      23: 00000y 000d 00h 00m 08s.388607<->00000y 006d 08h 42m 27s.425279
+      24: 00000y 000d 00h 00m 16s.777215<->00000y 012d 17h 24m 54s.850559
+      25: 00000y 000d 00h 00m 33s.554431<->00000y 025d 10h 49m 49s.701119
+
+      ";
   }
 
   // --------  RULE ENTRY DEFINITION ------------
