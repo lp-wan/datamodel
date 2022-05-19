@@ -1,7 +1,7 @@
 ---
 stand_alone: true
 ipr: trust200902
-docname: draft-ietf-lpwan-schc-yang-data-model-09
+docname: draft-ietf-lpwan-schc-yang-data-model-10
 cat: std
 pi:
   symrefs: 'yes'
@@ -269,7 +269,7 @@ Therefore, the type for field length is a union between an integer giving in bit
       }
     }
     description
-      "Field length either a positive integer expressing the size in 
+      "Field length either a positive integer expressing the size in
        bits or a function defined through an identityref.";
   }
 ~~~~~
@@ -335,29 +335,29 @@ The type is "di-type" (cf. {{Fig-field-DI-type}}).
 
 ## Target Value {#target_value}
 
-The Target Value is a list of binary sequences of any length, aligned to the left. {{Fig-ex-TV}} shows the definition of a single element of a Target Value. In the rule, the structure will be used as a list, with position as a key. The highest position value is used to compute the size of the index sent in residue for the match-mapping CDA. The position allows to specify several values:
+The Target Value is a list of binary sequences of any length, aligned to the left. {{Fig-ex-TV}} shows the definition of a single element of a Target Value. In the rule, the structure will be used as a list, with index as a key. The highest index value is used to compute the size of the index sent in residue for the match-mapping CDA. The index allows to specify several values:
 
-* For Equal and LSB, Target Value contains a single element. Therefore, the indicia is set to 0.
+* For Equal and LSB, Target Value contains a single element. Therefore, the index is set to 0.
 
-* For match-mapping, Target Value can contain several elements. Indicia values MUST start from 0 and MUST be contiguous. 
+* For match-mapping, Target Value can contain several elements. Index values MUST start from 0 and MUST be contiguous. 
 
 
 ~~~~~
   grouping tv-struct {
     description
-      "Defines the target value element. Always a binary type, strings
-       must be converted to binary. field-id allows the conversion
-       to the appropriate type.";
+      "Defines the target value element. Always a binary type, 
+       strings must be converted to binary. field-id allows the 
+       conversion to the appropriate type.";
     leaf value {
       type binary;
       description
         "Target Value";
     }
-    leaf indicia {
+    leaf index {
       type uint16;
       description
-        "Indicia gives the position in the matching-list. If only one 
-         element is present, indicia is 0. Otherwise, indicia is the
+        "Index gives the position in the matching-list. If only one
+         element is present, index is 0. Otherwise, indicia is the
          the order in the matching list, starting at 0.";
     }
   }
@@ -459,7 +459,7 @@ Compression Decompression Action (CDA) identifies the function to use for compre
       "mapping-sent CDA as defined in RFC 8724 (cf. 7.4).";
   }
 
-  identity cda-compute { 
+  identity cda-compute {
     base cda-base-type;
     description
       "compute-* CDA as defined in RFC 8724 (cf. 7.4)";
@@ -756,10 +756,11 @@ Three types of rules are defined in {{RFC8724}}:
         range "0..32";
       }
       description
-        "Rule ID length, in bits. The value 0 is for implicit rules.";
+        "Rule ID length, in bits. The value 0 is for implicit 
+         rules.";
     }
     description
-      "A rule ID is composed of a value and a length, expressed in 
+      "A rule ID is composed of a value and a length, expressed in
        bits.";
   }
 
@@ -821,21 +822,22 @@ Some checks are performed on the values:
       "These entries defines a compression entry (i.e. a line)
        as defined in RFC 8724.
 
-       +-------+--+--+--+------------+-----------------+---------------+
-       |Field 1|FL|FP|DI|Target Value|Matching Operator|Comp/Decomp Act|
-       +-------+--+--+--+------------+-----------------+---------------+
++-------+--+--+--+------------+-----------------+---------------+
+|Field 1|FL|FP|DI|Target Value|Matching Operator|Comp/Decomp Act|
++-------+--+--+--+------------+-----------------+---------------+
 
        An entry in a compression rule is composed of 7 elements:
-       - Field ID: The header field to be compressed. The content is a
-         YANG identifer.
-       - Field Length : either a positive integer of a function defined
-         as a YANG id.
-       - Field Position: a positive (and possibly equal to 0) integer.
+       - Field ID: The header field to be compressed. The content 
+         is a YANG identifer.
+       - Field Length : either a positive integer of a function 
+         defined as a YANG id.
+       - Field Position: a positive (and possibly equal to 0) 
+         integer.
        - Direction Indicator: a YANG identifier giving the direction.
        - Target value: a value against which the header Field is
          compared.
-       - Matching Operator: a YANG id giving the operation, parameters
-         may be associated to that operator.
+       - Matching Operator: a YANG id giving the operation, 
+         parameters may be associated to that operator.
        - Comp./Decomp. Action: A YANG id giving the compression or
          decompression action, parameters may be associated to that
          action.
@@ -851,21 +853,23 @@ Some checks are performed on the values:
       type schc:fl-type;
       mandatory true;
       description
-        "Field Length, expressed in number of bits or through a function defined as a
-         YANG referenceid.";
+        "Field Length, expressed in number of bits or through a 
+         function defined as a YANG referenceid.";
     }
     leaf field-position {
       type uint8;
       mandatory true;
       description
-        "Field position in the header is an integer. Position 1 matches 
-         the first occurence of a field in the header, while incremented 
-         position values match subsequent occurences.
-         Position 0 means that this entry matches a field irrespective 
-         of its position of occurence in the header.
-         Be aware that the decompressed header may have position-0 
-         fields ordered differently than they appeared in the original 
-         packet.";
+        "Field position in the header is an integer. Position 1 
+         matches the first occurence of a field in the header, 
+         while incremented position values match subsequent 
+         occurences.
+         Position 0 means that this entry matches a field 
+         irrespective of its position of occurence in the 
+         header.
+         Be aware that the decompressed header may have 
+         position-0 fields ordered differently than they 
+         appeared in the original packet.";
     }
     leaf direction-indicator {
       type schc:di-type;
@@ -875,20 +879,21 @@ Some checks are performed on the values:
          is bidirectional, up or down";
     }
     list target-value {
-      key "position";
+      key "index";
       uses tv-struct;
       description
         "A list of value to compare with the header field value.
          If target value is a singleton, position must be 0.
-         For use as a matching list for the mo-match-mapping matching 
-         operator, positions should take consecutive values starting 
+         For use as a matching list for the mo-match-mapping matching
+         operator, positions should take consecutive values starting
          from 1.";
     }
     leaf matching-operator {
       type schc:mo-type;
-      must "../target-value or derived-from-or-self(., 'mo-ignore')" {
-        error-message 
-            "mo-equal, mo-msb and mo-match-mapping need target-value";
+      must
+        "../target-value or derived-from-or-self(., 'mo-ignore')" {
+        error-message
+          "mo-equal, mo-msb and mo-match-mapping need target-value";
         description
           "target-value is not required for mo-ignore";
       }
@@ -901,13 +906,14 @@ Some checks are performed on the values:
         "MO: Matching Operator";
     }
     list matching-operator-value {
-      key "position";
+      key "index";
       uses tv-struct;
       description
         "Matching Operator Arguments, based on TV structure to allow
          several arguments.
-         In RFC 8724, only the MSB matching operator needs arguments (a single argument, which is the
-         number of most significant bits to be matched)";
+         In RFC 8724, only the MSB matching operator needs arguments 
+         (a single argument, which is the number of most significant 
+         bits to be matched)";
     }
     leaf comp-decomp-action {
       type schc:cda-type;
@@ -916,12 +922,12 @@ Some checks are performed on the values:
         "CDA: Compression Decompression Action.";
     }
     list comp-decomp-action-value {
-      key "position";
+      key "index";
       uses tv-struct;
       description
-        "CDA arguments, based on a TV structure, in order to allow for 
-         several arguments. The CDAs specified in RFC 8724 require no 
-         argument.";
+        "CDA arguments, based on a TV structure, in order to allow 
+         for several arguments. The CDAs specified in RFC 8724 
+         require no argument.";
     }
   }
 
@@ -930,9 +936,10 @@ Some checks are performed on the values:
       key "field-id field-position direction-indicator";
       uses compression-rule-entry;
       description
-        "A compression rule is a list of rule entries, each describing
-         a header field. An entry is identifed through a field-id,
-         its position in the packet and its direction.";
+        "A compression rule is a list of rule entries, each 
+         describing a header field. An entry is identifed 
+         through a field-id, its position in the packet and 
+         its direction.";
     }
     description
       "Define a compression rule composed of a list of entries.";
@@ -957,26 +964,47 @@ The definition of a Fragmentation rule is divided into three sub-parts (cf. {{Fi
 
 
 ~~~~~~
-   grouping timer-duration {
+  grouping timer-duration {
     leaf ticks-duration {
       type uint8;
-      default 20;
-      description "duration of one tick in micro-seconds, 2^ticks-duration/10^6 = 1.048s";
+      default "20";
+      description
+        "duration of one tick in micro-seconds:
+            2^ticks-duration/10^6 = 1.048s";
     }
     leaf ticks-numbers {
       type uint16;
-      description "timer duration = ticks-numbers * 2^ticks-duration / 10^6";
-    }  
+      description
+        "timer duration = ticks-numbers * 2^ticks / 10^6";
+    }
+    description
+      "used by inactivity and retransmission timer. Allows a 
+       precision from micro-second to year by sending the 
+       tick-duration value. 
+       For instance:
+
+       tick-duration /  smallest value          highest value
+       v
+       20: 00y 000d 00h 00m 01s.048575<->00y 000d 19h 05m 18s.428159
+       21: 00y 000d 00h 00m 02s.097151<->00y 001d 14h 10m 36s.856319
+       22: 00y 000d 00h 00m 04s.194303<->00y 003d 04h 21m 13s.712639
+       23: 00y 000d 00h 00m 08s.388607<->00y 006d 08h 42m 27s.425279
+       24: 00y 000d 00h 00m 16s.777215<->00y 012d 17h 24m 54s.850559
+       25: 00y 000d 00h 00m 33s.554431<->00y 025d 10h 49m 49s.701119
+       
+       Note that the smallest value is also the incrementation step, 
+       so the timer precision.
+      ";
   }
 ~~~~~~
 {: #Fig-timer-duration title='Timer duration values'}
 
 ~~~~~~
- grouping fragmentation-content {
+  grouping fragmentation-content {
     description
       "This grouping defines the fragmentation parameters for
-       all the modes (No-Ack, Ack-Always and Ack-on-Error) specified in
-       RFC 8724.";
+       all the modes (No-Ack, Ack-Always and Ack-on-Error) specified 
+       in RFC 8724.";
     leaf fragmentation-mode {
       type schc:fragmentation-mode-type;
       mandatory true;
@@ -994,8 +1022,8 @@ The definition of a Fragmentation rule is divided into three sub-parts (cf. {{Fi
       type schc:di-type;
       must "derived-from-or-self(., 'di-up') or
             derived-from-or-self(., 'di-down')" {
-        error-message 
-            "direction for fragmentation rules are up or down.";
+        error-message
+          "direction for fragmentation rules are up or down.";
       }
       mandatory true;
       description
@@ -1006,17 +1034,19 @@ The definition of a Fragmentation rule is divided into three sub-parts (cf. {{Fi
       type uint8;
       default "0";
       description
-        "Size, in bits, of the DTag field (T variable from RFC8724).";
+        "Size, in bits, of the DTag field (T variable from 
+         RFC8724).";
     }
     leaf w-size {
-      when "derived-from(../fragmentation-mode, 
-                                'fragmentation-mode-ack-on-error') 
+      when "derived-from(../fragmentation-mode,
+                                'fragmentation-mode-ack-on-error')
             or
-            derived-from(../fragmentation-mode, 
+            derived-from(../fragmentation-mode,
                                 'fragmentation-mode-ack-always') ";
       type uint8;
       description
-        "Size, in bits, of the window field (M variable from RFC8724).";
+        "Size, in bits, of the window field (M variable from 
+         RFC8724).";
     }
     leaf fcn-size {
       type uint8;
@@ -1028,7 +1058,8 @@ The definition of a Fragmentation rule is divided into three sub-parts (cf. {{Fi
       type rcs-algorithm-type;
       default "schc:rcs-RFC8724";
       description
-        "Algorithm used for RCS. The algorithm specifies the RCS size";
+        "Algorithm used for RCS. The algorithm specifies the RCS 
+         size";
     }
     // SCHC fragmentation protocol parameters
     leaf maximum-packet-size {
@@ -1042,40 +1073,38 @@ The definition of a Fragmentation rule is divided into three sub-parts (cf. {{Fi
       type uint16;
       description
         "By default, if not specified 2^w-size - 1. Should not exceed
-         this value. Possible FCN values are between 0 and 
+         this value. Possible FCN values are between 0 and
          window-size - 1.";
     }
     leaf max-interleaved-frames {
       type uint8;
       default "1";
       description
-        "Maximum of simultaneously fragmented frames. Maximum value is
-        2^dtag-size. All DTAG values can be used, but at most
-        max-interleaved-frames must be active at any time.";
+        "Maximum of simultaneously fragmented frames. Maximum value 
+         is 2^dtag-size. All DTAG values can be used, but at most
+         max-interleaved-frames must be active at any time.";
     }
-    leaf inactivity-timer {
-      type uint64;
+    container inactivity-timer {
+      uses timer-duration;
       description
-        "Duration is seconds of the inactivity timer, 0 indicates 
-        that the timer is disabled.";
+        "Duration is seconds of the inactivity timer, 0 indicates
+         that the timer is disabled.";
     }
-    leaf retransmission-timer {
-      when "derived-from(../fragmentation-mode, 
-                                'fragmentation-mode-ack-on-error') 
+    container retransmission-timer {
+      uses timer-duration;
+      when "derived-from(../fragmentation-mode,
+                                'fragmentation-mode-ack-on-error')
             or
-            derived-from(../fragmentation-mode, 
+            derived-from(../fragmentation-mode,
                                 'fragmentation-mode-ack-always') ";
-      type uint64 {
-        range "1..max";
-      }
       description
         "Duration in seconds of the retransmission timer.";
     }
     leaf max-ack-requests {
-      when "derived-from(../fragmentation-mode, 
-                                'fragmentation-mode-ack-on-error') 
+      when "derived-from(../fragmentation-mode,
+                                'fragmentation-mode-ack-on-error')
             or
-            derived-from(../fragmentation-mode, 
+            derived-from(../fragmentation-mode,
                                 'fragmentation-mode-ack-always') ";
       type uint8 {
         range "1..max";
@@ -1101,7 +1130,7 @@ The definition of a Fragmentation rule is divided into three sub-parts (cf. {{Fi
           type schc:all1-data-type;
           description
             "Defines whether the sender and receiver expect a tile in
-             All-1 fragments or not, or if it is left to the sender's 
+             All-1 fragments or not, or if it is left to the sender's
              choice.";
         }
         leaf ack-behavior {
@@ -1115,7 +1144,7 @@ The definition of a Fragmentation rule is divided into three sub-parts (cf. {{Fi
       }
       description
         "RFC 8724 defines 3 fragmentation modes.";
-    } 
+    }
   }
 ~~~~~~
 {: #Fig-frag-struct title='Fragmentation Parameters'}
@@ -1127,55 +1156,54 @@ The definition of a Fragmentation rule is divided into three sub-parts (cf. {{Fi
 
 ~~~~~ 
 module: ietf-schc
-  +--rw schc
-     +--rw rule* [rule-id-value rule-id-length]
-        +--rw rule-id-value                   uint32
-        +--rw rule-id-length                  uint8
-        +--rw (nature)?
-           +--:(fragmentation) {fragmentation}?
-           |  +--rw fragmentation-mode        schc:fragmentation-mode-type
-           |  +--rw l2-word-size?             uint8
-           |  +--rw direction                 schc:di-type
-           |  +--rw dtag-size?                uint8
-           |  +--rw w-size?                   uint8
-           |  +--rw fcn-size                  uint8
-           |  +--rw rcs-algorithm?            rcs-algorithm-type
-           |  +--rw maximum-packet-size?      uint16
-           |  +--rw window-size?              uint16
-           |  +--rw max-interleaved-frames?   uint8
-           |  +--rw inactivity-timer
-           |  |  +--rw ticks-duration?   uint8
-           |  |  +--rw ticks-numbers?    uint16
-           |  +--rw retransmission-timer
-           |  |  +--rw ticks-duration?   uint8
-           |  |  +--rw ticks-numbers?    uint16
-           |  +--rw max-ack-requests?         uint8
-           |  +--rw (mode)?
-           |     +--:(no-ack)
-           |     +--:(ack-always)
-           |     +--:(ack-on-error)
-           |        +--rw tile-size?          uint8
-           |        +--rw tile-in-All1?       schc:all1-data-type
-           |        +--rw ack-behavior?       schc:ack-behavior-type
-           +--:(compression) {compression}?
-           |  +--rw entry* [field-id field-position direction-indicator]
-           |     +--rw field-id                    schc:fid-type
-           |     +--rw field-length                schc:fl-type
-           |     +--rw field-position              uint8
-           |     +--rw direction-indicator         schc:di-type
-           |     +--rw target-value* [indicia]
-           |     |  +--rw value?     binary
-           |     |  +--rw indicia    uint16
-           |     +--rw matching-operator           schc:mo-type
-           |     +--rw matching-operator-value* [indicia]
-           |     |  +--rw value?     binary
-           |     |  +--rw indicia    uint16
-           |     +--rw comp-decomp-action          schc:cda-type
-           |     +--rw comp-decomp-action-value* [indicia]
-           |        +--rw value?     binary
-           |        +--rw indicia    uint16
-           +--:(no-compression)
-
+ +-rw schc
+   +-rw rule* [rule-id-value rule-id-length]
+      +--rw rule-id-value                   uint32
+      +--rw rule-id-length                  uint8
+      +--rw (nature)?
+         +--:(fragmentation) {fragmentation}?
+         |  +--rw fragmentation-mode        schc:fragmentation-mode-type
+         |  +--rw l2-word-size?             uint8
+         |  +--rw direction                 schc:di-type
+         |  +--rw dtag-size?                uint8
+         |  +--rw w-size?                   uint8
+         |  +--rw fcn-size                  uint8
+         |  +--rw rcs-algorithm?            rcs-algorithm-type
+         |  +--rw maximum-packet-size?      uint16
+         |  +--rw window-size?              uint16
+         |  +--rw max-interleaved-frames?   uint8
+         |  +--rw inactivity-timer
+         |  |  +--rw ticks-duration?   uint8
+         |  |  +--rw ticks-numbers?    uint16
+         |  +--rw retransmission-timer
+         |  |  +--rw ticks-duration?   uint8
+         |  |  +--rw ticks-numbers?    uint16
+         |  +--rw max-ack-requests?         uint8
+         |  +--rw (mode)?
+         |     +--:(no-ack)
+         |     +--:(ack-always)
+         |     +--:(ack-on-error)
+         |        +--rw tile-size?          uint8
+         |        +--rw tile-in-All1?       schc:all1-data-type
+         |        +--rw ack-behavior?       schc:ack-behavior-type
+         +--:(compression) {compression}?
+         |  +--rw entry* [field-id field-position direction-indicator]
+         |     +--rw field-id                    schc:fid-type
+         |     +--rw field-length                schc:fl-type
+         |     +--rw field-position              uint8
+         |     +--rw direction-indicator         schc:di-type
+         |     +--rw target-value* [index]
+         |     |  +--rw value?   binary
+         |     |  +--rw index    uint16
+         |     +--rw matching-operator           schc:mo-type
+         |     +--rw matching-operator-value* [index]
+         |     |  +--rw value?   binary
+         |     |  +--rw index    uint16
+         |     +--rw comp-decomp-action          schc:cda-type
+         |     +--rw comp-decomp-action-value* [index]
+         |        +--rw value?   binary
+         |        +--rw index    uint16
+         +--:(no-compression)
 ~~~~~ 
 {: #Fig-model-overview title='Overview of SCHC data model}
 
