@@ -732,7 +732,7 @@ module ietf-schc {
     leaf ticks-numbers {
       type uint16;
       description
-        "timer duration = ticks-numbers * 2^ticks / 10^6";
+        "timer duration = ticks-numbers * 2^ticks-duration / 10^6";
     }
     description
       "used by inactivity and retransmission timer. Allows a 

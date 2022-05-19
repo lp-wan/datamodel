@@ -1,7 +1,7 @@
 ---
 stand_alone: true
 ipr: trust200902
-docname: draft-ietf-lpwan-schc-yang-data-model-10
+docname: draft-ietf-lpwan-schc-yang-data-model-11
 cat: std
 pi:
   symrefs: 'yes'
@@ -975,7 +975,7 @@ The definition of a Fragmentation rule is divided into three sub-parts (cf. {{Fi
     leaf ticks-numbers {
       type uint16;
       description
-        "timer duration = ticks-numbers * 2^ticks / 10^6";
+        "timer duration = ticks-numbers * 2^ticks-duration / 10^6";
     }
     description
       "used by inactivity and retransmission timer. Allows a 
