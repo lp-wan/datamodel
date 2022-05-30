@@ -130,7 +130,7 @@ module ietf-schc {
       "IPv6 Flow Label field from RFC8200";
   }
 
-  identity fid-ipv6-payloadlength {
+  identity fid-ipv6-payload-length {
     base fid-ipv6-base-type;
     description
       "IPv6 Payload Length field from RFC8200";
