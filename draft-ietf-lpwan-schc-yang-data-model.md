@@ -342,7 +342,7 @@ The state machine requires some common values to handle correctly fragmentation.
 
 The data model includes two parameters needed for fragmentation:
 
-* l2-word-size: {{RFC8724}} base fragmentation on a layer 2 word which can be of any length. The default value is 8 and correspond 
+* l2-word-size: {{RFC8724}} base fragmentation, in bits,  on a layer 2 word which can be of any length. The default value is 8 and correspond 
 to the default value for byte aligned layer 2. A value of 1 will indicate that there is no alignment and no need for padding. 
 * maximum-packet-size: defines the maximum size of a uncompressed datagram. By default, the value is set to 1280 bytes.
 
@@ -446,7 +446,7 @@ module: ietf-schc
 
 
 ~~~~
-<CODE BEGINS> file ietf-schc@2022-02-15.yang
+<CODE BEGINS> file "ietf-schc@2022-02-15.yang"
 {::include ietf-schc@2022-02-15.yang}
 <CODE ENDS>
 ~~~~
@@ -454,8 +454,8 @@ module: ietf-schc
 
 # Implementation Status
 
-NOTE TO RFC EDITOR:  remove the entire section before
-   publication, as well as the reference to RFC 7942.
+<!--NOTE TO RFC EDITOR:  remove the entire section before
+   publication, as well as the reference to RFC 7942. -->
 
 
 This section records the status of known implementations of the

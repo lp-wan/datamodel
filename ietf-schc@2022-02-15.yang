@@ -912,8 +912,8 @@ module ietf-schc {
       type schc:fragmentation-mode-type;
       mandatory true;
       description
-        "which fragmentation mode is used (noAck, AckAlways,
-         AckonError)";
+        "which fragmentation mode is used (noAck, Ack-Always,
+         Ack-on-Error)";
     }
     leaf l2-word-size {
       type uint8;
