@@ -518,9 +518,36 @@ This document registers the following four YANG modules in the "YANG Module Name
 
 > reference:      RFC XXXX Data Model for Static Context Header Compression (SCHC)
 
-# Security considerations {#SecConsiderations}
+# Security Considerations
 
-This document does not have any more Security consideration than the ones already raised in {{RFC8724}} and {{RFC8824}}.
+The YANG module specified in this document defines a schema for data that is designed to be accessed via network management protocols such as NETCONF {{!RFC6241}} or RESTCONF {{!RFC8040}}. The lowest NETCONF layer is the secure transport layer, and the mandatory-to-implement secure transport is Secure Shell (SSH) {{!RFC6242}}. The lowest RESTCONF layer is HTTPS, and the mandatory-to-implement secure transport is TLS 
+{{!RFC8446}}.
+
+The Network Configuration Access Control Model (NACM) {{!RFC8341}} provides the means to restrict access for particular NETCONF or RESTCONF users to a preconfigured subset of all available NETCONF or RESTCONF protocol operations and content.
+
+This data model formalizes the rules elements described in {{RFC8724}} for compression and fragmentation. As explained in the architecture document {{I-D.ietf-lpwan-architecture}}, a rule can be read, created, updated or deleted in response to a management request. These actions can be done between two instances of SCHC or between a SCHC instance and a rule repository.
+
+~~~~~
+                     create
+          (-------)  read   +=======+ *
+          ( rules )<------->|Rule   |<--|-------->
+          (-------)  update |Manager|   NETCONF, RESTCONF or CORECONF
+             . read  delete +=======+   request
+             .
+          +-------+
+      <===| R & D |<===
+      ===>| C & F |===>
+          +-------+
+~~~~~
+
+The rule contains some sensible informations such as the application IPv6 address. An attacker by changing a rule content may block the communication or intercept the traffic. Therefore, the identify of the requester must be validated. This can be done through certificates or access lists.
+
+The full tree is sensible 
+
+There are a number of data nodes defined in this YANG module that are writable/creatable/deletable (i.e., config true, which is the default). These data nodes may be considered sensitive or vulnerable in some network environments. Write operations (e.g., edit-config) to these data nodes without proper protection can have a negative effect on network operations. These are the subtrees and data nodes and their sensitivity/vulnerability:
+
+
+
 
 # Acknowledgements
 
