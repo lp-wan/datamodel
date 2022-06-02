@@ -31,8 +31,15 @@ author:
   country: France
   email: Laurent.Toutain@imt-atlantique.fr
 normative:
+    RFC0768:
     RFC2119:
+    RFC3688:
+    RFC6020:
+    RFC7252:
+    RFC7967:
     RFC8174:
+    RFC8200:
+    RFC8613:
     RFC8724:
     RFC8824:
 informative:
@@ -77,7 +84,7 @@ This document defines a YANG module to represent both compression and fragmentat
 
 SCHC compression is generic, the main mechanism does not refer
 to a specific protocol. Any header field is abstracted through an ID, a position, a direction, and a value that can be a numerical
-value or a string. {{RFC8724}} and {{RFC8824}} specify fields for IPv6, UDP, CoAP and OSCORE. 
+value or a string. {{RFC8724}} and {{RFC8824}} specify fields for IPv6 {{RFC8200}}, UDP{{RFC0768}}, CoAP {{RFC7252}} including options definied for no serveur response  {{RFC7967}} and OSCORE {{RFC8613}}. For the latter {{RFC8824}} splits this field into sub-fields.
 
 SCHC fragmentation requires a set of common parameters that are included in a rule. These parameters are defined in {{RFC8724}}.
 
@@ -202,6 +209,7 @@ The Target Value is a list of binary sequences of any length, aligned to the lef
 
 * For match-mapping, Target Value can contain several elements. Index values MUST start from 0 and MUST be contiguous. 
 
+If the header field contains a text, the binary sequence uses the same enconding.
 
 ## Convention for Matching Operator
 
@@ -485,7 +493,30 @@ to use this information as they see fit".
 
 # IANA Considerations
 
-This document has no request to IANA.
+This document registers one URIs and one YANG modules.
+
+##  URI Registration
+
+This document requests IANA to register the following four URIs in the "IETF XML Registry" {{RFC3688}}:
+
+> URI:  urn:ietf:params:xml:ns:yang:ietf-schc
+
+> Registrant Contact:  The IESG.
+
+> XML:  N/A; the requested URI is an XML namespace.
+
+
+##  YANG Module Name Registration
+
+This document registers the following four YANG modules in the "YANG Module Names" registry {{RFC6020}}.
+
+> name:           ietf-schc 
+
+> namespace:      urn:ietf:params:xml:ns:yang:ietf-schc
+
+> prefix:         schc
+
+> reference:      RFC XXXX Data Model for Static Context Header Compression (SCHC)
 
 # Security considerations {#SecConsiderations}
 
@@ -494,7 +525,8 @@ This document does not have any more Security consideration than the ones alread
 # Acknowledgements
 
 The authors would like to thank Dominique Barthel, Carsten Bormann, Ivan Martinez, Alexander Pelov for their careful reading and valuable inputs. A special thanks for 
-Carl Moberg for his patience and wise advices when building the model.
+Carl Moberg, Tom Petch
+and Eric Vyncke for their explanations and wise advices when building the model.
 
 
 
