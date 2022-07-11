@@ -540,12 +540,9 @@ This data model formalizes the rules elements described in {{RFC8724}} for compr
           +-------+
 ~~~~~
 
-The rule contains some sensible informations such as the application IPv6 address. An attacker by changing a rule content may block the communication or intercept the traffic. Therefore, the identify of the requester must be validated. This can be done through certificates or access lists.
+The rule contains some sensible informations such as the application IPv6 address. An attacker by changing a rule content may block the communication or intercept the traffic. Therefore, the identity of the requester must be validated. This can be done through certificates or access lists.
 
-The full tree is sensible 
-
-There are a number of data nodes defined in this YANG module that are writable/creatable/deletable (i.e., config true, which is the default). These data nodes may be considered sensitive or vulnerable in some network environments. Write operations (e.g., edit-config) to these data nodes without proper protection can have a negative effect on network operations. These are the subtrees and data nodes and their sensitivity/vulnerability:
-
+The full tree is sensitive, since it represents all the elements that can be managed.  This module aims to be encapsulated into a YANG module including access right and identities. 
 
 
 
