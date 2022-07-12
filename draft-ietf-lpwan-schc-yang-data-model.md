@@ -1,7 +1,7 @@
 ---
 stand_alone: true
 ipr: trust200902
-docname: draft-ietf-lpwan-schc-yang-data-model-13
+docname: draft-ietf-lpwan-schc-yang-data-model-14
 cat: std
 pi:
   symrefs: 'yes'
@@ -293,13 +293,13 @@ The naming convention is "rcs" followed by the algorithm name.
 For Ack-on-Error mode, the All-1 fragment may just contain the RCS or can include a tile. The parameters defines the 
 behavior:
 
-* all1-data-no: the last fragment contains no data, just the RCS
+* all-1-data-no: the last fragment contains no data, just the RCS
 
-* all1-data-yes: the last fragment includes a single tile and the RCS
+* all-1-data-yes: the last fragment includes a single tile and the RCS
 
-* all1-data-sender-choice: the last fragment may or may not contain a single tile. The receiver can detect if a tile is present.
+* all-1-data-sender-choice: the last fragment may or may not contain a single tile. The receiver can detect if a tile is present.
 
-The naming convention is "all1-data" followed by the behavior identifier.
+The naming convention is "all-1-data" followed by the behavior identifier.
 
 
 ### Acknowledgment behavior
@@ -340,10 +340,11 @@ The state machine requires some common values to handle correctly fragmentation.
   * the duration of a tick. It is computed by this formula 2^tick-duration/10^6. When tick-duration is set to 0, the unit is the microsecond. The default value of 20 leads to a unit of 1.048575 second. A value of 32 leads to a tick duration of about 1 hour 11 minutes.
   * the number of ticks in the predefined unit. With the default tick-duration value of 20, the timers can cover a range between 1.0 sec and 19 hours covering {{RFC9011}} recommandation.
 
-### Fragmentation Parameters 
+### Fragmentation Parameter 
 
-* max-ack-requests expresses the number of attempts before aborting (cf. section 8.2.2.4. of {{RFC8724}}).
-* maximum-packet-size rexpresses, in bytes, the larger packet size that can be reassembled. 
+The SCHC fragmentation protocol specifies the  the number of attempts before aborting through the parameter: 
+
+* max-ack-requests  (cf. section 8.2.2.4. of {{RFC8724}}).
 
 
 ### Layer 2 parameters
@@ -454,8 +455,8 @@ module: ietf-schc
 
 
 ~~~~
-<CODE BEGINS> file "ietf-schc@2022-02-15.yang"
-{::include ietf-schc@2022-02-15.yang}
+<CODE BEGINS> file "ietf-schc@2022-07-11.yang"
+{::include ietf-schc@2022-07-11.yang}
 <CODE ENDS>
 ~~~~
 {: #Fig-schc title="SCHC data model}
