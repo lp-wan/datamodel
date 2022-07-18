@@ -1,7 +1,7 @@
 ---
 stand_alone: true
 ipr: trust200902
-docname: draft-ietf-lpwan-schc-yang-data-model-14
+docname: draft-ietf-lpwan-schc-yang-data-model-15
 cat: std
 pi:
   symrefs: 'yes'
@@ -509,7 +509,7 @@ This document requests IANA to register the following four URIs in the "IETF XML
 
 ##  YANG Module Name Registration
 
-This document registers the following four YANG modules in the "YANG Module Names" registry {{RFC6020}}.
+This document registers the following one YANG modules in the "YANG Module Names" registry {{RFC6020}}.
 
 > name:           ietf-schc 
 
