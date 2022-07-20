@@ -36,7 +36,6 @@ normative:
     RFC3688:
     RFC6020:
     RFC7252:
-    RFC7967:
     RFC8174:
     RFC8200:
     RFC8613:
@@ -44,6 +43,7 @@ normative:
     RFC8824:
 informative:
     RFC7942:
+    RFC7967:
     RFC7950:
     RFC9011:
     I-D.ietf-lpwan-architecture:
@@ -400,54 +400,54 @@ others are identifiers defined in {{frag_types}}.
 
 ~~~~~ 
 module: ietf-schc
- +-rw schc
-   +-rw rule* [rule-id-value rule-id-length]
-      +-rw rule-id-value                   uint32
-      +-rw rule-id-length                  uint8
-      +-rw (nature)?
-        +-:(fragmentation) {fragmentation}?
-        | +-rw fragmentation-mode        schc:fragmentation-mode-type
-        | +-rw l2-word-size?             uint8
-        | +-rw direction                 schc:di-type
-        | +-rw dtag-size?                uint8
-        | +-rw w-size?                   uint8
-        | +-rw fcn-size                  uint8
-        | +-rw rcs-algorithm?            rcs-algorithm-type
-        | +-rw maximum-packet-size?      uint16
-        | +-rw window-size?              uint16
-        | +-rw max-interleaved-frames?   uint8
-        | +-rw inactivity-timer
-        | | +-rw ticks-duration?   uint8
-        | | +-rw ticks-numbers?    uint16
-        | +-rw retransmission-timer
-        | | +-rw ticks-duration?   uint8
-        | | +-rw ticks-numbers?    uint16
-        | +-rw max-ack-requests?         uint8
-        | +-rw (mode)?
-        |   +-:(no-ack)
-        |   +-:(ack-always)
-        |   +-:(ack-on-error)
-        |      +--rw tile-size?          uint8
-        |      +--rw tile-in-All1?       schc:all1-data-type
-        |     +--rw ack-behavior?       schc:ack-behavior-type
-        +-:(compression) {compression}?
-        | +-rw entry* [field-id field-position direction-indicator]
-        |   +-rw field-id                    schc:fid-type
-        |   +-rw field-length                schc:fl-type
-        |   +-rw field-position              uint8
-        |   +-rw direction-indicator         schc:di-type
-        |   +-rw target-value* [index]
-        |   |  +-rw value?   binary
-        |   |  +-rw index    uint16
-        |   +-rw matching-operator           schc:mo-type
-        |   +-rw matching-operator-value* [index]
-        |   |  +-rw value?   binary
-        |   |  +-rw index    uint16
-        |   +-rw comp-decomp-action          schc:cda-type
-        |   +-rw comp-decomp-action-value* [index]
-        |      +-rw value?   binary
-        |      +-rw index    uint16
-        +-:(no-compression)
+  +--rw schc
+     +--rw rule* [rule-id-value rule-id-length]
+        +--rw rule-id-value                   uint32
+        +--rw rule-id-length                  uint8
+        +--rw (nature)?
+           +--:(fragmentation) {fragmentation}?
+           |  +--rw fragmentation-mode      schc:fragmentation-mode-type
+           |  +--rw l2-word-size?             uint8
+           |  +--rw direction                 schc:di-type
+           |  +--rw dtag-size?                uint8
+           |  +--rw w-size?                   uint8
+           |  +--rw fcn-size                  uint8
+           |  +--rw rcs-algorithm?            rcs-algorithm-type
+           |  +--rw maximum-packet-size?      uint16
+           |  +--rw window-size?              uint16
+           |  +--rw max-interleaved-frames?   uint8
+           |  +--rw inactivity-timer
+           |  |  +--rw ticks-duration?   uint8
+           |  |  +--rw ticks-numbers?    uint16
+           |  +--rw retransmission-timer
+           |  |  +--rw ticks-duration?   uint8
+           |  |  +--rw ticks-numbers?    uint16
+           |  +--rw max-ack-requests?         uint8
+           |  +--rw (mode)?
+           |     +--:(no-ack)
+           |     +--:(ack-always)
+           |     +--:(ack-on-error)
+           |        +--rw tile-size?          uint8
+           |        +--rw tile-in-all-1?      schc:all-1-data-type
+           |        +--rw ack-behavior?       schc:ack-behavior-type
+           +--:(compression) {compression}?
+           |  +--rw entry* [field-id field-position direction-indicator]
+           |     +--rw field-id                    schc:fid-type
+           |     +--rw field-length                schc:fl-type
+           |     +--rw field-position              uint8
+           |     +--rw direction-indicator         schc:di-type
+           |     +--rw target-value* [index]
+           |     |  +--rw value?   binary
+           |     |  +--rw index    uint16
+           |     +--rw matching-operator           schc:mo-type
+           |     +--rw matching-operator-value* [index]
+           |     |  +--rw value?   binary
+           |     |  +--rw index    uint16
+           |     +--rw comp-decomp-action          schc:cda-type
+           |     +--rw comp-decomp-action-value* [index]
+           |        +--rw value?   binary
+           |        +--rw index    uint16
+           +--:(no-compression)
 ~~~~~ 
 {: #Fig-model-overview title='Overview of SCHC data model}
 
@@ -455,8 +455,8 @@ module: ietf-schc
 
 
 ~~~~
-<CODE BEGINS> file "ietf-schc@2022-07-11.yang"
-{::include ietf-schc@2022-07-11.yang}
+<CODE BEGINS> file "ietf-schc@2022-07-20.yang"
+{::include ietf-schc@2022-07-20.yang}
 <CODE ENDS>
 ~~~~
 {: #Fig-schc title="SCHC data model}
