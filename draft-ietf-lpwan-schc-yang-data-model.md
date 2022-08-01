@@ -1,7 +1,7 @@
 ---
 stand_alone: true
 ipr: trust200902
-docname: draft-ietf-lpwan-schc-yang-data-model-15
+docname: draft-ietf-lpwan-schc-yang-data-model-16
 cat: std
 pi:
   symrefs: 'yes'
@@ -550,7 +550,7 @@ The full tree is sensitive, since it represents all the elements that can be man
 # Acknowledgements
 
 The authors would like to thank Dominique Barthel, Carsten Bormann, Ivan Martinez, Alexander Pelov for their careful reading and valuable inputs. A special thanks for 
-Carl Moberg, Tom Petch
+Joe Clarke, Carl Moberg, Tom Petch, Martin Thomson, 
 and Eric Vyncke for their explanations and wise advices when building the model.
 
 
