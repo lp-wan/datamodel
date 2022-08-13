@@ -1,7 +1,7 @@
 ---
 stand_alone: true
 ipr: trust200902
-docname: draft-ietf-lpwan-schc-yang-data-model-16
+docname: draft-ietf-lpwan-schc-yang-data-model-15
 cat: std
 pi:
   symrefs: 'yes'
@@ -38,6 +38,7 @@ normative:
     RFC7252:
     RFC8174:
     RFC8200:
+    RFC8342:
     RFC8613:
     RFC8724:
     RFC8824:
@@ -53,6 +54,8 @@ informative:
 This document describes a YANG data model for the SCHC (Static Context Header Compression) 
 compression and fragmentation rules.
 
+This document formalizes the description of the rules for better interoperability between SCHC instances either 
+to exchange a set of rules or to modify some rules parameters. 
 
 --- middle
 
@@ -362,15 +365,23 @@ They are defined as unsigned integer, see {{annexA}}.
 A rule is idenfied by a unique rule identifier (rule ID) comprising both a Rule ID value and a Rule ID length. 
 The YANG grouping rule-id-type defines the structure used to represent a rule ID. A length of 0 is allowed to represent an implicit rule. 
 
-Three types of rules are defined in {{RFC8724}}:
+Three natures of rules are defined in {{RFC8724}}:
 
 * Compression: a compression rule is associated with the rule ID.
 * No compression: this identifies the default rule used to send a packet in extenso when no compression rule was found (see {{RFC8724}} section 6). 
 * Fragmentation: fragmentation parameters are associated with the rule ID. Fragmentation is optional and feature "fragmentation" should be set. 
 
+The YANG data model introduces repectively these three identities :
+
+* nature-compresion
+* nature-no-compression
+* nature-fragmentation
+
+The naming convention is "nature" followed by the nature identifier.
 
 To access a specific rule, the rule ID length and value are used as a key. The rule is either
-a compression or a fragmentation rule.  
+a compression or a fragmentation rule. 
+
 
 ## Compression rule
 
@@ -393,10 +404,10 @@ A Fragmentation rule is composed of entries describing the protocol behavior. So
 others are identifiers defined in {{frag_types}}. 
 
 
-
-
 ## YANG Tree
 
+The YANG data model described in this document conforms to the
+Network Management Datastore Architecture defined in {{RFC8342}}.
 
 ~~~~~ 
 module: ietf-schc
@@ -404,9 +415,11 @@ module: ietf-schc
      +--rw rule* [rule-id-value rule-id-length]
         +--rw rule-id-value                   uint32
         +--rw rule-id-length                  uint8
+        +--rw rule-nature                     nature-type
         +--rw (nature)?
            +--:(fragmentation) {fragmentation}?
-           |  +--rw fragmentation-mode      schc:fragmentation-mode-type
+           |  +--rw fragmentation-mode
+           |  |       schc:fragmentation-mode-type
            |  +--rw l2-word-size?             uint8
            |  +--rw direction                 schc:di-type
            |  +--rw dtag-size?                uint8
@@ -431,32 +444,31 @@ module: ietf-schc
            |        +--rw tile-in-all-1?      schc:all-1-data-type
            |        +--rw ack-behavior?       schc:ack-behavior-type
            +--:(compression) {compression}?
-           |  +--rw entry* [field-id field-position direction-indicator]
-           |     +--rw field-id                    schc:fid-type
-           |     +--rw field-length                schc:fl-type
-           |     +--rw field-position              uint8
-           |     +--rw direction-indicator         schc:di-type
-           |     +--rw target-value* [index]
-           |     |  +--rw value?   binary
-           |     |  +--rw index    uint16
-           |     +--rw matching-operator           schc:mo-type
-           |     +--rw matching-operator-value* [index]
-           |     |  +--rw value?   binary
-           |     |  +--rw index    uint16
-           |     +--rw comp-decomp-action          schc:cda-type
-           |     +--rw comp-decomp-action-value* [index]
-           |        +--rw value?   binary
-           |        +--rw index    uint16
-           +--:(no-compression)
+              +--rw entry*
+                      [field-id field-position direction-indicator]
+                 +--rw field-id                    schc:fid-type
+                 +--rw field-length                schc:fl-type
+                 +--rw field-position              uint8
+                 +--rw direction-indicator         schc:di-type
+                 +--rw target-value* [index]
+                 |  +--rw index    uint16
+                 |  +--rw value?   binary
+                 +--rw matching-operator           schc:mo-type
+                 +--rw matching-operator-value* [index]
+                 |  +--rw index    uint16
+                 |  +--rw value?   binary
+                 +--rw comp-decomp-action          schc:cda-type
+                 +--rw comp-decomp-action-value* [index]
+                    +--rw index    uint16
+                    +--rw value?   binary
 ~~~~~ 
-{: #Fig-model-overview title='Overview of SCHC data model}
+{: #Fig-model-overview title='Overview of SCHC data model'}
 
 # YANG Module {#annexA}
 
-
 ~~~~
-<CODE BEGINS> file "ietf-schc@2022-07-20.yang"
-{::include ietf-schc@2022-07-20.yang}
+<CODE BEGINS> file "ietf-schc@2022-08-01.yang"
+{::include ietf-schc@2022-08-01.yang}
 <CODE ENDS>
 ~~~~
 {: #Fig-schc title="SCHC data model}
@@ -543,7 +555,7 @@ This data model formalizes the rules elements described in {{RFC8724}} for compr
 
 The rule contains some sensible informations such as the application IPv6 address. An attacker by changing a rule content may block the communication or intercept the traffic. Therefore, the identity of the requester must be validated. This can be done through certificates or access lists.
 
-The full tree is sensitive, since it represents all the elements that can be managed.  This module aims to be encapsulated into a YANG module including access right and identities. 
+The full tree is sensitive, since it represents all the elements that can be managed.  This module aims to be encapsulated into a YANG module including access control and identities. 
 
 
 
