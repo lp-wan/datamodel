@@ -1,0 +1,323 @@
+I am the IoT Directorate reviewer for this draft. Please treat these comments
+as normal last call comments.
+
+Regarding the scope of this work, it aligns with the Static Context Header
+Compression and fragmentation (SCHC) framework in RFC8724 and focuses on policy
+rules configuration model, it can only be used by the management system to
+configure rules related to compression and fragmentation, but it can not be
+used to monitor state changes, report these state to the management system.
+This is a first document I have ever seen to mirror all the protocol fields in
+the data plane and construct them into YANG files in the management plane.
+
+Major Issues:
+1. Suggest to create a terminology sub-sections within section 2 since readers
+who are not familiar with SCHC background knowlege are harder to interpret many
+terminologies defined in this document or some related documents.
+
+==> Done, copy terminology for RFC  8724 and removed unused terms
+
+2. Section 1 said:
+"
+The goal of this document is to formalize the
+   description of the rules to offer:
+
+   *  the same definition on both ends, even if the internal
+      representation is different.
+
+   *  an update of the other end to set up some specific values (e.g.
+      IPv6 prefix, destination address,...)
+
+   *  ...
+"
+So the question is what else goal of this document? I fail to see other
+objective of defining YANG model in this document? Suggest to remove the third
+bullet which seems to me meaningless.
+
+==> Done, suppressed * ...
+
+3. See 3.10.1.  Fragmentation mode, three modes are defined in the SCHC
+protocol, Have we considerd model 'ack-on-error', 'ack-always','no-ack' as
+action statements defined in RFC7950, One typical example of action is
+"set-operator-state" action defined in RFC8632.
+
+**> Not done, have to understand in detail, but in SCHC we cannot change easily
+a rule from one behavior to another, only parameters could be adapted to the environment.
+
+4. In section 5, The descriptions for
+fid-ipv6-devprefix,fid-ipv6-deviid,fid-ipv6-appprefix,fid-ipv6-appiid are same,
+please refer to RFC8724 to make their description distinguishing between each
+other.
+
+==> Done, changed prefix to IID in the description.
+
+5. Please follow guidance in section 4.23.3.1 to define a foo-state module in
+the appendix.
+
+**> Don't understand
+
+6. Please provide an example to explain how
+target-value,matching-operator-value,comp-decomp-action-value are used in the
+appendix.
+
+**> TBD
+
+Minor issues:
+
+1. Section 3 mentions feature command, I am not sure feature is a command,
+instead, I think it is just a YANG statement.
+   S/the feature command/ the feature statement [RFC7950]
+
+==> Done
+
+2. Section 3.5,  If my understanding is correct, the field position is referred
+to occurrence times of a specific field,
+   s/which gives the position of a field/ which gives the occurrence times of a
+   specific field.
+
+==> Done
+
+
+3. Section 3.7 said:
+"
+   *  For Equal and LSB, Target Value contains a single element.
+      Therefore, the index is set to 0.
+
+"
+  Why LSB is defined as one of matching operators instead of MSB, see section
+  7.3 of RFC8724, there is no LSB Matching operators. 
+
+==> Correct, changed.
+
+In addition, section 3.7
+  only discuss how to specify value for 'Equal', 'MSB','Matching mapping'
+  matching operators cases, what about other cases such as ignore,MSB?
+
+**> TBD; can add a condition, if not-sent or LSB, TV should not be empty. Need to update YANG DM 
+
+4. Section 3.7 said:
+"   *  For match-mapping, Target Value can contain several elements.
+      Index values MUST start from 0 and MUST be contiguous."
+index values rules for match-mapping case in section 3.7 is not consistent with
+index value rules definition in section 5.
+        See target-value list definition of section 5 as follows:
+        "
+                For use as a matching list for the mo-match-mapping matching
+            operator, positions should take consecutive values starting
+            from 1.
+        "
+        I am wondering what is relation between the position and index? 
+        
+==> right, changed
+
+        I
+        believe position should be replaced with the index. secondly, section 5
+        stipulates that index values starting from 1 while section 3.7
+        stipulates index value starting from 0, this should be consistent.
+
+==> Yes, changed
+
+5. Section 3.7 said:
+" If the header field contains a text, the binary sequence uses the
+   same enconding."
+how this last sentence related to YANG data model defined in this document? If
+not relevant, please remove this sentence. 
+
+**> It was discussed in the WG, may be add the "same encoding as in the original packet ?"
+to avoid to take into consideration how the text is encoded.
+
+6. Section 3.10.6 said: "
+   The SCHC fragmentation protocol specifies the the number of attempts
+   before aborting through the parameter:
+
+   *  max-ack-requests (cf. section 8.2.2.4. of [RFC8724]).
+
+"
+Besides specifying max-ack-request parameter, do we need to specify other
+parameters defined in the fragmentation schema tree snippet such as
+'max-interleaved-frames'.
+
+**> This parameter is linked to the device characteristics, the protocol may allows let's say 4 packets, but the memory allows only 2.
+
+7. Security section, please follows YANG security guidance to consider
+rewriting the paragraphs in section 8.
+https://trac.ietf.org/trac/ops/wiki/yang-security-guidelines
+
+Nits:
+1. Section 3,s/serveur response [RFC7967] /server response [RFC7967]
+
+==> Done
+
+2. Section 3,s/allows to select the compression/ enables the compression 
+
+
+and
+the fragmentation selection 
+
+3. Section 3.4, For consistency between the first
+paragraph and the last paragraph of section 3.4,
+   s/giving in bits the size of the length/giving the size of the length in bits
+
+
+==> done
+
+4. Section 3.7,  s/The index allows to specify several values/The index allows
+specify several values
+
+==> Done
+
+******************************************************************************
+
+I am an assigned INT directorate reviewer for
+draft-ietf-lpwan-schc-yang-data-model-15. These comments were written
+primarily for the benefit of the Internet Area Directors. Document editors
+and shepherd(s) should treat these comments just like they would treat
+comments from any other IETF contributors and resolve them along with any
+other Last Call comments that have been received. For more details on the
+INT Directorate, see https://datatracker.ietf.org/group/intdir/about/ <
+https://datatracker.ietf.org/group/intdir/about/>.
+
+Based on my review, the document is Almost Ready.
+
+I did not see any big problems from an INTAREA point of view but there are
+just too many things that I didn't understand. I did not review the YANG
+part in detail but did scan some of the text in the YANG.
+
+The following are the somewhat more serious things I found:
+
+Section 3.8.1: I don't understand this "(see chapter Section 3.7)". What
+"chapter"? There does not seem to be a mention of "tv-struct" in Section
+3.7 of this document...
+
+==> Chapter removed
+**> this means that arguments are structured the same way as TV
+
+Section 3.10.5, first bullet item: "must" -> "MUST"
+
+==> done
+
+Section 4, page 11: What does "in extenso" mean?
+
+==> Changed to "integrally"
+
+Section 4.1, page 11, first bullet item: "must" -> "MUST"
+
+==> Done
+
+Globally replace all three occurrences of "proposes" with "specifies"
+
+**> Changed in the data model, but not in the text, look strange to say
+"specify a non formal representation"
+
+There are places where "forbidden" is used that should perhaps be changed
+to "MUST NOT".
+
+==> changed in the Data model
+
+           "Should be up or down, bidirectional is forbidden.";
+by 
+
+        "MUST be up or down, bidirectional MUST NOT be used.";
+
+
+Section 5, page 40, for max-interleaved-frames: "must be active" -> "can be
+active" or perhaps a more radical re-wording "but at most
+max-interleaved-frames must be active at any time" -> "but more than
+max-interleaved-frames MUST NOT be active at any time"
+
+==> changed with the last proposal
+
+I really don't like the third bullet in Section 1, whose contents is just
+an ellipses ("..."). So one of the three primary goals of the "document is
+to formalize the description of the rules to offer:" ellipses? 😀 (I don't
+mind the ellipses in the second bullet as that is just extending a list of
+examples, although there should be a space between it and the preceding
+comma.)
+
+
+==> Done ... removed
+
+Here are some more minor points:
+
+The last sentence of Section 1 and the first sentence of Section 3 are
+identical, except for a reference missing in Section 3, and they are quite
+close together. I suggest simply deleting the first sentence of Section 3.
+
+==> Done
+
+Section 3, page 3: I suggest expanding ID on first use. "ID" -> "ID
+(identifier)" assuming that's what it means.
+
+==> Changed To 
+
+"Any header field is abstracted through an Field Identifier (FID), a position (FP), a direction (DI), and a value that can be a numerical"
+
+This make a more explicit definition of columns in fig 1
+
+
+There are a number of typos / minor English problems as follows:
+
+Section 3, page 3, "serveur" -> "server"
+
+==> Done
+
+Section 3, page 4, "allows to select" - "allows selecting"
+
+
+==> changed to 
+
+The YANG data model enables the compression and the fragmentation selection using the feature statement.
+
+
+
+Section 3.2, page 3, replace the first sentence of Section 3.2 with the
+following:
+Identifiers used in the SCHC YANG data model are from the identityref
+
+   statement to ensure global uniqueness and easy augmentation if needed.
+
+==> Done
+
+Section 3.2, page 5, "4 bytes-long" -> "4 bytes long"
+
+==> Done in draft and YANG documents
+
+Section 3.3, page 6, "bits derives" -> "bits derive"
+
+==> Done
+
+Section 3.4, page 6, "giving in bits the size of the length" -> "giving the
+length in bits"
+
+
+
+Section 3.5, page 6, "an uint8" -> "uint8"
+
+Section 3.7, page 7, "allows to specify" -> "can specify"
+
+Section 3.10.2, page 8, "starting with the rule ID can be sent on" ->
+"starting with the rule ID, can be sent in"
+
+Section 3.10.2, page 8, first bullet item, last line, "in" -> "is"
+
+Section 3.10.5, page 10, "handle correctly fragmentation" -> "handle
+fragmentation correctly"
+
+Section 3.10.5, page 10, "sould" -> "could"
+
+Section 3.10.7, page 11, "integer" -> "integers"
+
+Section 5, page 14: The RFC Editor's policy (with which I agree) is that
+when there is a list of three or more items, there should be a comma after
+the next to last item, before the "and". So "compression and fragmentation"
+-> "compression, and fragmentation"
+Section 5, page 38: As immediately above. "packet and its direction." ->
+"packet, and its directions."
+
+Section 6, page 43, next to last line, "conform" -> "conforming"
+
+Donald
+===============================
+ Donald E. Eastlake 3rd   +1-508-333-2270 (cell)
+ 2386 Panoramic Circle, Apopka, FL 32703 USA
+ d3e3e3@gmail.com
+

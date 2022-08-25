@@ -1,7 +1,7 @@
 ---
 stand_alone: true
 ipr: trust200902
-docname: draft-ietf-lpwan-schc-yang-data-model-15
+docname: draft-ietf-lpwan-schc-yang-data-model-16
 cat: std
 pi:
   symrefs: 'yes'
@@ -35,6 +35,7 @@ normative:
     RFC2119:
     RFC3688:
     RFC6020:
+    RFC7136:
     RFC7252:
     RFC8174:
     RFC8200:
@@ -46,6 +47,7 @@ informative:
     RFC7942:
     RFC7967:
     RFC7950:
+    RFC8376:
     RFC9011:
     I-D.ietf-lpwan-architecture:
     
@@ -67,9 +69,8 @@ It is based on a static context shared by two entities at the boundary of the co
 {{RFC8724}} provides a non formal representation of the rules used either for compression/decompression (or C/D)
 or fragmentation/reassembly (or F/R). The goal of this document is to formalize the description of the rules to offer:
 
-* the same definition on both ends, even if the internal representation is different. 
-* an update of the other end to set up some specific values (e.g. IPv6 prefix, destination address,...)
-* ...
+* the same definition on both ends, even if the internal representation is different; 
+* an update of the other end to set up some specific values (e.g. IPv6 prefix, destination address,...).
 
 {{I-D.ietf-lpwan-architecture}} illustrates the exchange of rules using the YANG data model.
 
@@ -81,17 +82,58 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 "MAY", and "OPTIONAL" in this document are to be interpreted as described in BCP 14 {{RFC2119}} {{RFC8174}} when, and only when, they
 appear in all capitals, as shown here.
 
+# Terminology {#Term}
+
+This section defines the terminology and acronyms used in this document.
+It extends the terminology of {{RFC8376}}.
+
+* App: LPWAN Application, as defined by {{RFC8376}}. An application sending/receiving packets to/from the Dev.
+
+* Bi: Bidirectional. Characterizes a Field Descriptor that applies to headers of packets traveling in either direction (Up and Dw, see this glossary).
+
+* CDA: Compression/Decompression Action. Describes the pair of actions that are performed at the compressor to compress a header field and at the decompressor to recover the original value of the header field.
+
+* Context: A set of Rules used to compress/decompress headers.
+
+* Dev: Device, as defined by {{RFC8376}}.
+
+* DevIID: Device Interface Identifier. The IID that identifies the Dev interface.
+
+* DI: Direction Indicator. This field tells which direction of packet travel (Up, Dw or Bi) a Field Description applies to. This allows for asymmetric processing, using the same Rule.
+
+* Dw: Downlink direction for compression/decompression, from SCHC C/D in the network to SCHC C/D in the Dev.
+
+* FID: Field Identifier. This identifies the protocol and field a Field Description applies to.
+
+* FL: Field Length is the length of the original packet header field. It is expressed as a number of bits for header fields of fixed lengths or as a type (e.g., variable, token length, ...) for field lengths that are unknown at the time of Rule creation. The length of a header field is defined in the corresponding protocol specification (such as IPv6 or UDP).
+
+* FP: when a Field is expected to appear multiple times in a header, Field Position specifies the occurrence this Field Description applies to
+  (for example, first uri-path option, second uri-path, etc. in a CoAP header), counting from 1. The value 0 is special and means "don't care", see {{RFC8724}} Section 7.2.
+
+* IID: Interface Identifier. See the IPv6 addressing architecture {{RFC7136}}.
+
+* L2 Word: this is the minimum subdivision of payload data that the L2 will carry. In most L2 technologies, the L2 Word is an octet.
+  In bit-oriented radio technologies, the L2 Word might be a single bit.
+  The L2 Word size is assumed to be constant over time for each device.
+
+* MO: Matching Operator. An operator used to match a value contained in a header field with a value contained in a Rule.
+
+* Rule ID (Rule Identifier): An identifier for a Rule. SCHC C/D on both sides share the same Rule ID for a given packet. A set of Rule IDs are used to support SCHC F/R functionality.
+
+* TV: Target value. A value contained in a Rule that will be matched with the value of a header field.
+
+* Up: Uplink direction for compression/decompression, from the Dev SCHC C/D to the network SCHC C/D.
+
+
 # SCHC rules
 
-This document defines a YANG module to represent both compression and fragmentation rules, which leads to common representation for values for all the rules elements. 
-
 SCHC compression is generic, the main mechanism does not refer
-to a specific protocol. Any header field is abstracted through an ID, a position, a direction, and a value that can be a numerical
-value or a string. {{RFC8724}} and {{RFC8824}} specify fields for IPv6 {{RFC8200}}, UDP{{RFC0768}}, CoAP {{RFC7252}} including options definied for no serveur response  {{RFC7967}} and OSCORE {{RFC8613}}. For the latter {{RFC8824}} splits this field into sub-fields.
+to a specific protocol. Any header field is abstracted through an Field Identifier (FID), a position (FP), a direction (DI), and a value that can be a numerical
+value or a string. {{RFC8724}} and {{RFC8824}} specify fields for IPv6 {{RFC8200}}, UDP{{RFC0768}}, CoAP {{RFC7252}} including options defined for no server response  {{RFC7967}} and OSCORE {{RFC8613}}. For the latter {{RFC8824}} splits this field into sub-fields.
 
 SCHC fragmentation requires a set of common parameters that are included in a rule. These parameters are defined in {{RFC8724}}.
 
-The YANG data model allows to select the compression or the fragmentation using the feature command.
+The YANG data model enables the compression and the fragmentation selection using the feature statement.
 
 
 ## Compression Rules {#comp_types}
@@ -125,7 +167,7 @@ describe a specific field in the header to be compressed.
 
 ##Identifier generation
 
-Identifier used in the SCHC YANG data model are from the identityref statement to ensure to be globally unique and be easily augmented if needed.  The principle to define a new type based on a group of identityref is the following:
+Identifiers used in the SCHC YANG data model are from the identityref statement to ensure global uniqueness and easy augmentation if needed.  The principle to define a new type based on a group of identityref is the following:
 
 * define a main identity ending with the keyword base-type.
 
@@ -148,7 +190,7 @@ The example ({{Fig-identityref}}) shows how an identityref is created for RCS (R
   identity rcs-RFC8724 {
     base rcs-algorithm-base-type;
     description
-      "CRC 32 defined as default RCS in RFC8724. RCS is 4 byte-long";
+      "CRC 32 defined as default RCS in RFC8724. RCS is 4 bytes long";
   }
 
   typedef rcs-algorithm-type {
@@ -177,7 +219,7 @@ convention is "fid" followed by the protocol name and the field name. If a field
 to be divided into sub-fields, the field identity serves as a base. 
 
 The full field-id definition is found in {{annexA}}. A type is defined for IPv6 protocol, and each 
-field is based on it. Note that the DiffServ bits derives from the Traffic Class identity.
+field is based on it. Note that the DiffServ bits derive from the Traffic Class identity.
 
 
 ## Convention for Field length 
@@ -188,15 +230,16 @@ Token length field.
 
 The naming convention is "fl" followed by the function name.
 
-The field length function can be defined as an identityref as described in {{annexA}}. Therefore, the type for field length is a union between an integer giving in bits the size of the length and the identityref.
+The field length function can be defined as an identityref as described in {{annexA}}. Therefore, the type for field length is a union between an integer giving the size of the length in bits and the identityref.
 
 
 ## Convention for Field position
 
-Field position is a positive integer which gives the position of a field, the default value is 1, and incremented at each repetition. 
-value 0 indicates that the position is not important and is not considered during the rule selection process. 
+Field position is a positive integer which gives he occurrence times of a
+specific field.  The default value is 1, and incremented at each repetition. 
+Value 0 indicates that the position is not important and is not considered during the rule selection process. 
 
-Field position is a positive integer. The type is an uint8.
+Field position is a positive integer. The type is uint8.
 
 ## Convention for Direction Indicator
 
@@ -206,13 +249,13 @@ The type is "di-type".
 
 ## Convention for Target Value {#target_value}
 
-The Target Value is a list of binary sequences of any length, aligned to the left. In the rule, the structure will be used as a list, with index as a key. The highest index value is used to compute the size of the index sent in residue for the match-mapping CDA (Compression Decompression Action). The index allows to specify several values:
+The Target Value is a list of binary sequences of any length, aligned to the left. In the rule, the structure will be used as a list, with index as a key. The highest index value is used to compute the size of the index sent in residue for the match-mapping CDA (Compression Decompression Action). The index can specify several values:
 
-* For Equal and LSB, Target Value contains a single element. Therefore, the index is set to 0.
+* For Equal and MSB, Target Value contains a single element. Therefore, the index is set to 0.
 
 * For match-mapping, Target Value can contain several elements. Index values MUST start from 0 and MUST be contiguous. 
 
-If the header field contains a text, the binary sequence uses the same enconding.
+If the header field contains a text, the binary sequence uses the same encoding.
 
 ## Convention for Matching Operator
 
@@ -225,7 +268,7 @@ The type is "mo-type"
 
 ### Matching Operator arguments
 
-They are viewed as a list, built with a tv-struct (see chapter {{target_value}}).
+They are viewed as a list, built with a tv-struct (see {{target_value}}).
 
 ## Convention for Compression Decompression Actions
 
@@ -252,7 +295,7 @@ The type is the same as the one used in compression entries, but bidirectional M
 
 {{RFC8724}} defines 3 fragmentation modes:
 
-* No Ack: this mode is unidirectionnal, no acknowledgment is sent back. 
+* No Ack: this mode is unidirectional, no acknowledgment is sent back. 
 
 * Ack Always: each fragmentation window must be explicitly acknowledged before going to the next.
 
@@ -265,10 +308,10 @@ The naming convention is "fragmentation-mode" followed by the fragmentation mode
 ### Fragmentation Header
 
 
-A data fragment header, starting with the rule ID can be sent on the fragmentation direction. 
+A data fragment header, starting with the rule ID, can be sent in the fragmentation direction. 
 {{RFC8724}} indicates that the SCHC header may be composed of (cf. {{Fig-frag-header-8724}}):
 
-* a Datagram Tag (Dtag) identifying the datagram being fragmented if the fragmentation applies concurrently on several datagrams. This field in optional and its length is defined by the rule.
+* a Datagram Tag (Dtag) identifying the datagram being fragmented if the fragmentation applies concurrently on several datagrams. This field is optional and its length is defined by the rule.
 
 * a Window (W) used in Ack-Always and Ack-on-Error modes. In Ack-Always, its size is 1. In Ack-on-Error, it depends on the rule. This field is not needed in No-Ack mode. 
 
@@ -333,15 +376,15 @@ or as a response to receiving the last fragment (FCN all-1). The naming conventi
 
 ### Timer values 
 
-The state machine requires some common values to handle correctly fragmentation. 
+The state machine requires some common values to handle fragmentation correctly. 
 
-* retransmission-timer gives the duration before sending an ack request (cf. section 8.2.2.4. of {{RFC8724}}). If specified, value must be strictly positive. 
+* retransmission-timer gives the duration before sending an ack request (cf. section 8.2.2.4. of {{RFC8724}}). If specified, value MUST be strictly positive. 
 * inactivity-timer gives  the duration before aborting a fragmentation session (cf. section 8.2.2.4. of {{RFC8724}}). The value 0 explicitly indicates that this timer is disabled.
 
-{{RFC8724}} do not specified any range for these timers. {{RFC9011}} recommends a duration of 12 hours. In fact, the value range sould be between milliseconds for real time systems to several days. To allow a large range of applications, two parameters must be specified:
+{{RFC8724}} do not specified any range for these timers. {{RFC9011}} recommends a duration of 12 hours. In fact, the value range should be between milliseconds for real time systems to several days. To allow a large range of applications, two parameters must be specified:
 
   * the duration of a tick. It is computed by this formula 2^tick-duration/10^6. When tick-duration is set to 0, the unit is the microsecond. The default value of 20 leads to a unit of 1.048575 second. A value of 32 leads to a tick duration of about 1 hour 11 minutes.
-  * the number of ticks in the predefined unit. With the default tick-duration value of 20, the timers can cover a range between 1.0 sec and 19 hours covering {{RFC9011}} recommandation.
+  * the number of ticks in the predefined unit. With the default tick-duration value of 20, the timers can cover a range between 1.0 sec and 19 hours covering {{RFC9011}} recommendation.
 
 ### Fragmentation Parameter 
 
@@ -358,17 +401,17 @@ The data model includes two parameters needed for fragmentation:
 to the default value for byte aligned layer 2. A value of 1 will indicate that there is no alignment and no need for padding. 
 * maximum-packet-size: defines the maximum size of a uncompressed datagram. By default, the value is set to 1280 bytes.
 
-They are defined as unsigned integer, see {{annexA}}.
+They are defined as unsigned integers, see {{annexA}}.
 
 # Rule definition
 
-A rule is idenfied by a unique rule identifier (rule ID) comprising both a Rule ID value and a Rule ID length. 
+A rule is identified by a unique rule identifier (rule ID) comprising both a Rule ID value and a Rule ID length. 
 The YANG grouping rule-id-type defines the structure used to represent a rule ID. A length of 0 is allowed to represent an implicit rule. 
 
 Three natures of rules are defined in {{RFC8724}}:
 
 * Compression: a compression rule is associated with the rule ID.
-* No compression: this identifies the default rule used to send a packet in extenso when no compression rule was found (see {{RFC8724}} section 6). 
+* No compression: this identifies the default rule used to send a packet integrally when no compression rule was found (see {{RFC8724}} section 6). 
 * Fragmentation: fragmentation parameters are associated with the rule ID. Fragmentation is optional and feature "fragmentation" should be set. 
 
 The YANG data model introduces repectively these three identities :
@@ -394,7 +437,7 @@ element represent a line of the table {{Fig-ctxt}}. Their type reflects the iden
 
 Some checks are performed on the values:
 
-* target value must be present for MO different from ignore.
+* target value MUST be present for MO different from ignore.
 * when MSB MO is specified, the matching-operator-value must be present
 
 
@@ -467,8 +510,8 @@ module: ietf-schc
 # YANG Module {#annexA}
 
 ~~~~
-<CODE BEGINS> file "ietf-schc@2022-08-01.yang"
-{::include ietf-schc@2022-08-01.yang}
+<CODE BEGINS> file "ietf-schc@2022-08-25.yang"
+{::include ietf-schc@2022-08-25.yang}
 <CODE ENDS>
 ~~~~
 {: #Fig-schc title="SCHC data model}
@@ -500,7 +543,7 @@ protocols more mature.  It is up to the individual working groups
 to use this information as they see fit".
 
 * Openschc is implementing the conversion between the local rule 
-  representation and the representation conform to the data model 
+  representation and the representation conforming to the data model 
   in JSON and CBOR (following -08 draft).
 
 
@@ -538,7 +581,7 @@ The YANG module specified in this document defines a schema for data that is des
 
 The Network Configuration Access Control Model (NACM) {{!RFC8341}} provides the means to restrict access for particular NETCONF or RESTCONF users to a preconfigured subset of all available NETCONF or RESTCONF protocol operations and content.
 
-This data model formalizes the rules elements described in {{RFC8724}} for compression and fragmentation. As explained in the architecture document {{I-D.ietf-lpwan-architecture}}, a rule can be read, created, updated or deleted in response to a management request. These actions can be done between two instances of SCHC or between a SCHC instance and a rule repository.
+This data model formalizes the rules elements described in {{RFC8724}} for compression, and fragmentation. As explained in the architecture document {{I-D.ietf-lpwan-architecture}}, a rule can be read, created, updated or deleted in response to a management request. These actions can be done between two instances of SCHC or between a SCHC instance and a rule repository.
 
 ~~~~~
                      create
@@ -555,7 +598,7 @@ This data model formalizes the rules elements described in {{RFC8724}} for compr
 
 The rule contains some sensible informations such as the application IPv6 address. An attacker by changing a rule content may block the communication or intercept the traffic. Therefore, the identity of the requester must be validated. This can be done through certificates or access lists.
 
-The full tree is sensitive, since it represents all the elements that can be managed.  This module aims to be encapsulated into a YANG module including access control and identities. 
+The full tree is sensitive, since it represents all the elements that can be managed.  This module aims to be encapsulated into a YANG module including access controls and identities. 
 
 
 
