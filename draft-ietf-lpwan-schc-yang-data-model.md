@@ -1,7 +1,7 @@
 ---
 stand_alone: true
 ipr: trust200902
-docname: draft-ietf-lpwan-schc-yang-data-model-16
+docname: draft-ietf-lpwan-schc-yang-data-model-17
 cat: std
 pi:
   symrefs: 'yes'
@@ -179,18 +179,23 @@ The example ({{Fig-identityref}}) shows how an identityref is created for RCS (R
 
 
 ~~~~~
- // -- RCS algorithm types
-
   identity rcs-algorithm-base-type {
     description
       "Identify which algorithm is used to compute RCS.
        The algorithm also defines the size of the RCS field.";
+    reference
+      "RFC 8724 SCHC: Generic Framework for Static Context Header
+                Compression and Fragmentation";
   }
 
-  identity rcs-RFC8724 {
+  identity rcs-crc32 {
     base rcs-algorithm-base-type;
     description
-      "CRC 32 defined as default RCS in RFC8724. RCS is 4 bytes long";
+      "CRC 32 defined as default RCS in RFC8724. This RCS is
+       4 bytes long.";
+    reference
+      "RFC 8724 SCHC: Generic Framework for Static Context Header
+                Compression and Fragmentation";
   }
 
   typedef rcs-algorithm-type {
@@ -198,7 +203,7 @@ The example ({{Fig-identityref}}) shows how an identityref is created for RCS (R
       base rcs-algorithm-base-type;
     }
     description
-      "type used in rules.";
+      "Define the type for RCS algorithm in rules.";
   }
 ~~~~~
 {: #Fig-identityref title='Principle to define a type based on identityref.'}
@@ -215,7 +220,7 @@ Using the YANG data model, each field MUST be identified through a global YANG i
 A YANG field ID for the protocol is always derived from the fid-base-type. Then an identity 
 for each protocol is specified using the naming convention fid-\<\<protocol name>>-base-type. 
 All possible fields for this protocol MUST derive from the protocol identity. The naming 
-convention is "fid" followed by the protocol name and the field name. If a field has 
+convention is "fid-" followed by the protocol name and the field name. If a field has 
 to be divided into sub-fields, the field identity serves as a base. 
 
 The full field-id definition is found in {{annexA}}. A type is defined for IPv6 protocol, and each 
@@ -228,14 +233,14 @@ Field length is either an integer giving the size of a field in bits or a specif
 "var" function which allows variable length fields (whose length is expressed in bytes) and {{RFC8824}} defines the "tkl" function for managing the CoAP
 Token length field.
 
-The naming convention is "fl" followed by the function name.
+The naming convention is "fl-" followed by the function name.
 
 The field length function can be defined as an identityref as described in {{annexA}}. Therefore, the type for field length is a union between an integer giving the size of the length in bits and the identityref.
 
 
 ## Convention for Field position
 
-Field position is a positive integer which gives he occurrence times of a
+Field position is a positive integer which gives the occurrence times of a
 specific field.  The default value is 1, and incremented at each repetition. 
 Value 0 indicates that the position is not important and is not considered during the rule selection process. 
 
@@ -243,7 +248,7 @@ Field position is a positive integer. The type is uint8.
 
 ## Convention for Direction Indicator
 
-The Direction Indicator (di) is used to tell if a field appears in both direction (Bi) or only uplink (Up) or Downlink (Dw). The naming convention is "di" followed by the Direction Indicator name.
+The Direction Indicator (di) is used to tell if a field appears in both directions (Bi) or only uplink (Up) or Downlink (Dw). The naming convention is "di" followed by the Direction Indicator name.
 
 The type is "di-type".
 
@@ -261,7 +266,7 @@ If the header field contains a text, the binary sequence uses the same encoding.
 
 Matching Operator (MO) is a function applied between a field value provided by the parsed header and the target value. {{RFC8724}} defines 4 MO.
 
-The naming convention is "mo" followed by the MO name.
+The naming convention is "mo-" followed by the MO name.
 
 The type is "mo-type" 
 
@@ -275,7 +280,7 @@ They are viewed as a list, built with a tv-struct (see {{target_value}}).
 Compression Decompression Action (CDA) identifies the function to use for compression or decompression. 
 {{RFC8724}} defines 6 CDA. 
 
-The naming convention is "cda" followed by the CDA name.
+The naming convention is "cda-" followed by the CDA name.
 
 ### Compression Decompression Action arguments
 
@@ -302,7 +307,7 @@ The type is the same as the one used in compression entries, but bidirectional M
 * Ack on Error:  A window is acknowledged only when the receiver detects some missing fragments.
 
 The type is "fragmentation-mode-type". 
-The naming convention is "fragmentation-mode" followed by the fragmentation mode name.
+The naming convention is "fragmentation-mode-" followed by the fragmentation mode name.
 
 
 ### Fragmentation Header
@@ -334,7 +339,7 @@ The last fragment of a datagram is sent with an RCS (Reassembly Check Sequence) 
 transmission error and possible losses in the last window. {{RFC8724}} defines a single algorithm based on Ethernet 
 CRC computation. 
 
-The naming convention is "rcs" followed by the algorithm name.
+The naming convention is "rcs-" followed by the algorithm name.
 
 For Ack-on-Error mode, the All-1 fragment may just contain the RCS or can include a tile. The parameters defines the 
 behavior:
@@ -345,7 +350,7 @@ behavior:
 
 * all-1-data-sender-choice: the last fragment may or may not contain a single tile. The receiver can detect if a tile is present.
 
-The naming convention is "all-1-data" followed by the behavior identifier.
+The naming convention is "all-1-data-" followed by the behavior identifier.
 
 
 ### Acknowledgment behavior
@@ -420,7 +425,7 @@ The YANG data model introduces repectively these three identities :
 * nature-no-compression
 * nature-fragmentation
 
-The naming convention is "nature" followed by the nature identifier.
+The naming convention is "nature-" followed by the nature identifier.
 
 To access a specific rule, the rule ID length and value are used as a key. The rule is either
 a compression or a fragmentation rule. 
@@ -587,7 +592,7 @@ This data model formalizes the rules elements described in {{RFC8724}} for compr
                      create
           (-------)  read   +=======+ *
           ( rules )<------->|Rule   |<--|-------->
-          (-------)  update |Manager|   NETCONF, RESTCONF or CORECONF
+          (-------)  update |Manager|   NETCONF, RESTCONF,...
              . read  delete +=======+   request
              .
           +-------+
@@ -596,7 +601,7 @@ This data model formalizes the rules elements described in {{RFC8724}} for compr
           +-------+
 ~~~~~
 
-The rule contains some sensible informations such as the application IPv6 address. An attacker by changing a rule content may block the communication or intercept the traffic. Therefore, the identity of the requester must be validated. This can be done through certificates or access lists.
+The rule contains some sensible information such as the application IPv6 address where the device data will be sent after decompression. An attacker by changing this address in the rule content may block the communication or intercept the traffic. Therefore, a device must be allowed to modify only its own rules. The identity of the requester must be validated. This can be done through certificates or access lists.
 
 The full tree is sensitive, since it represents all the elements that can be managed.  This module aims to be encapsulated into a YANG module including access controls and identities. 
 

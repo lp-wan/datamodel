@@ -288,36 +288,832 @@ Section 3.3, page 6, "bits derives" -> "bits derive"
 Section 3.4, page 6, "giving in bits the size of the length" -> "giving the
 length in bits"
 
+==> Chnaged to 
 
+Therefore, the type for field length is a union between an integer giving the size of the length in bits and the identityref.
 
 Section 3.5, page 6, "an uint8" -> "uint8"
 
+==> Done
+
 Section 3.7, page 7, "allows to specify" -> "can specify"
+
+==> Done
 
 Section 3.10.2, page 8, "starting with the rule ID can be sent on" ->
 "starting with the rule ID, can be sent in"
 
+==> Done
+
 Section 3.10.2, page 8, first bullet item, last line, "in" -> "is"
+
+==> Done
 
 Section 3.10.5, page 10, "handle correctly fragmentation" -> "handle
 fragmentation correctly"
 
+==> Done
+
 Section 3.10.5, page 10, "sould" -> "could"
 
+==> Done
+
 Section 3.10.7, page 11, "integer" -> "integers"
+
+==> Done
 
 Section 5, page 14: The RFC Editor's policy (with which I agree) is that
 when there is a list of three or more items, there should be a comma after
 the next to last item, before the "and". So "compression and fragmentation"
 -> "compression, and fragmentation"
+
+**> changed once, when the list was at the end of the sentence, looks strange
+in a middle of a sentence.
+
 Section 5, page 38: As immediately above. "packet and its direction." ->
 "packet, and its directions."
 
+==> changed in the DM
+
 Section 6, page 43, next to last line, "conform" -> "conforming"
+
+==> Done
 
 Donald
 ===============================
  Donald E. Eastlake 3rd   +1-508-333-2270 (cell)
  2386 Panoramic Circle, Apopka, FL 32703 USA
  d3e3e3@gmail.com
+
+
+****************************************************************************************************
+
+This document describes a YANG data model for the SCHC (Static Context Header
+Compression) compression and fragmentation rules. The bulk of the document is
+the YANG module, which I did not review as I am not a YANG expert. The rest of
+the document was fine and mostly consisted of conventions for what appears in
+the YANG module. The security considerations seemed sufficient. One minor nit,
+in the last sentence of security considerations, the phrase "including access
+right and identities" doesn't seem quite right. Maybe "including access
+controls and identities"?
+
+==> Done
+
+****************************************************************************************************
+
+I am the assigned Gen-ART reviewer for this draft. The General Area
+Review Team (Gen-ART) reviews all IETF documents being processed
+by the IESG for the IETF Chair.  Please treat these comments just
+like any other last call comments.
+
+For more information, please see the FAQ at
+
+<https://trac.ietf.org/trac/gen/wiki/GenArtfaq>.
+
+Document: draft-ietf-lpwan-schc-yang-data-model-14
+Reviewer: Meral Shirazipour
+Review Date: 2022-07-27
+IETF LC End Date: 2022-08-02
+IESG Telechat date: Not scheduled for a telechat
+
+Summary: This draft is almost ready to be published as Standards Track RFC.
+
+Major issues:
+
+Minor issues:
+In Intro section please clarify benefits of this RFC formalizing the
+description of the compression rules. :
+
+"The goal of this document is to formalize the description of the rules to
+offer" to allow X Y Z ?
+
+**>  There is this paragraph added in -15
+This document formalizes the description of the rules for better
+   interoperability between SCHC instances either to exchange a set of
+   rules or to modify some rules parameters.
+
+
+Nits/editorial comments:
+[Page 3], Section 3, Typo
+"options definied"-->"options defined"
+
+==> Done
+
+
+[Page 3], Section 3, Typo
+"serveur"-->"server"
+
+==> Done
+
+
+[Page 6], Section 3.7, Typo
+"same enconding."-->"same encoding."
+
+==> Done
+
+
+[Page 7], Section 3.10.1, Typo
+"unidirectionnal,"--->"unidirectional,"
+
+==> Done
+
+
+[Page 10], Section 3.10.5, Typo
+"range sould"-->"range should"
+
+==> Done
+
+"recommandation"-->"recommendation"
+
+==> Done
+
+
+[Page 10], Section 3.10.5, Typo
+"the the"-->"the"
+
+==> Done
+
+
+[Page 10], Section 4, Typo
+"idenfied"-->"identified"
+
+==> Done
+
+
+[Page 33], Typo x2
+"bidirectionnal is forbiden"-->"bidirectional is forbidden"
+
+==> Done
+
+***************************************************************************************
+
+I have been tasked to perform a LC review on this draft on behalf of YANG
+Doctors.  This document defines a YANG module to codify the rules for Static
+Context Header Compression.  While I say that it is "Not Ready" from a LC
+perspective, it may be more ready than that lets on.  I have a few questions of
+the authors to gain perspective on what they're trying to achieve.  I have also
+found a number of issues in the module itself.  See below:
+
+- YANG tree has subtle differences from the YANG module; regenerate
+
+==> Done in -15, used conventional techniques to avoid exceeding lines
+
+
+- Run the module through `pyang -f yang` to generate a canonical formatted
+version 
+
+==> Done, with minor manual adjustments for figures in the DM
+
+
+- No linting errors, though the copyright needs to be updated 
+
+==> Done in -15 (@2202-08-01)
+
+- Pet peeve: I prefer descriptions to begin with a capital letter and end with a
+full-stop '.' 
+
+==> Done in -15
+
+- Many descriptions (especially of identities) have an RFC in
+them.  Please make this a reference as well.
+
+=> Done in -15
+
+- For fl-type, if this is a
+positive integer, why not use an unsigned type? 
+
+=> Done in -15
+
+- appiid and deviid should be AppIID and DevIID as stated in RFC8724 
+
+=> Done in -15
+
+
+- In grouping tv-struct's description:
+s/enconding/encoding/ 
+
+=> Done in -15
+
+
+- Leaf "index" in tv-struct grouping: s/indicia/index/ 
+
+=> Done in -15
+
+- In leaf field-position: s/occurence/occurrence/ 
+
+=> done in -16
+
+- You use "YANG referenceid" a
+few times, but this isn't a thing per se.  You tend to use
+  this to mean an identity reference.  In all cases, though, I think it would be
+  best to more clearly state what the leaf is/does and leave out that fact that
+  it uses an identityref
+
+=> Done in -16 
+
+
+- In grouping compression-rule-entry: s/identifer/identifier/, but again, I'd
+leave
+  out these YANG bits from descriptions.
+
+=> Done in -15
+
+- In your tv-struct grouping, define "index" as the first leaf.  That seems a
+bit more logical to me.
+
+=> Done in -15
+
+
+ - For leaf comp-decomp-action, your description is a
+tautology (which is another pet peeve of mine).
+  Can you sweep descriptions and make sure they provide some additional context
+  or at least a reference?
+
+==> added ref to section in RFC 8724
+
+
+- For something like di-type, does it make sense to be an identity?  Seems like
+this could be an enumeration
+  as I don't think you'll have directions other than up, down, bi?  But maybe
+  you think these types may be extended?  Just curious.
+
+==> answer by mail, mau have other values with mesh network
+
+- In leaf direction: s/bidirectionnal/bidirectional/ and s/forbiden/forbidden/
+
+==> Done
+
+- For w-size, why not use derived-from-or-self here (same in other places where
+fragmentation-mode is referenced)? 
+
+==> Done
+
+- In grouping compression-content:
+s/identifed/identified/ 
+
+==> Done
+
+- See Section 3.4 of
+https://datatracker.ietf.org/doc/html/rfc8407 on how to reference YANG tree
+diagrams 
+
+==> Done
+
+- Why do you have empty cases for the mode choice (e.g., no-ack,
+ack-always)?  It's not clear you need a choice here.
+
+
+
+==> Answer to the list, to allows parameters to be named the same way if some extentions will be defined
+
+  And if you need it, you could just have one "when" clause on the case itself.
+
+
+- There is another empty case for the no-compression case in the nature choice.
+ The description there says that a rule is required. - Can one have both
+features for compression and fragmentation?  The choice seems to imply no, but
+I am curious.  I didn't get the impression that they were mutually exclusive
+from 8724.
+
+==> This point raised a big issued. It has been fixed by adding a rule-nature in the DM
+and remove the no-compression choice.
+
+*******************************************************************************************
+
+This is my YANG Doctors Early Review of draft-ietf-lpwan-schc-yang-data-model-04
+
+It is obviously challenging to provide early review feedback on how useful and
+efficient the YANG model representation is for a set of technologies that I am
+not an expert on, but here goes.
+
+Understanding that it is still early in the lifecycle of the module, I have not
+spent time on providing feedback on e.g. description texts, capitalization and
+spelling but have focused on the general structure and design of the module. I
+also haven't spent any time dissecting the output of `pyang --ietf`, but I
+would suggest the authors start looking into that as the content of the module
+moves ahead towards publication.
+
+==> Done in -15
+
+I would also suggest considering running the module through `pyang -f yang` as
+that provides nice and consistent formatting and quoting.
+
+==> Done in -15 with edition of some description
+
+As for the content itself. I believe to the best of my understanding that the
+YANG module reflects the core data structures of RFC8724 well. I have a couple
+of questions that may lead to broader discussion on _how_ to capture certain
+aspects of these data structures in a way that makes it realistic to implement
+while still easy to use.
+
+As is right now, the YANG module assumes that all implementations support all
+FID types defined to be derived from field-id-base-type. It includes fields
+related IPv6, COAP/OSCORE, and ICMPv6 all in the same module. Is there a
+possibility that some implementations won't implement all three of those
+protocol groups? If so, it might be worth considering making FID type groups
+either optional using YANG 'feature' statements or break them out into separate
+modules to be advertised separately.
+
+**> Not done yet, should be discussed in the WG
+
+There is currently no correlation between field-id type and field-length types
+in the same compression rule entry. I.e. the current YANG permits a
+field-identifier 'fid-ipv6-version' combined with a field-length
+'fl-token-length' in a rule entry, which I understand to be nonsensical.
+
+**> not yet done, have to be discussed in the WG, test can be done to ensure that
+length function are used with the right fid, but how to take into account augmentation
+if we say for instance that fl-variable must be linked to fid-coap-uri-path and 
+fid-coap-uri-query. If someone defines another compression for let say MQTT how do
+we accept it ?
+
+ If I
+am right in that it's an example of meaningless configuration, does the authors
+think it important (and possible) to work towards a more stringent validation
+of "meaningful" configuration by capturing the relationships between fields
+like in this example?
+IETF IESG IAB IRTF IETF LLC IETF Trust RFC Editor IANA Privacy Statement
+
+**************************************************************************
+
+Paul Wouters
+
+Discuss (2022-08-24 for -15)
+Probably an easy thing to fix,
+
+I see an identity defined as "rcs-rfc8724". Using RFC numbers as names can
+be confusing if such and RFC is obsoleted for another RFC. Couldn't this
+entry be called "rcs-crc32" ?
+
+=> Done, in Yang model and in draft
+
+Comment (2022-08-24 for -15)
+NITS:
+
+- Section 1 [I-D.ietf-lpwan-architecture] is a broken reference
+
+**> Ask the group to issue a new version, may be this reference should be removed, to avoid to wait too much for publication.
+
+- Many sections contain [RFC8724] as a broken reference
+
+**> Didn't find any, 
+
+**************************************************************************
+
+Robert WiltonDiscuss
+Discuss (2022-08-25)
+Hi,
+
+Thanks for this document.  I would like to discuss whether it is possible/appropriate to add an instance data example 
+(as per my comment 1 below) to this document, or if that is inappropriate or unhelpful for some reason.
+
+==> We can add something in JSON, I don't know if it is appropriate:
+
+For set of rules
+
+/-------------------------\
+|Rule 6/3            110  |
+|---------------+---+--+--+------------------------------+-------------+----------------\
+|IPV6.VER       |  4| 1|BI|                             6|EQUAL        |NOT-SENT        |
+|IPV6.TC        |  8| 1|BI|                             0|EQUAL        |NOT-SENT        |
+|IPV6.FL        | 20| 1|BI|                             0|IGNORE       |NOT-SENT        |
+|IPV6.LEN       | 16| 1|BI|------------------------------|IGNORE       |COMPUTE-LENGTH  |
+|IPV6.NXT       |  8| 1|BI|                            58|EQUAL        |NOT-SENT        |
+|IPV6.HOP_LMT   |  8| 1|BI|                           255|IGNORE       |NOT-SENT        |
+|IPV6.DEV_PREFIX| 64| 1|BI|              200104701f2101d2|EQUAL        |NOT-SENT        |
+|IPV6.DEV_IID   | 64| 1|BI|              0000000000000001|EQUAL        |NOT-SENT        |
+|IPV6.APP_PREFIX| 64| 1|BI|------------------------------|IGNORE       |VALUE-SENT      |
+|IPV6.APP_IID   | 64| 1|BI|------------------------------|IGNORE       |VALUE-SENT      |
+\---------------+---+--+--+------------------------------+-------------+----------------/
+/-------------------------\
+|Rule 12/11     00001100  |
+!=========================+=============================================================\
+!^ Fragmentation mode : NoAck    header dtag 2 Window  0 FCN  3                     UP ^!
+!^ No Tile size specified                                                              ^!
+!^ RCS Algorithm: RCS_CRC32                                                            ^!
+\=======================================================================================/
+/-------------------------\
+|Rule 100/8     01100100  |
+| NO COMPRESSION RULE     |
+\-------------------------/
+
+we have
+
+{'ietf-schc:schc': {'rule': [{'entry': [{'comp-decomp-action': 'cda-not-sent',
+                                         'direction-indicator': 'di-bidirectional',
+                                         'field-id': 'fid-ipv6-version',
+                                         'field-length': '4',
+                                         'field-position': 1,
+                                         'matching-operator': 'mo-equal',
+                                         'target-value': [{'index': 0,
+                                                           'value': b'AAY='}]},
+                                        {'comp-decomp-action': 'cda-not-sent',
+                                         'direction-indicator': 'di-bidirectional',
+                                         'field-id': 'fid-ipv6-trafficclass',
+                                         'field-length': '8',
+                                         'field-position': 1,
+                                         'matching-operator': 'mo-equal',
+                                         'target-value': [{'index': 0,
+                                                           'value': b'AA=='}]},
+                                        {'comp-decomp-action': 'cda-not-sent',
+                                         'direction-indicator': 'di-bidirectional',
+                                         'field-id': 'fid-ipv6-flowlabel',
+                                         'field-length': '20',
+                                         'field-position': 1,
+                                         'matching-operator': 'mo-ignore',
+                                         'target-value': [{'index': 0,
+                                                           'value': b'AA=='}]},
+                                        {'comp-decomp-action': 'cda-compute',
+                                         'direction-indicator': 'di-bidirectional',
+                                         'field-id': 'fid-ipv6-payload-length',
+                                         'field-length': '16',
+                                         'field-position': 1,
+                                         'matching-operator': 'mo-ignore'},
+                                        {'comp-decomp-action': 'cda-not-sent',
+                                         'direction-indicator': 'di-bidirectional',
+                                         'field-id': 'fid-ipv6-nextheader',
+                                         'field-length': '8',
+                                         'field-position': 1,
+                                         'matching-operator': 'mo-equal',
+                                         'target-value': [{'index': 0,
+                                                           'value': b'ADo='}]},
+                                        {'comp-decomp-action': 'cda-not-sent',
+                                         'direction-indicator': 'di-bidirectional',
+                                         'field-id': 'fid-ipv6-hoplimit',
+                                         'field-length': '8',
+                                         'field-position': 1,
+                                         'matching-operator': 'mo-ignore',
+                                         'target-value': [{'index': 0,
+                                                           'value': b'AP8='}]},
+                                        {'comp-decomp-action': 'cda-not-sent',
+                                         'direction-indicator': 'di-bidirectional',
+                                         'field-id': 'fid-ipv6-devprefix',
+                                         'field-length': '64',
+                                         'field-position': 1,
+                                         'matching-operator': 'mo-equal',
+                                         'target-value': [{'index': 0,
+                                                           'value': b'IAEEcB8h'
+                                                                    b'AdI='}]},
+                                        {'comp-decomp-action': 'cda-not-sent',
+                                         'direction-indicator': 'di-bidirectional',
+                                         'field-id': 'fid-ipv6-deviid',
+                                         'field-length': '64',
+                                         'field-position': 1,
+                                         'matching-operator': 'mo-equal',
+                                         'target-value': [{'index': 0,
+                                                           'value': b'AAAAAAAA'
+                                                                    b'AAE='}]},
+                                        {'comp-decomp-action': 'cda-value-sent',
+                                         'direction-indicator': 'di-bidirectional',
+                                         'field-id': 'fid-ipv6-appprefix',
+                                         'field-length': '64',
+                                         'field-position': 1,
+                                         'matching-operator': 'mo-ignore'},
+                                        {'comp-decomp-action': 'cda-value-sent',
+                                         'direction-indicator': 'di-bidirectional',
+                                         'field-id': 'fid-ipv6-appiid',
+                                         'field-length': '64',
+                                         'field-position': 1,
+                                         'matching-operator': 'mo-ignore'}],
+                              'rule-id-length': 3,
+                              'rule-id-value': 6,
+                              'rule-nature': 'nature-compression'},
+                             {'direction': 'di-up',
+                              'dtag-size': 2,
+                              'fcn-size': 3,
+                              'fragmentation-mode': 'fragmentation-mode-no-ack',
+                              'rcs-algorithm': 'rcs-crc32',
+                              'rule-id-length': 11,
+                              'rule-id-value': 12,
+                              'rule-nature': 'nature-fragmentation'},
+                             {'rule-id-length': 8,
+                              'rule-id-value': 100,
+                              'rule-nature': 'nature-no-compression'}]}}
+
+
+Moderate level comments:
+
+(1) p 0, sec 
+
+        Data Model for Static Context Header Compression (SCHC)
+                draft-ietf-lpwan-schc-yang-data-model-16
+
+This document is missing an instance data example of the YANG data.  
+Generally, examples (e.g., see the appendixes in RFC 8343, is very helpful both for the authors of the YANG module, 
+to see/know that the structure is right, and also to give helpful context to readers/users of the YANG module).  
+
+I would strongly encourage you to add such an example (which should be validated to be correct) to this document.
+
+**> See the example above.
+
+
+(2) p 41, sec 6.  YANG Module
+
+       choice mode {
+         case no-ack;
+         case ack-always;
+
+The case statement never turn up in the instance data that conforms to the YANG schema, so users of the module would never be able to differentiate between no-ack and ack-always.  You might want to put a leaf, of type empty, under each of these two case statements.
+
+
+**> Agree, these empty cases are just here to allow augmentation if needed for these modes. There is another leaf giving the mode:
+
+ grouping fragmentation-content {
+    description
+      "This grouping defines the fragmentation parameters for
+       all the modes (No-ACK, ACK-Always and ACK-on-Error) specified
+       in RFC 8724.";
+    leaf fragmentation-mode {
+      type schc:fragmentation-mode-type;
+      must "derived-from-or-self(../rule-nature,
+                                        'nature-fragmentation')" {
+        error-message "Rule nature must be fragmentation";
+      }
+      mandatory true;
+      description
+        "Which fragmentation mode is used (No-Ack, ACK-Always,
+         ACK-on-Error).";
+    }
+...
+
+
+Minor level comments:
+
+(3) p 6, sec 4.2.  Identifier generation
+
+    identity rcs-RFC8724 {
+      base rcs-algorithm-base-type;
+      description
+        "CRC 32 defined as default RCS in RFC8724. RCS is 4 bytes long";
+    }
+
+I agree with a previous comment that not having the RFC name in the identity would be better.
+
+
+==> Done
+
+(4) p 11, sec 4.10.5.  Timer values
+
+   *  retransmission-timer gives the duration before sending an ack
+      request (cf. section 8.2.2.4. of [RFC8724]).  If specified, value
+      MUST be strictly positive.
+
+I would suggest splitting the grouping into separate timers (and have the slight duplication in the YANG module).  
+This would allow you to trivially enforce the "strictly positive" in the YANG module (with range "1..max"), and 
+make the inactivity-timer description clear about the meaning for 0.
+
+==> Done, just added once the comment on computation and a reference in the second description.
+
+    container inactivity-timer {
+      leaf ticks-duration {
+        type uint8;
+        default "20";
+        description
+          "Duration of one tick in micro-seconds:
+              2^ticks-duration/10^6 = 1.048s.";
+      }
+      leaf ticks-numbers {
+        type uint16 {
+          range "0..max";
+        }
+        description
+          "Timer duration = ticks-numbers * 2^ticks-duration / 10^6.";
+      }
+
+      description
+        "Duration is seconds of the inactivity timer, 0 indicates
+         that the timer is disabled.
+         
+         Allows a precision from micro-second to year by sending the
+         tick-duration value. For instance:
+
+       tick-duration /  smallest value          highest value
+       v
+       20: 00y 000d 00h 00m 01s.048575<->00y 000d 19h 05m 18s.428159
+       21: 00y 000d 00h 00m 02s.097151<->00y 001d 14h 10m 36s.856319
+       22: 00y 000d 00h 00m 04s.194303<->00y 003d 04h 21m 13s.712639
+       23: 00y 000d 00h 00m 08s.388607<->00y 006d 08h 42m 27s.425279
+       24: 00y 000d 00h 00m 16s.777215<->00y 012d 17h 24m 54s.850559
+       25: 00y 000d 00h 00m 33s.554431<->00y 025d 10h 49m 49s.701119
+
+         Note that the smallest value is also the incrementation step,
+         so the timer precision.";
+    }
+    container retransmission-timer {
+      leaf ticks-duration {
+        type uint8;
+        default "20";
+        description
+          "Duration of one tick in micro-seconds:
+              2^ticks-duration/10^6 = 1.048s.";
+      }
+      leaf ticks-numbers {
+        type uint16 {
+          range "1..max";
+        }
+        description
+          "Timer duration = ticks-numbers * 2^ticks-duration / 10^6.";
+      }
+
+      when "derived-from-or-self(../fragmentation-mode,
+                                'fragmentation-mode-ack-on-error')
+            or
+            derived-from-or-self(../fragmentation-mode,
+                                'fragmentation-mode-ack-always') ";
+      description
+        "Duration in seconds of the retransmission timer. 
+         See inactivity timer.";
+    }
+
+    (5) p 16, sec 6.  YANG Module
+
+     identity fid-ipv6-version {
+       base fid-ipv6-base-type;
+       description
+         "IPv6 version field from RFC 8200.";
+
+I think that it would be better for the descriptions not to mention "from RFC XXX" 
+that they are taken from (which may be updated over time).  The RFC is already referenced in 
+the reference statement.  This comment applies to other similar "from RFC XXX" descriptions.
+
+==> Removed most of them when a reference is given.
+
+6) p 17, sec 6.  YANG Module
+
+     identity fid-ipv6-trafficclass-ds {
+       base fid-ipv6-trafficclass;
+       description
+         "IPv6 Traffic Class field from RFC 8200,
+          DiffServ field from RFC 3168.";
+       reference
+         "RFC 3168 The Addition of Explicit Congestion Notification
+                   (ECN) to IP";
+
+I would suggest including both drafts in the references here (and taking them out of the description, as per my previous comment).
+
+==> Done, I never found a YANG fiel with 2 references, so I may not use the good syntaxx.
+
+
+(7) p 29, sec 6.  YANG Module
+
+     typedef fl-type {
+       type union {
+         type uint64; /* positive integer, expressing length in bits */
+
+I suggest adding range "1..max", and removing the C style comment (which isn't visible to users of the YANG module).
+
+
+==> Done
+  typedef fl-type {
+    type union {
+      type uint64 {
+        range 1..max;
+      }
+      type identityref { 
+        base fl-base-type;
+      }
+    }
+    description
+      "Field length either a positive integer expressing the size in
+       bits or a function defined through an identityref.";
+    reference
+      "RFC 8724 SCHC: Generic Framework for Static Context Header
+                Compression and Fragmentation";
+  }
+
+(8) p 43, sec 7.  Implementation Status
+
+Is the intention that this section is removed by the RFC editor?  If so, please add a comment to the RFC editor here.
+
+
+**> I don't know, it was something we had to add. 
+
+
+(9) p 7, sec 4.5.  Convention for Field position
+
+   Field position is a positive integer which gives he occurrence times
+   of a specific field.  The default value is 1, and incremented at each
+
+s/he/the/
+
+
+==> Done
+
+
+(10) p 7, sec 4.6.  Convention for Direction Indicator
+
+   The Direction Indicator (di) is used to tell if a field appears in
+   both direction (Bi) or only uplink (Up) or Downlink (Dw).  The naming
+   convention is "di" followed by the Direction Indicator name.
+
+s/direction/directions/
+
+==> Done
+
+(11) p 29, sec 6.  YANG Module
+
+         type identityref { /* function */
+
+I suggest removing the C style comment, since this is already covered by the description below.
+
+
+==> Done
+
+***************************************************************************************
+
+Roman DanyliwDiscuss
+Discuss (2022-08-24 for -15)
+** Section 8.
+
+An attacker by changing a rule content may block the
+   communication or intercept the traffic.  
+
+...
+The full tree is sensitive, since it represents all the elements that
+   can be managed.  This module aims to be encapsulated into a YANG
+   module including access control and identities.
+
+Thanks for calling out the entire tree as “sensitive.”  Please be more specific.  There is mention of write sensitivity (i.e., re-writing the rules).  Please also discuss any issues with reading the tree.
+
+Consider following the template of https://trac.ietf.org/trac/ops/wiki/yang-security-guidelines to distinguish between write and read access.
+
+
+**> TBD
+
+
+Comment (2022-08-24 for -15)
+Thank you to Carl Wallace for the SECDIR review.
+
+Section 3.8.
+
+   The naming convention is "mo" followed by the MO name.
+
+   The type is "mo-type" 
+
+The text states the prefix is “me”, but the example and YANG module suggests convention of “mo-“ (“mo” followed by a “-“). 
+Is the intent for there to be a hyphen or is “moField2” still following the convention.  Same comment for the “cda” convention.
+
+
+==> Done for all the types fl-, mo-, cda-, nature-,...
+
+** Section 8.  The diagram references CORECONF, but there is no other text on it.  I recommend removing it.
+
+
+=> Done in the diagram, I try with ... :-)
+
+
+** Section 8. 
+   The rule contains some sensible informations such as the application
+   IPv6 address.   
+
+Can this be restated?  What is “sensible information”?
+
+The rule contains some sensible information such as the application IPv6 address 
+
+==> added: where the device data will be sent after decompression. <==
+
+An attacker by changing 
+
+==> this address <==
+
+in the rule content may block the communication or intercept the traffic. Therefore,
+
+==>  a device must be allowed to modify only its own rules.<== 
+
+ the identity of the requester must be validated. This can be done through certificates or access lists.
+
+** Section 8.
+   Therefore, the identity of
+   the requester must be validated.  This can be done through
+   certificates or access lists.
+
+Is there a particular way which this should be done, or is it expected to follow NACM, and associated NETCONF and RESTCONF?
+
+**> this should be discussed in the architecture document.
+
+** Nits
+-- Section 3.  Typo. s/definied/defined/
+
+==> done
+
+-- Section 3. Typo. s/serveur/server/
+
+==> done
+
+-- Section 3.  Editorial.
+OLD
+   The YANG data model allows to select the compression or the
+   fragmentation using the feature command.
+
+NEW
+The YANG data model allows the selection of compression or the fragmentation using the feature command.
+
+==> No more in the document
+
+-- Section 3.7. Typo. s/enconding/encoding/
+
+==> Done
+
+*************************************************************************************
+
 
