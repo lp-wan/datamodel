@@ -1,7 +1,7 @@
 ---
 stand_alone: true
 ipr: trust200902
-docname: draft-ietf-lpwan-schc-yang-data-model-17
+docname: draft-ietf-lpwan-schc-yang-data-model-18
 cat: std
 pi:
   symrefs: 'yes'
@@ -515,8 +515,8 @@ module: ietf-schc
 # YANG Module {#annexA}
 
 ~~~~
-<CODE BEGINS> file "ietf-schc@2022-08-25.yang"
-{::include ietf-schc@2022-08-25.yang}
+<CODE BEGINS> file "ietf-schc@2022-09-22.yang"
+{::include ietf-schc@2022-09-22.yang}
 <CODE ENDS>
 ~~~~
 {: #Fig-schc title="SCHC data model}
@@ -601,11 +601,180 @@ This data model formalizes the rules elements described in {{RFC8724}} for compr
           +-------+
 ~~~~~
 
-The rule contains some sensible information such as the application IPv6 address where the device data will be sent after decompression. An attacker by changing this address in the rule content may block the communication or intercept the traffic. Therefore, a device must be allowed to modify only its own rules. The identity of the requester must be validated. This can be done through certificates or access lists.
+The rule contains sensitive information such as the application IPv6 address where the device's data will be sent after decompression. A device may try to modify other devices' rules by changing the application address and may block communication or allows traffic eavesdropping. Therefore, a device must be allowed to modify only its own rules on the remote SCHC instance. The identity of the requester must be validated. This can be done through certificates or access lists. By reading a module, an attacker may know the traffic a device can generate and learn about application addresses or REST API. 
+
 
 The full tree is sensitive, since it represents all the elements that can be managed.  This module aims to be encapsulated into a YANG module including access controls and identities. 
 
+# Annex A : Example
 
+The informal rules given {{Fig-example-rules}} will represented in XML as shown in {{Fig-XML-rules}}.
+
+~~~~~
+/-------------------------\
+|Rule 6/3            110  |
+|---------------+---+--+--+----------------+-------+----------------\
+|IPV6.VER       |  4| 1|BI|               6|EQUAL  |NOT-SENT        |
+|IPV6.TC        |  8| 1|BI|               0|EQUAL  |NOT-SENT        |
+|IPV6.FL        | 20| 1|BI|               0|IGNORE |NOT-SENT        |
+|IPV6.LEN       | 16| 1|BI|                |IGNORE |COMPUTE-LENGTH  |
+|IPV6.NXT       |  8| 1|BI|              58|EQUAL  |NOT-SENT        |
+|IPV6.HOP_LMT   |  8| 1|BI|             255|IGNORE |NOT-SENT        |
+|IPV6.DEV_PREFIX| 64| 1|BI|200104701f2101d2|EQUAL  |NOT-SENT        |
+|IPV6.DEV_IID   | 64| 1|BI|0000000000000003|EQUAL  |NOT-SENT        |
+|IPV6.APP_PREFIX| 64| 1|BI|                |IGNORE |VALUE-SENT      |
+|IPV6.APP_IID   | 64| 1|BI|                |IGNORE |VALUE-SENT      |
+\---------------+---+--+--+----------------+-------+----------------/
+/-------------------------\
+|Rule 12/11     00001100  |
+!=========================+=========================================\
+!^ Fragmentation mode : NoAck   header dtag 2 Window  0 FCN  3  UP ^!
+!^ No Tile size specified                                          ^!
+!^ RCS Algorithm: RCS_CRC32                                        ^!
+\===================================================================/
+/-------------------------\
+|Rule 100/8     01100100  |
+| NO COMPRESSION RULE     |
+\-------------------------/
+
+~~~~~
+{: #Fig-example-rules title='Rules example'}
+
+~~~~~
+<?xml version='1.0' encoding='UTF-8'?>
+  <schc xmlns="urn:ietf:params:xml:ns:yang:ietf-schc">
+  <rule>
+    <rule-id-value>6</rule-id-value>
+    <rule-id-length>3</rule-id-length>
+    <rule-nature>nature-compression</rule-nature>
+    <entry>
+      <field-id>fid-ipv6-version</field-id>
+      <field-length>4</field-length>
+      <field-position>1</field-position>
+      <direction-indicator>di-bidirectional</direction-indicator>
+      <matching-operator>mo-equal</matching-operator>
+      <comp-decomp-action>cda-not-sent</comp-decomp-action>
+      <target-value>
+        <index>0</index>
+        <value>AAY=</value>
+      </target-value>
+    </entry>
+    <entry>
+      <field-id>fid-ipv6-trafficclass</field-id>
+      <field-length>8</field-length>
+      <field-position>1</field-position>
+      <direction-indicator>di-bidirectional</direction-indicator>
+      <matching-operator>mo-equal</matching-operator>
+      <comp-decomp-action>cda-not-sent</comp-decomp-action>
+      <target-value>
+        <index>0</index>
+        <value>AA==</value>
+      </target-value>
+    </entry>
+    <entry>
+      <field-id>fid-ipv6-flowlabel</field-id>
+      <field-length>20</field-length>
+      <field-position>1</field-position>
+      <direction-indicator>di-bidirectional</direction-indicator>
+      <matching-operator>mo-ignore</matching-operator>
+      <comp-decomp-action>cda-not-sent</comp-decomp-action>
+      <target-value>
+        <index>0</index>
+        <value>AA==</value>
+      </target-value>
+    </entry>
+    <entry>
+      <field-id>fid-ipv6-payload-length</field-id>
+      <field-length>16</field-length>
+      <field-position>1</field-position>
+      <direction-indicator>di-bidirectional</direction-indicator>
+      <matching-operator>mo-ignore</matching-operator>
+      <comp-decomp-action>cda-compute</comp-decomp-action>
+    </entry>
+    <entry>
+      <field-id>fid-ipv6-nextheader</field-id>
+      <field-length>8</field-length>
+      <field-position>1</field-position>
+      <direction-indicator>di-bidirectional</direction-indicator>
+      <matching-operator>mo-equal</matching-operator>
+      <comp-decomp-action>cda-not-sent</comp-decomp-action>
+      <target-value>
+        <index>0</index>
+        <value>ADo=</value>
+      </target-value>
+    </entry>
+    <entry>
+      <field-id>fid-ipv6-hoplimit</field-id>
+      <field-length>8</field-length>
+      <field-position>1</field-position>
+      <direction-indicator>di-bidirectional</direction-indicator>
+      <matching-operator>mo-ignore</matching-operator>
+      <comp-decomp-action>cda-not-sent</comp-decomp-action>
+      <target-value>
+        <index>0</index>
+        <value>AP8=</value>
+      </target-value>
+    </entry>
+    <entry>
+      <field-id>fid-ipv6-devprefix</field-id>
+      <field-length>64</field-length>
+      <field-position>1</field-position>
+      <direction-indicator>di-bidirectional</direction-indicator>
+      <matching-operator>mo-equal</matching-operator>
+      <comp-decomp-action>cda-not-sent</comp-decomp-action>
+      <target-value>
+        <index>0</index>
+        <value>IAEEcB8hAdI=</value>
+      </target-value>
+    </entry>
+    <entry>
+      <field-id>fid-ipv6-deviid</field-id>
+      <field-length>64</field-length>
+      <field-position>1</field-position>
+      <direction-indicator>di-bidirectional</direction-indicator>
+      <matching-operator>mo-equal</matching-operator>
+      <comp-decomp-action>cda-not-sent</comp-decomp-action>
+      <target-value>
+        <index>0</index>
+        <value>AAAAAAAAAAM=</value>
+      </target-value>
+    </entry>
+    <entry>
+      <field-id>fid-ipv6-appprefix</field-id>
+      <field-length>64</field-length>
+      <field-position>1</field-position>
+      <direction-indicator>di-bidirectional</direction-indicator>
+      <matching-operator>mo-ignore</matching-operator>
+      <comp-decomp-action>cda-value-sent</comp-decomp-action>
+    </entry>
+    <entry>
+      <field-id>fid-ipv6-appiid</field-id>
+      <field-length>64</field-length>
+      <field-position>1</field-position>
+      <direction-indicator>di-bidirectional</direction-indicator>
+      <matching-operator>mo-ignore</matching-operator>
+      <comp-decomp-action>cda-value-sent</comp-decomp-action>
+    </entry>
+  </rule>
+  <rule>
+    <rule-id-value>12</rule-id-value>
+    <rule-id-length>11</rule-id-length>
+    <rule-nature>nature-fragmentation</rule-nature>
+    <direction>di-up</direction>
+    <rcs-algorithm>rcs-crc32</rcs-algorithm>
+    <dtag-size>2</dtag-size>
+    <fcn-size>3</fcn-size>
+    <fragmentation-mode>fragmentation-mode-no-ack</fragmentation-mode>
+  </rule>
+  <rule>
+    <rule-id-value>100</rule-id-value>
+    <rule-id-length>8</rule-id-length>
+    <rule-nature>nature-no-compression</rule-nature>
+  </rule>
+ </schc>
+
+~~~~~
+{: #Fig-XML-rules title='XML representation of the rules.'}
 
 # Acknowledgements
 
