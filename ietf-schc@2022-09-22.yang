@@ -172,8 +172,8 @@ module ietf-schc {
     base fid-ipv6-base-type;
     description
       "Corresponds to either the source address or the destination
-       address prefix of RFC 8200. Depending if it is
-       respectively an uplink or a downlink message.";
+       address prefix of RFC 8200 depending on whether it is an 
+       uplink or a downlink message.";
     reference
       "RFC 8200 Internet Protocol, Version 6 (IPv6) Specification";
   }
@@ -182,8 +182,8 @@ module ietf-schc {
     base fid-ipv6-base-type;
     description
       "Corresponds to either the source address or the destination
-       address IID of RFC 8200. Depending if it is respectively
-       an uplink or a downlink message.";
+       address IID of RFC 8200 depending on whether it is an uplink 
+       or a downlink message.";
     reference
       "RFC 8200 Internet Protocol, Version 6 (IPv6) Specification";
   }
@@ -192,8 +192,8 @@ module ietf-schc {
     base fid-ipv6-base-type;
     description
       "Corresponds to either the source address or the destination
-       address prefix of RFC 8200. Depending if it is respectively
-       a downlink or an uplink message.";
+       address prefix of RFC 8200 depending on whether it is an 
+       uplink or a downlink message.";
     reference
       "RFC 8200 Internet Protocol, Version 6 (IPv6) Specification";
   }
@@ -202,8 +202,8 @@ module ietf-schc {
     base fid-ipv6-base-type;
     description
       "Corresponds to either the source address or the destination
-       address IID of RFC 8200. Depending if it is respectively
-       a downlink or an uplink message.";
+       address IID of RFC 8200 depending on whether it is an uplink 
+       or a downlink message.";
     reference
       "RFC 8200 Internet Protocol, Version 6 (IPv6) Specification";
   }
