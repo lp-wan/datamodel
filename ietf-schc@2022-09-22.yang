@@ -957,7 +957,7 @@ module ietf-schc {
     leaf value {
       type binary;
       description
-        "Target Value content as a untyped binary value.";
+        "Target Value content as an untyped binary value.";
     }
     reference
       "RFC 8724 SCHC: Generic Framework for Static Context Header
@@ -1022,7 +1022,7 @@ module ietf-schc {
       mandatory true;
       description
         "Direction Indicator, indicate if this field must be
-         consider for rule selection or ignored based on the
+         considered for rule selection or ignored based on the
          direction (bi directionnal, only uplink, or only
          downlink).";
     }

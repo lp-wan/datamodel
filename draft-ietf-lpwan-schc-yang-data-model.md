@@ -66,7 +66,7 @@ to exchange a set of rules or to modify some rules parameters.
 
 SCHC is a compression and fragmentation mechanism for constrained networks defined in {{RFC8724}}.
 It is based on a static context shared by two entities at the boundary of the constrained network.
-{{RFC8724}} provides a non formal representation of the rules used either for compression/decompression (or C/D)
+{{RFC8724}} provides an informal representation of the rules used either for compression/decompression (or C/D)
 or fragmentation/reassembly (or F/R). The goal of this document is to formalize the description of the rules to offer:
 
 * the same definition on both ends, even if the internal representation is different; 
@@ -138,7 +138,7 @@ The YANG data model enables the compression and the fragmentation selection usin
 
 ## Compression Rules {#comp_types}
 
-{{RFC8724}} proposes a non formal representation of the compression rule.
+{{RFC8724}} proposes an informal representation of the compression rule.
 A compression context for a device is composed of a set of rules. Each rule contains information to
 describe a specific field in the header to be compressed. 
 
@@ -260,7 +260,7 @@ The Target Value is a list of binary sequences of any length, aligned to the lef
 
 * For match-mapping, Target Value can contain several elements. Index values MUST start from 0 and MUST be contiguous. 
 
-If the header field contains a text, the binary sequence uses the same encoding.
+If the header field contains text, the binary sequence uses the same encoding.
 
 ## Convention for Matching Operator
 
@@ -341,7 +341,7 @@ CRC computation.
 
 The naming convention is "rcs-" followed by the algorithm name.
 
-For Ack-on-Error mode, the All-1 fragment may just contain the RCS or can include a tile. The parameters defines the 
+For Ack-on-Error mode, the All-1 fragment may just contain the RCS or can include a tile. The parameters define the 
 behavior:
 
 * all-1-data-no: the last fragment contains no data, just the RCS
@@ -386,14 +386,14 @@ The state machine requires some common values to handle fragmentation correctly.
 * retransmission-timer gives the duration before sending an ack request (cf. section 8.2.2.4. of {{RFC8724}}). If specified, value MUST be strictly positive. 
 * inactivity-timer gives  the duration before aborting a fragmentation session (cf. section 8.2.2.4. of {{RFC8724}}). The value 0 explicitly indicates that this timer is disabled.
 
-{{RFC8724}} do not specified any range for these timers. {{RFC9011}} recommends a duration of 12 hours. In fact, the value range should be between milliseconds for real time systems to several days. To allow a large range of applications, two parameters must be specified:
+{{RFC8724}} do not specify any range for these timers. {{RFC9011}} recommends a duration of 12 hours. In fact, the value range should be between milliseconds for real time systems to several days. To allow a large range of applications, two parameters must be specified:
 
   * the duration of a tick. It is computed by this formula 2^tick-duration/10^6. When tick-duration is set to 0, the unit is the microsecond. The default value of 20 leads to a unit of 1.048575 second. A value of 32 leads to a tick duration of about 1 hour 11 minutes.
   * the number of ticks in the predefined unit. With the default tick-duration value of 20, the timers can cover a range between 1.0 sec and 19 hours covering {{RFC9011}} recommendation.
 
 ### Fragmentation Parameter 
 
-The SCHC fragmentation protocol specifies the  the number of attempts before aborting through the parameter: 
+The SCHC fragmentation protocol specifies the number of attempts before aborting through the parameter: 
 
 * max-ack-requests  (cf. section 8.2.2.4. of {{RFC8724}}).
 
@@ -404,7 +404,7 @@ The data model includes two parameters needed for fragmentation:
 
 * l2-word-size: {{RFC8724}} base fragmentation, in bits,  on a layer 2 word which can be of any length. The default value is 8 and correspond 
 to the default value for byte aligned layer 2. A value of 1 will indicate that there is no alignment and no need for padding. 
-* maximum-packet-size: defines the maximum size of a uncompressed datagram. By default, the value is set to 1280 bytes.
+* maximum-packet-size: defines the maximum size of an uncompressed datagram. By default, the value is set to 1280 bytes.
 
 They are defined as unsigned integers, see {{annexA}}.
 
@@ -419,9 +419,9 @@ Three natures of rules are defined in {{RFC8724}}:
 * No compression: this identifies the default rule used to send a packet integrally when no compression rule was found (see {{RFC8724}} section 6). 
 * Fragmentation: fragmentation parameters are associated with the rule ID. Fragmentation is optional and feature "fragmentation" should be set. 
 
-The YANG data model introduces repectively these three identities :
+The YANG data model introduces respectively these three identities :
 
-* nature-compresion
+* nature-compression
 * nature-no-compression
 * nature-fragmentation
 
@@ -554,11 +554,11 @@ to use this information as they see fit".
 
 # IANA Considerations
 
-This document registers one URIs and one YANG modules.
+This document registers one URI and one YANG modules.
 
 ##  URI Registration
 
-This document requests IANA to register the following four URIs in the "IETF XML Registry" {{RFC3688}}:
+This document requests IANA to register the following  URI in the "IETF XML Registry" {{RFC3688}}:
 
 > URI:  urn:ietf:params:xml:ns:yang:ietf-schc
 
