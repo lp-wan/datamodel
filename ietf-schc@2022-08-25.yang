@@ -1065,6 +1065,16 @@ module ietf-schc {
     }
     leaf comp-decomp-action {
       type schc:cda-type;
+      must "../target-value or 
+                derived-from-or-self(., 'cda-value-sent') or
+                derived-from-or-self(., 'cda-compute') or
+                derived-from-or-self(., 'cda-appiid') or
+                derived-from-or-self(., 'cda-deviid')"
+              {
+        error-message
+          "cda-not-sent, cda-lsb, cda-mapping-sent need target-value";
+        description
+          "target-value is not required for mo-ignore.";
       mandatory true;
       description
         "CDA: Compression Decompression Action (cf. Section 7.4).";
