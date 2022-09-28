@@ -241,7 +241,7 @@ The field length function can be defined as an identityref as described in {{ann
 ## Convention for Field position
 
 Field position is a positive integer which gives the occurrence times of a
-specific field.  The default value is 1, and incremented at each repetition. 
+specific field from the header start.  The default value is 1, and incremented at each repetition. 
 Value 0 indicates that the position is not important and is not considered during the rule selection process. 
 
 Field position is a positive integer. The type is uint8.
