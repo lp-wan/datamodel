@@ -1,7 +1,7 @@
 ---
 stand_alone: true
 ipr: trust200902
-docname: draft-toutain-lpwan-access-control-00
+docname: draft-toutain-lpwan-access-control-01
 cat: std
 pi:
   symrefs: 'yes'
