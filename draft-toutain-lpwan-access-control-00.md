@@ -54,13 +54,36 @@ The framework for SCHC defines an abstract view of the rules, formalized with th
 
 # Introduction
 
+Figure {{Fig-archi-overview}} focuses on the management part of the SCHC architecture. 
+
+~~~~~~
+     .......................................................
+     .   .................................                 .
+     v   ^                               v                 ^   
+   (--------)     +----------+        +-------+    +-------+-------+
+   ( Set of )<--->|coreconf  |<=======|Access |<===| other end     |<=== 
+   ( Rules  )     |request   |        |Control|    | authentication|
+   (--------)     |processing|        +-------+    +---------------+
+                  +----------+
+~~~~~~
+{: #Fig-archi-overview title='Overview of management architecture.'}
+
+When a management request arrives on a SCHC instance, the identity of the requester must be 
+checked:
+
+ * this can be implicit, for instance a LPWAN device receives it from the  SCHC core instance. Authentication 
+ is done at Layer 2.
+ * this can be a L2 address. In a LoRaWAN network, the DevEUI allows the SCHC core instance to identify the device.
+ * IP addresses may also be used as well as cryptographic keys.
+
+ The identification of the requester allows to retrieve the associated Set of Rules. This rules are enriched with
+ access control information that will be defined in this document. If the Set of Rules do not contains any access control information, the management is not allowed to modify the Rules content.
+
 # Attack scenario
 
 A LWM2M device, under control of an attacker, sends some management messages to modify the SCHC rules in core in order to direct the traffic to another application. This can be either to participate to a DDoS attack or to send sensible information to another application. 
 
 SCHC rules are defined for a specific traffic. An attacker changes en element (for instance, the dev UDP port number) and therefore no rule matches the traffic, the link may be saturated by no-compressed messages.
-
-
 
 
 # YANG Access Control
@@ -76,8 +99,45 @@ The SCHC access control augments the YANG module defined in {{I-D.ietf-lpwan-sch
   * in a compression rule, it allows to modify some elements of the rule, such as the target-value, the matching-operator or/and the comp-decomp-action and associated values.
   * in a fragmentation rule, it allows to modify some parameters.
 
+# YANG Data Model
+
+The YANG DM proposed in {{AnnexA}} extends the SCHC YANG Data Model introduced in {{I-D.ietf-lpwan-schc-yang-data-model}}. It adds read-only leaves containing the access rights. If these leaves are not presents, the information cannot be modified. 
+
+## leaf ac-modify-set-of-rules
+
+This leaf controls modifications applied to a set of rules. They are specified with the rule-access-right enumeration:
+
+* no-change (0): rules cannot be modified in the Set of Rules. This is the equivalent of having no access control elements in the set of rules. 
+
+* modify-existing-element (1): an existing rule may be modified.
+
+* add-remove-element (2): a rule can be added or deleted from the Set of Rules or an existing rule can be modified.
+
+## leaf ac-modify-compression-rule
+
+This leaf allows to modify a compression element. To be active, leaf ac-modify-set-of-rules MUST be set to modify-existing-element  or add-remove-element. This leaf uses the same enumeration as add-remove-element:
+
+* no-change (0): The rule cannot be modified. 
+
+* modify-existing-element (1): an existing Field Description may be modified.
+
+* add-remove-element (2): a Field Description can be added or deleted from the Rule or an existing rule can be modified.
+
+## leaf ac-modify-field
+
+This leaf allows to modify a Field Description in a compression rule. To be active, leaves ac-modify-set-of-rules and ac-modify-compression-rule MUST be set to modify-existing-element  or add-remove-element and ac-modifiy-compression-rule and leaf 
+
+
+
 --- back
 
+# YANG Data Model {#AnnexA}
+
+~~~~
+<CODE BEGINS> file "ietf-schc-access-control@2023-02-14.yang"
+{::include ietf-schc-access-control@2023-02-14.yang}
+<CODE ENDS>
+~~~~
 
 # Security Considerations
 
