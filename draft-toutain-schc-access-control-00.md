@@ -97,7 +97,7 @@ A Device RM under control of an attacker sends some management messages to modif
 For example ... TBD
 
 2. Management messages aiming at changing rules where the length of the residue changes:
-   * There can be a risk of desyncronising rules between the core and the compromised device.
+   * There can be a risk of desynchronizing rules between the core and the compromised device.
    * The attack is limited to a single end-point (the device) since it does not have the rigths to change core-level rules.
 
 As SCHC rules are defined for a specific traffic. An example of this can be an attacker changing en element of the rule (for instance, the dev UDP port number) and therefore no rule matches the traffic. Therefore, the core may be saturated by no-compressed messages.
