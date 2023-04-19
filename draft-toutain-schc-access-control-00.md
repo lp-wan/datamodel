@@ -90,17 +90,30 @@ The attack scenarios considered below are limited to the rule management layer, 
 A Device RM under control of an attacker sends some management messages to modify the SCHC rules in the core in order to direct the traffic to another application. The impact of this attack is different depending on the original rule:
 
 1. Rules containing exlusively the pair MA -- CDA : [ignore -- not-send] or rules such as no-compress or no-frarmentation: 
- * There is no risk of information lost. 
- * There is a risk of DoS-type attack as it can flood empty packets that pass at the core level.
- * The attack is limited to a single end-point (the device) since it does not have the rigths to change core-level rules.
+   * There is no risk of information lost. 
+   * There is a risk of DoS-type attack as it can flood empty packets that pass at the core level.
+   * The attack is limited to a single end-point (the device) since it does not have the rigths to change core-level rules.
 
-2. 
+For instance ... TBD
+
+2. Management messages aiming at changing rules where the length of the residue changes:
+   * There can be a risk of desyncronising rules between the core and the compromised device.
+   * The attack is limited to a single end-point (the device) since it does not have the rigths to change core-level rules.
+
+As SCHC rules are defined for a specific traffic. An example of this can be an attacker changing en element of the rule (for instance, the dev UDP port number) and therefore no rule matches the traffic. Therefore, the core may be saturated by no-compressed messages.
+
+# Scenario 2: Compromised Core
+
+A Core RM under control of an attacker sends some management messages to modify the SCHC rules in the device in order to deleate devices' data. 
+In such scenario, the attacker will try to inject destructive rules.
+
+The main characteristic of these rules is that the combination of MA -- CA reduces the size of the residue, which has in turn made it more attractive since it increases the rate of compression.
+
+The impact of this attack could be:
+  * Lost of devices' information if nothing is done to preeempt a compromised core to change such a rule.
 
 
-
-An example of this can be SCHC rules are defined for a specific traffic. 
-
-An attacker changes en element (for instance, the dev UDP port number) and therefore no rule matches the traffic, the link may be saturated by no-compressed messages.
+An example of this atack could be ... TBD
 
 
 # YANG Access Control
