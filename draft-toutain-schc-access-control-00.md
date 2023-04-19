@@ -47,7 +47,7 @@ informative:
     
 --- abstract
 
-The framework for SCHC defines an abstract view of the rules, formalized with through a YANG Data Model. In its original description rules are static and share by 2 entities. The use of YANG authorizes rules to be uploaded or modified in a SCHC instance and leads to some possible attacks, if the changes are not controlled. This document summarizes some possible attacks and define augmentation to the existing Data Mode, to restrict the changes in the rule. 
+The framework for SCHC defines an abstract view of the rules, formalized with through a YANG Data Model. In its original description rules are static and share by 2 end-points. The use of YANG authorizes rules to be uploaded or modified in a SCHC instance and leads to some possible attacks, if the changes are not controlled. This document defines a threat model, summarizes some possible attacks and defines augmentation to the existing Data Mode in order to restrict the changes in the rule, and therefore the impact of possible attacks. 
 
 --- middle
 
@@ -67,27 +67,45 @@ Figure {{Fig-archi-overview}} focuses on the management part of the SCHC archite
 ~~~~~~
 {: #Fig-archi-overview title='Overview of management architecture.'}
 
-When a management request arrives on a SCHC instance, the identity of the requester must be 
+When a management request arrives on a SCHC end-point, the identity of the requester must be 
 checked:
 
- * this can be implicit, for instance a LPWAN device receives it from the  SCHC core instance. Authentication 
+ * this can be implicit, for instance a LPWAN device receives it from the SCHC core instance. Authentication 
  is done at Layer 2.
- * this can be a L2 address. In a LoRaWAN network, the DevEUI allows the SCHC core instance to identify the device.
+ * this can be a L2 address. In a LoRaWAN network, for instance the DevEUI allows the SCHC core to identify the device.
  * IP addresses may also be used as well as cryptographic keys.
 
- The identification of the requester allows to retrieve the associated Set of Rules. This rules are enriched with
- access control information that will be defined in this document. If the Set of Rules do not contains any access control information, the management is not allowed to modify the Rules content.
+The identification of the requester allows to retrieve the associated Set of Rules. These rules are enriched with access control information that will be defined in this document. If the Set of Rules does not contains any access control information, the management is not allowed to modify the Rules content.
 
-# Attack scenario
+# Threat Model
 
-A LWM2M device, under control of an attacker, sends some management messages to modify the SCHC rules in core in order to direct the traffic to another application. This can be either to participate to a DDoS attack or to send sensible information to another application. 
+The Rule Manager (RM) is in charge of applying changes to the rules database when a management request arrives to a SCHC end pont. It is assumed that the these changes can only be effectivelly applied when it is certain that all end-points of an instance have made the change. This means that in all cases a peer of peers in an intance always share the same Set of Rules.
 
-SCHC rules are defined for a specific traffic. An attacker changes en element (for instance, the dev UDP port number) and therefore no rule matches the traffic, the link may be saturated by no-compressed messages.
+The selection of a rule to be applied in a certain end-point when a packet arrives is done by selecting the rule offering the smallest SCHC packet after compression.
+
+The attack scenarios considered below are limited to the rule management layer, and only involve that a single end-point in a given instance has been compromised.
+
+# Scenario 1: Compromised Device
+
+A Device RM under control of an attacker sends some management messages to modify the SCHC rules in the core in order to direct the traffic to another application. The impact of this attack is different depending on the original rule:
+
+1. Rules containing exlusively the pair MA -- CDA : [ignore -- not-send] or rules such as no-compress or no-frarmentation: 
+ * There is no risk of information lost. 
+ * There is a risk of DoS-type attack as it can flood empty packets that pass at the core level.
+ * The attack is limited to a single end-point (the device) since it does not have the rigths to change core-level rules.
+
+2. 
+
+
+
+An example of this can be SCHC rules are defined for a specific traffic. 
+
+An attacker changes en element (for instance, the dev UDP port number) and therefore no rule matches the traffic, the link may be saturated by no-compressed messages.
 
 
 # YANG Access Control
 
-YANG language allows to specify read only or read write nodes. NACM {{RFC8341}} extends this by allowing users or group od users to perform specific actions.
+YANG language allows to specify read only or read write nodes. NACM {{RFC8341}} extends this by allowing users or group of users to perform specific actions.
 
 This granularity do not fit this the rule model. For instance, the goal is not to allow all the field-id leaves to be modified. The objective is to allow a specific rule entry to be changed and therefore some of the leaves to be modified. For instance an entry with field-id containing Uri-path may have his target-value modified, as in the same rule, the entry regarding the app-prefix should not be changed. 
 
