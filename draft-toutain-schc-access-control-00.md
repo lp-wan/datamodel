@@ -32,13 +32,12 @@ author:
   email: Laurent.Toutain@imt-atlantique.fr
 - ins: I. Martinez
   name: Ivan Martinez
-  org: Institut MINES TELECOM; IMT Atlantique
+  org: Nokia Bell Labs
   street:
-  - 2 rue de la Chataigneraie
-  - CS 17607
-  city: 35576 Cesson-Sevigne Cedex
+  - 12 Rue Jean Bart
+  city: 91300 Massy
   country: France
-  email: ivan-marino.martinez-bolivar@imt-atlantique.fr 
+  email: ivan.martinez_bolivar@nokia.fr 
 normative:
   RFC8824:
   RFC8341:
