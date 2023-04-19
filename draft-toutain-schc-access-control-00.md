@@ -79,7 +79,7 @@ The identification of the requester allows to retrieve the associated Set of Rul
 
 # Threat Model
 
-The Rule Manager (RM) is in charge of applying changes to the rules database when a management request arrives to a SCHC end-point. It is assumed that the these changes can only be effectivelly applied when it is certain that all end-points of an instance have made the change. This means that in all cases a peer of peers in an intance always share the same Set of Rules.
+The Rule Manager (RM) is in charge of applying changes to the rules database when a management request arrives to a SCHC end-point. It is assumed that  these changes can only be effectivelly applied when it is certain that all end-points of an instance have made the change. This means that in all cases a peer of peers in an intance always share the same Set of Rules.
 
 The selection of a rule to be applied in a certain end-point when a packet arrives is done by selecting the rule offering the smallest SCHC packet after compression.
 
