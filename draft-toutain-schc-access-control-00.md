@@ -70,9 +70,9 @@ Figure {{Fig-archi-overview}} focuses on the management part of the SCHC archite
 When a management request arrives on a SCHC end-point, the identity of the requester must be 
 checked:
 
- * this can be implicit, for instance a LPWAN device receives it from the SCHC core instance. Authentication 
+ * this can be implicit, for example a LPWAN device receives it from the SCHC core instance. Authentication 
  is done at Layer 2.
- * this can be a L2 address. In a LoRaWAN network, for instance the DevEUI allows the SCHC core to identify the device.
+ * this can be a L2 address. In a LoRaWAN network, for example the DevEUI allows the SCHC core to identify the device.
  * IP addresses may also be used as well as cryptographic keys.
 
 The identification of the requester allows to retrieve the associated Set of Rules. These rules are enriched with access control information that will be defined in this document. If the Set of Rules does not contains any access control information, the management is not allowed to modify the Rules content.
