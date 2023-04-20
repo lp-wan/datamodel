@@ -53,22 +53,22 @@ The framework for SCHC defines an abstract view of the rules, formalized with th
 
 # Introduction
 
-SCHC is a compression and fragmentation mechanism defined in {{RFC8724}}. {{RFC9363}} provides a YANG Data Model for formal representation of the Rules used either for compression/decompression (C/D) or fragmentation/reassembly (F/R). [LPWAN-ARCH] illustrates the use of several protocols for rule management using the YANG Data Model, such as CORECONF {{I-D.ietf-core-comi}}, NETCONF{{RFC6241}}, RESTCONF {{RFC8040}}. The inappropriate use of either of these protocols leads to some possible attacks. The goal of this document is to define a threat model, to summarize some possible attacks and to define augmentation to the existing Data Model in order to restrict the changes in the rules, and therefore the impact of possible attacks. It contains three main sections:
+SCHC is a compression and fragmentation mechanism defined in {{RFC8724}}. {{RFC9363}} provides a YANG Data Model for formal representation of the Rules used either for compression/decompression (C/D) or fragmentation/reassembly (F/R). [LPWAN-ARCH] illustrates the use of several protocols for rule management using the YANG Data Model, such as CORECONF {{I-D.ietf-core-comi}}, NETCONF{{RFC6241}}, RESTCONF {{RFC8040}}. The inappropriate use of either of these protocols leads to some possible attacks. The goal of this document is to define a threat model, to summarize some possible attacks and to define augmentation to the existing Data Model in order to restrict the changes in the rules, and therefore the impact of possible attacks. It contains five main sections:
 
    1.  SCHC Management Architecture
    2.  Threat Model
-   4.  Attack Scenarios
-   5.  YANG Access Control
-   6.  YANG Data Model
+   3.  Attack Scenarios
+   4.  YANG Access Control
+   5.  YANG Data Model
 
 # SCHC Management Architecture
 
 Figure {{Fig-archi-overview}} presents the management part of the SCHC architecture.
 
 ~~~~~~
-     ......................................................
-     .   ....................................             .
-     v   ^     create                       v             ^   
+     .....................................................
+     .   ....................................            .
+     v   ^     create                       v            ^   
    (--------)  read    +=======+     +----------+    +-------+    +-------+------+
    ( Set of )<-------->|Rule   |<--->|Management|<===|Access |<===|Other end     |<=== 
    ( Rules  )  update  |Manager|     |request   |    |Control|    |authentication| Management 
@@ -77,15 +77,12 @@ Figure {{Fig-archi-overview}} presents the management part of the SCHC architect
 ~~~~~~
 {: #Fig-archi-overview title='Overview of management architecture.'}
 
-
 When a management request arrives on a SCHC end-point several processes should be passed before effectively create or update a Rule:
 
 1. Other end authentication: the identity of the requester must be verified:
-   * this can be implicit, for example a LPWAN device that receives it from the SCHC core. Authentication 
- is done at Layer 2.
+   * this can be implicit, for example a LPWAN device that receives it from the SCHC core. Hence, authentication is done at Layer 2.
    * this can be a L2 address. In a LoRaWAN network, for example the DevEUI allows the SCHC core to identify the device.
    * IP addresses may also be used as well as cryptographic keys.
-   * If the 
 2. Access control: Once authenticated, the associated Set of Rules of the instance is retrieved. 
    * these rules are enriched with access control information that will be defined in this document. 
    * if the Set of Rules does not contain any access control information, the end-point is not allowed to modify the Rules content.
@@ -109,15 +106,16 @@ A Device RM under control of an attacker sends some management messages to modif
 1. Rules containing exlusively the pair MA -- CDA : [ignore -- not-send] or rules such as no-compress or no-frarmentation: 
    * There is no risk of information lost. 
    * There is a risk of DoS-type attack as it can flood empty packets that pass at the core level.
-   * The attack is limited to a single end-point (the device) since it does not have the rigths to change core-level rules.
 
 For example ... TBD
+
+The attack is limited to a single end-point (the device) since it does not have the rigths to change core-level rules.
 
 2. Management messages aiming at changing rules where the length of the residue changes:
    * There can be a risk of desynchronizing rules between the core and the compromised device.
    * The attack is limited to a single end-point (the device) since it does not have the rigths to change core-level rules.
 
-As SCHC rules are defined for a specific traffic. An example of this can be an attacker changing en element of the rule (for instance, the dev UDP port number) and therefore no rule matches the traffic. Therefore, the core may be saturated by no-compressed messages.
+As SCHC rules are defined for a specific traffic. An example of this can be an attacker changing an element of the rule (the dev UDP port number for instance) and therefore no rule matches the traffic. Therefore, the core may be saturated by no-compressed messages.
 
 ## Scenario 2: Compromised Core
 
@@ -128,7 +126,6 @@ The main characteristic of these rules is that the combination of MA -- CA reduc
 
 The impact of this attack could be:
   * Lost of devices' information if nothing is done to preempt a compromised core to change such a rule.
-
 
 An example of this atack could be ... TBD
 
