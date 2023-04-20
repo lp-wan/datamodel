@@ -47,45 +47,61 @@ informative:
     
 --- abstract
 
-The framework for SCHC defines an abstract view of the rules, formalized with through a YANG Data Model. In its original description rules are static and share by 2 end-points. The use of YANG authorizes rules to be uploaded or modified in a SCHC instance and leads to some possible attacks, if the changes are not controlled. This document defines a threat model, summarizes some possible attacks and defines augmentation to the existing Data Mode in order to restrict the changes in the rule, and therefore the impact of possible attacks. 
+The framework for SCHC defines an abstract view of the rules, formalized with through a YANG Data Model. In its original description rules are static and share by 2 end-points. The use of YANG authorizes rules to be uploaded or modified in a SCHC instance and leads to some possible attacks, if the changes are not controlled. This document defines a threat model, summarizes some possible attacks and defines augmentation to the existing Data Model in order to restrict the changes in the rule, and therefore the impact of possible attacks. 
 
 --- middle
 
 # Introduction
 
-Figure {{Fig-archi-overview}} focuses on the management part of the SCHC architecture. 
+SCHC is a compression and fragmentation mechanism defined in {{RFC8724}}. {{RFC9363}} provides a YANG Data Model for formal representation of the Rules used either for compression/decompression (C/D) or fragmentation/reassembly (F/R). [LPWAN-ARCH] illustrates the use of several protocols for rule management using the YANG Data Model, such as CORECONF {{I-D.ietf-core-comi}}, NETCONF{{RFC6241}}, RESTCONF {{RFC8040}}. The inappropriate use of either of these protocols leads to some possible attacks. The goal of this document is to define a threat model, to summarize some possible attacks and to define augmentation to the existing Data Model in order to restrict the changes in the rules, and therefore the impact of possible attacks. It contains three main sections:
+
+   1.  SCHC Management Architecture
+   2.  Threat Model
+   4.  Attack Scenarios
+   5.  YANG Access Control
+   6.  YANG Data Model
+
+# SCHC Management Architecture
+
+Figure {{Fig-archi-overview}} presents the management part of the SCHC architecture.
 
 ~~~~~~
-     .......................................................
-     .   .................................                 .
-     v   ^                               v                 ^   
-   (--------)     +----------+        +-------+    +-------+-------+
-   ( Set of )<--->|coreconf  |<=======|Access |<===| other end     |<=== 
-   ( Rules  )     |request   |        |Control|    | authentication|
-   (--------)     |processing|        +-------+    +---------------+
-                  +----------+
+     ......................................................
+     .   ....................................             .
+     v   ^     create                       v             ^   
+   (--------)  read    +=======+     +----------+    +-------+    +-------+------+
+   ( Set of )<-------->|Rule   |<--->|Management|<===|Access |<===|Other end     |<=== 
+   ( Rules  )  update  |Manager|     |request   |    |Control|    |authentication| Management 
+   (--------)  delete  +=======+     |processing|    +-------+    +--------------+ Request
+                                     +----------+                                  NETCONF, RESTCONF or CORECONF
 ~~~~~~
 {: #Fig-archi-overview title='Overview of management architecture.'}
 
-When a management request arrives on a SCHC end-point, the identity of the requester must be 
-checked:
 
- * this can be implicit, for example a LPWAN device receives it from the SCHC core instance. Authentication 
+When a management request arrives on a SCHC end-point several processes should be passed before effectively create or update a Rule:
+
+1. Other end authentication: the identity of the requester must be verified:
+   * this can be implicit, for example a LPWAN device that receives it from the SCHC core. Authentication 
  is done at Layer 2.
- * this can be a L2 address. In a LoRaWAN network, for example the DevEUI allows the SCHC core to identify the device.
- * IP addresses may also be used as well as cryptographic keys.
-
-The identification of the requester allows to retrieve the associated Set of Rules. These rules are enriched with access control information that will be defined in this document. If the Set of Rules does not contains any access control information, the management is not allowed to modify the Rules content.
+   * this can be a L2 address. In a LoRaWAN network, for example the DevEUI allows the SCHC core to identify the device.
+   * IP addresses may also be used as well as cryptographic keys.
+   * If the 
+2. Access control: Once authenticated, the associated Set of Rules of the instance is retrieved. 
+   * these rules are enriched with access control information that will be defined in this document. 
+   * if the Set of Rules does not contain any access control information, the end-point is not allowed to modify the Rules content.
+3. Management request processing: The NETCONF, RESTCONF or CORECONF is processed and passed to the end-point Rule Manager.
+5. The Rule Manager applies the changes (create, read, update or delete) to the Set of Rules data base. 
 
 # Threat Model
 
-The Rule Manager (RM) is in charge of applying changes to the rules database when a management request arrives to a SCHC end-point. It is assumed that  these changes can only be effectivelly applied when it is certain that all end-points of an instance have made the change. This means that in all cases a peer of peers in an intance always share the same Set of Rules.
+The Rule Manager (RM) is in charge of applying changes to the rules database when a management request arrives to a SCHC end-point. It is assumed that these changes can only be effectivelly applied when it is certain that all end-points of an instance have made the change. This means that in all cases a peer of peers in an intance always share the same Set of Rules.
 
 The selection of a rule to be applied in a certain end-point when a packet arrives is done by selecting the rule offering the smallest SCHC packet after compression.
 
 The attack scenarios considered below are limited to the rule management layer, and only involve that a single end-point in a given instance has been compromised.
+This means that the authentication is bypassed. Therefore, the compromised end-point is able to effectively deliver management request using NETCONF, RESTCONF or CORECONF to the other end-point.
 
-# Scenario 1: Compromised Device
+## Scenario 1: Compromised Device
 
 A Device RM under control of an attacker sends some management messages to modify the SCHC rules in the core in order to direct the traffic to another application. The impact of this attack is different depending on the original rule:
 
@@ -102,7 +118,7 @@ For example ... TBD
 
 As SCHC rules are defined for a specific traffic. An example of this can be an attacker changing en element of the rule (for instance, the dev UDP port number) and therefore no rule matches the traffic. Therefore, the core may be saturated by no-compressed messages.
 
-# Scenario 2: Compromised Core
+## Scenario 2: Compromised Core
 
 A Core RM under control of an attacker sends some management messages to modify the SCHC rules in the device in order to deleate devices' data. 
 In such scenario, the attacker will try to inject destructive rules.
@@ -110,11 +126,10 @@ In such scenario, the attacker will try to inject destructive rules.
 The main characteristic of these rules is that the combination of MA -- CA reduces the size of the residue, which has in turn made it more attractive since it increases the rate of compression.
 
 The impact of this attack could be:
-  * Lost of devices' information if nothing is done to preeempt a compromised core to change such a rule.
+  * Lost of devices' information if nothing is done to preempt a compromised core to change such a rule.
 
 
 An example of this atack could be ... TBD
-
 
 # YANG Access Control
 
@@ -145,7 +160,7 @@ This leaf controls modifications applied to a set of rules. They are specified w
 
 ## leaf ac-modify-compression-rule
 
-This leaf allows to modify a compression element. To be active, leaf ac-modify-set-of-rules MUST be set to modify-existing-element  or add-remove-element. This leaf uses the same enumeration as add-remove-element:
+This leaf allows to modify a compression element. To be active, leaf ac-modify-set-of-rules MUST be set to modify-existing-element or add-remove-element. This leaf uses the same enumeration as add-remove-element:
 
 * no-change (0): The rule cannot be modified. 
 
