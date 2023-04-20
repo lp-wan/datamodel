@@ -69,7 +69,7 @@ Figure {{Fig-archi-overview}} presents the management part of the SCHC architect
      .....................................................
      .   ....................................            .
      v   ^     create                       v            ^   
-   (--------)  read    +=======+     +----------+    +-------+    +-------+------+
+   (--------)  read    +=======+     +------+---+    +---+---+    +--------------+
    ( Set of )<-------->|Rule   |<--->|Management|<===|Access |<===|Other end     |<=== 
    ( Rules  )  update  |Manager|     |request   |    |Control|    |authentication| Management 
    (--------)  delete  +=======+     |processing|    +-------+    +--------------+ Request
