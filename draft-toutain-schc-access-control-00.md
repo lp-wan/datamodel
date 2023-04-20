@@ -101,6 +101,7 @@ The selection of a rule to be applied in a certain end-point when a packet arriv
 The attack scenarios considered below are limited to the rule management layer, and only involve that a single end-point in a given instance has been compromised.
 This means that the authentication is bypassed. Therefore, the compromised end-point is able to effectively deliver management request using NETCONF, RESTCONF or CORECONF to the other end-point.
 
+# Attack Scenarios
 ## Scenario 1: Compromised Device
 
 A Device RM under control of an attacker sends some management messages to modify the SCHC rules in the core in order to direct the traffic to another application. The impact of this attack is different depending on the original rule:
