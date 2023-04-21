@@ -66,16 +66,19 @@ SCHC is a compression and fragmentation mechanism defined in {{RFC8724}}. {{RFC9
 Figure {{Fig-archi-overview}} presents the management part of the SCHC architecture.
 
 ~~~~~~
-     .....................................................
-     .   ....................................            .
-     v   ^     create                       v            ^   
-   (--------)  read    +=======+     +------+---+    +---+---+    +--------------+
-   ( Set of )<-------->|Rule   |<--->|Management|<===|Access |<===|Other end     |<=== 
-   ( Rules  )  update  |Manager|     |request   |    |Control|    |authentication| Management 
-   (--------)  delete  +=======+     |processing|    +-------+    +--------------+ Request
-                                     +----------+                                  NETCONF, RESTCONF or CORECONF
+  .......................................
+  .  .........................          .
+  v  ^   create              v          ^   
+(-----)  read   +====+    +==+==+   +===+===+   +=========+
+( SoR )<------> | RM |<-->|Mgmt.|<==|Access |<==|Other end|<=== 
+(-----) update  +====+    |req. |   |Control|   |auth.    | Managemet.
+        delete            |proc.|   +=======+   +=========+ Request
+                          +=====+                           NETCONF,
+                                                            RESTCONF
+                                                            or CORECONF
 ~~~~~~
 {: #Fig-archi-overview title='Overview of management architecture.'}
+
 
 When a management request arrives on a SCHC end-point several processes should be passed before effectively create or update a Rule:
 
@@ -86,12 +89,12 @@ When a management request arrives on a SCHC end-point several processes should b
 2. Access control: Once authenticated, the associated Set of Rules of the instance is retrieved. 
    * these rules are enriched with access control information that will be defined in this document. 
    * if the Set of Rules does not contain any access control information, the end-point is not allowed to modify the Rules content.
-3. Management request processing: The NETCONF, RESTCONF or CORECONF is processed and passed to the end-point Rule Manager.
-5. The Rule Manager applies the changes (create, read, update or delete) to the Set of Rules data base. 
+3. Management request processing: The NETCONF, RESTCONF or CORECONF request is processed and passed to the end-point Rule Manager.
+5. The Rule Manager (RM) applies the changes (create, read, update or delete) to the Set of Rules (SoR) data base. 
 
 # Threat Model
 
-The Rule Manager (RM) is in charge of applying changes to the rules database when a management request arrives to a SCHC end-point. It is assumed that these changes can only be effectivelly applied when it is certain that all end-points of an instance have made the change. This means that in all cases a peer of peers in an intance always share the same Set of Rules.
+The RM is in charge of applying changes to the rules database when a management request arrives to a SCHC end-point. It is assumed that these changes can only be effectivelly applied when it is certain that all end-points of an instance have made the change. This means that in all cases a peer of peers in an intance always share the same Set of Rules.
 
 The selection of a rule to be applied in a certain end-point when a packet arrives is done by selecting the rule offering the smallest SCHC packet after compression.
 
