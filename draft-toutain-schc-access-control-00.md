@@ -75,9 +75,9 @@ ToDo
 Figure {{Fig-archi-overview}} presents the management part of the SCHC architecture.
 
 ~~~~~~
-  .......................................
-  .  .........................          .
-  v  ^   create              v          ^   
+  .....................................
+  .  ........................         .
+  v  ^   create             v         ^   
 (-----)  read  +====+    +==+==+   +===+===+   +=========+
 ( SoR )<------>| RM |<-->|Mgmt.|<==|Access |<==|Other end|<=== 
 (-----) update +====+    |req. |   |Control|   |auth.    | Management
