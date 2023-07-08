@@ -39,7 +39,7 @@ author:
   - 12 Rue Jean Bart
   city: 91300 Massy
   country: France
-  email: ivan.martinez_bolivar@nokia.com 
+  email: ivan.martinez_bolivar@nokia-bell-labs.com 
 normative:
   RFC8824:
   RFC8341:
