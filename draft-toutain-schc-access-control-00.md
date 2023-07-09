@@ -62,7 +62,7 @@ The framework for SCHC defines an abstract view of the rules, formalized through
 
 # Introduction
 
-SCHC is a compression and fragmentation mechanism defined in {{RFC8724}} while {{RFC9363}} provides a YANG Data Model for formal representation of SCHC Rules used either for compression/decompression (C/D) or fragmentation/reassembly (F/R). [LPWAN-ARCH] illustrates the use of several protocols for rule management using the YANG Data Model, such as CORECONF {{I-D.ietf-core-comi}}, NETCONF{{RFC6241}}, RESTCONF {{RFC8040}}. The inappropriate use of any of these protocols leads to some possible attacks. The goal of this document is to define a threat model, summarize some possible attacks, and define augmentation to the existing Data Model in order to restrict the changes in the rules and, therefore, the impact of possible attacks. 
+SCHC is a compression and fragmentation mechanism defined in {{RFC8724}} while {{RFC9363}} provides a YANG Data Model for formal representation of SCHC Rules used either for compression/decompression (C/D) or fragmentation/reassembly (F/R). {{I-D.ietf-schc-architecture}} illustrates the use of several protocols for rule management using the YANG Data Model, such as CORECONF {{I-D.ietf-core-comi}}, NETCONF{{RFC6241}}, RESTCONF {{RFC8040}}. The inappropriate use of any of these protocols leads to some possible attacks. The goal of this document is to define a threat model, summarize some possible attacks, and define augmentation to the existing Data Model in order to restrict the changes in the rules and, therefore, the impact of possible attacks. 
 
 # Conventions and Definitions
 
@@ -158,7 +158,7 @@ SCHC compression behavior uses the TV, MO, and CDA to generate the correct resid
 
 A Device RM, under the control of an attacker, sends some management messages to modify the SCHC rules in the core in order to direct the traffic to another application. The impact of this attack is different depending on the original rule:
 
-1. Rules containing exclusively the pair MO -- CDA : [ignore -- not-sent] or rules such as no-compress or no-fragmentation: 
+1. Rules containing exclusively the pair MO -- CDA : (ignore -- not-sent) or rules such as no-compress or no-fragmentation: 
    * There is no risk of information lost. 
    * There is a risk of a DoS-type attack as it can flood empty packets that pass at the core level.
 
