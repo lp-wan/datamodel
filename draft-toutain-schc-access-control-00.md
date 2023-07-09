@@ -41,9 +41,16 @@ author:
   country: France
   email: ivan.martinez_bolivar@nokia-bell-labs.com 
 normative:
+  RFC2119:
+  RFC6241:
+  RFC8040:
+  RFC8174:
+  RFC8724:
   RFC8824:
-  RFC8341:
   RFC9363:
+  RFC8341:  
+  I-D.ietf-core-comi:
+  I-D.ietf-schc-architecture:
 informative:
   
     
@@ -116,33 +123,33 @@ SCHC compression behavior uses the TV, MO, and CDA to generate the correct resid
 
 ~~~~~~
 
-
-  +---------------------+------------------------------------------------------------+
-  |                     |                        CDA                                 |
-  |    TV   /   MO      +--------+----------+------------+---+---------+------+------+
-  |                     |not-sent|value-sent|mapping-sent|LSB|compute-*|DevIID|AppIID|
-  +---------------------+--------+----------+------------+---+---------+------+------+
-  |  set    /  Equal    |  ok    |  absurd  |     x      | x | absurd  |absurd|absurd|
-  +---------------------+--------+----------+------------+---+---------+------+------+
-  | not set /  Equal    |   x    |     x    |     x      | x | absurd  |absurd|absurd|
-  +---------------------+--------+----------+------------+---+---------+------+------+
-  |  set    / Ignore    | ok (D) |  absurd  |      x     | x |   ok    |  ok  |  ok  |
-  +---------------------+--------+----------+------------+---+---------+------+------+
-  | not set / Ignore    |   x    |   ok     |      x     | x |   ok    |  ok  |  ok  |
-  +---------------------+--------+----------+------------+---+---------+------+------+
-  |   set   /   MSB     | absurd |  absurd  |      x     | ok|  absurd |absurd|absurd|
-  +---------------------+--------+----------+------------+---+---------+------+------+
-  | not set /   MSB     | absurd |  absurd  |      x     | ok|  absurd |absurd|absurd|
-  +---------------------+--------+----------+------------+---+---------+------+------+
-  | set / Match-mapping |   x    |  absurd  |     ok     | x |  absurd |absurd|absurd|
-  +---------------------+--------+----------+------------+---+---------+------+------+
-  |not set/Match-mapping|   x    |    x     |   absurd   | x |  absurd |absurd|absurd|
-  +---------------------+--------+----------+------------+---+---------+------+------+
+    +-----------------+------------------------------------------------------+
+    |                 |                      CDA                             |
+    |  TV   /  MO     +--------+---------------+-----+---------+------+------+
+    |                 |not-sent| value |mapping| LSB |compute-*|DevIID|AppIID|
+    |                 |        | -sent | -sent |     |         |      |      |  
+    +-----------------+--------+-------+-------+-----+---------+------+------+
+    |  set  /  Equal  |  ok    |absurd |   x   |  x  | absurd  |absurd|absurd|
+    +-----------------+--------+-------+-------+-----+---------+------+------+
+    | not set / Equal |   x    |   x   |   x   |  x  | absurd  |absurd|absurd|
+    +-----------------+--------+-------+-------+-----+---------+------+------+
+    |  set  / Ignore  | ok (D) | absurd|    x  |  x  |   ok    |  ok  |  ok  |
+    +-----------------+--------+-------+-------+-----+---------+------+------+
+    |not set / Ignore |   x    |  ok   |    x  |  x  |   ok    |  ok  |  ok  |
+    +-----------------+--------+-------+-------+-----+---------+------+------+
+    |  set   /   MSB  | absurd |absurd |    x  |  ok |  absurd |absurd|absurd|
+    +-----------------+--------+-------+-------+-----+---------+------+------+
+    | not set /  MSB  | absurd | absurd|    x  | ok  |  absurd |absurd|absurd|
+    +-----------------+--------+-------+-------+-----+---------+------+------+
+    |  set   /  Match |   x    | absurd|   ok  |  x  |  absurd |absurd|absurd|
+    |         -mapping|        |       |       |     |         |      |      |
+    +-----------------+--------+-------+-------+-----+---------+------+------+
+    |not set /  Match |   x    |   x   | absurd|  x  |  absurd |absurd|absurd|
+    |         -mapping|        |       |       |     |         |      |      |
+    +-----------------+--------+-------+-------+-----+---------+------+------+
 
 
 ~~~~~~
-{: #Fig-combinations title='SCHC TV, MO and CDA combinations'}
-
 
 # Attack Scenarios
 ## Scenario 1: Compromised Device
