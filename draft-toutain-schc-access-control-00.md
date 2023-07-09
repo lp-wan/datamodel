@@ -150,6 +150,8 @@ SCHC compression behavior uses the TV, MO, and CDA to generate the correct resid
 
 
 ~~~~~~
+{: #Fig-combinations title='SCHC TV, MO, CDA valid combinations'}
+
 
 # Attack Scenarios
 ## Scenario 1: Compromised Device
