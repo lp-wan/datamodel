@@ -14,7 +14,7 @@ pi:
 
 title: SCHC Rule Access Control
 abbrev: SCHC AC
-wg: schc Working Group
+wg: SCHC Working Group
 author:
 - ins: A. Minaburo
   name: Ana Minaburo
@@ -68,8 +68,9 @@ ToDo
 * Access Control. 
 * Management request processing: The NETCONF, RESTCONF or CORECONF request is processed and passed to the end-point Rule Manager.
 * Rule Manager (RM). 
-* Set of Rules (SoR). Rules that are used for this Device
+* Context. SCHC Rules
 
+  
 # SCHC Management Architecture
 
 Figure {{Fig-archi-overview}} presents the management part of the SCHC architecture.
@@ -77,14 +78,14 @@ Figure {{Fig-archi-overview}} presents the management part of the SCHC architect
 ~~~~~~
   .....................................
   .  ........................         .
-  v  ^   create             v         ^   
-(-----)  read  +====+    +==+==+   +===+===+   +=========+
-( SoR )<------>| RM |<-->|Mgmt.|<==|Access |<==|Other end|<=== 
-(-----) update +====+    |req. |   |Control|   |auth.    | Management
-        delete           |proc.|   +=======+   +=========+ Request
-                         +=====+                           NETCONF,
-                                                           RESTCONF
-                                                        or CORECONF
+  v  ^    create             v         ^   
+(-------)  read  +====+    +==+==+   +===+===+   +=========+
+(Context)<------>| RM |<-->|Mgmt.|<==|Access |<==|Other end|<=== 
+(-------) update +====+    |req. |   |Control|   |auth.    | Management
+          delete           |proc.|   +=======+   +=========+ Request
+                           +=====+                           NETCONF,
+                                                             RESTCONF
+                                                          or CORECONF
 ~~~~~~
 {: #Fig-archi-overview title='Overview of management architecture.'}
 
@@ -116,27 +117,27 @@ SCHC compression behavior uses the TV, MO, and CDA to generate the correct resid
 ~~~~~~
 
 
-  +-------------------------+--------------------------------------------------------------------------+
-  |                         |                                    CDA                                   |
-  |    TV      /    MO      +----------+------------+--------------+-----+-----------+--------+--------+
-  |                         | not-sent | value-sent | mapping-sent | LSB | compute-* | DevIID | AppIID |
-  +-------------------------+----------+------------+--------------+-----+-----------+--------+--------+
-  |  set     /    Equal     |   ok     |   absurd   |       x      |  x  |  absurd   | absurd | absurd |
-  +-------------------------+----------+------------+--------------+-----+-----------+--------+--------+
-  | not set  /    Equal     |    x     |      x     |       x      |  x  |  absurd   | absurd | absurd |
-  +-------------------------+----------+------------+--------------+-----+-----------+--------+--------+
-  |  set     /   Ignore     |  ok (D)  |   absurd   |       x      |  x  |    ok     |   ok   |   ok   |
-  +-------------------------+----------+------------+--------------+-----+-----------+--------+--------+
-  | not set  /   Ignore     |    x     |    ok      |       x      |  x  |    ok     |   ok   |   ok   |
-  +-------------------------+----------+------------+--------------+-----+-----------+--------+--------+
-  |   set    /     MSB      |  absurd  |   absurd   |       x      |  ok |   absurd  | absurd | absurd |
-  +-------------------------+----------+------------+--------------+-----+-----------+--------+--------+
-  | not set  /     MSB      |  absurd  |   absurd   |       x      |  ok |   absurd  | absurd | absurd |
-  +-------------------------+----------+------------+--------------+-----+-----------+--------+--------+
-  |  set   / Match-mapping  |    x     |   absurd   |      ok      |  x  |   absurd  | absurd | absurd |
-  +-------------------------+----------+------------+--------------+-----+-----------+--------+--------+
-  | not set / Match-mapping |    x     |     x      |    absurd    |  x  |   absurd  | absurd | absurd |
-  +-------------------------+----------+------------+--------------+-----+-----------+--------+--------+
+  +---------------------+------------------------------------------------------------+
+  |                     |                        CDA                                 |
+  |    TV   /   MO      +--------+----------+------------+---+---------+------+------+
+  |                     |not-sent|value-sent|mapping-sent|LSB|compute-*|DevIID|AppIID|
+  +---------------------+--------+----------+------------+---+---------+------+------+
+  |  set    /  Equal    |  ok    |  absurd  |     x      | x | absurd  |absurd|absurd|
+  +---------------------+--------+----------+------------+---+---------+------+------+
+  | not set /  Equal    |   x    |     x    |     x      | x | absurd  |absurd|absurd|
+  +---------------------+--------+----------+------------+---+---------+------+------+
+  |  set    / Ignore    | ok (D) |  absurd  |      x     | x |   ok    |  ok  |  ok  |
+  +---------------------+--------+----------+------------+---+---------+------+------+
+  | not set / Ignore    |   x    |   ok     |      x     | x |   ok    |  ok  |  ok  |
+  +---------------------+--------+----------+------------+---+---------+------+------+
+  |   set   /   MSB     | absurd |  absurd  |      x     | ok|  absurd |absurd|absurd|
+  +---------------------+--------+----------+------------+---+---------+------+------+
+  | not set /   MSB     | absurd |  absurd  |      x     | ok|  absurd |absurd|absurd|
+  +---------------------+--------+----------+------------+---+---------+------+------+
+  | set / Match-mapping |   x    |  absurd  |     ok     | x |  absurd |absurd|absurd|
+  +---------------------+--------+----------+------------+---+---------+------+------+
+  |not set/Match-mapping|   x    |    x     |   absurd   | x |  absurd |absurd|absurd|
+  +---------------------+--------+----------+------------+---+---------+------+------+
 
 
 ~~~~~~
