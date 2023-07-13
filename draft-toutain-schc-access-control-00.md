@@ -83,9 +83,9 @@ ToDo
 Figure {{Fig-archi-overview}} presents the management part of the SCHC architecture.
 
 ~~~~~~
-  .....................................
-  .  ........................         .
-  v  ^    create             v         ^   
+  ........................................
+  .  ..........................          .
+  v  ^    create              v          ^   
 (-------)  read  +====+    +==+==+   +===+===+   +=========+
 (Context)<------>| RM |<-->|Mgmt.|<==|Access |<==|Other end|<=== 
 (-------) update +====+    |req. |   |Control|   |auth.    | Management
@@ -123,31 +123,30 @@ SCHC compression behavior uses the TV, MO, and CDA to generate the correct resid
 
 ~~~~~~
 
-    +-----------------+------------------------------------------------------+
-    |                 |                      CDA                             |
-    |  TV   /  MO     +--------+---------------+-----+---------+------+------+
-    |                 |not-sent| value |mapping| LSB |compute-*|DevIID|AppIID|
-    |                 |        | -sent | -sent |     |         |      |      |  
-    +-----------------+--------+-------+-------+-----+---------+------+------+
-    |  set  /  Equal  |  ok    |absurd |   x   |  x  | absurd  |absurd|absurd|
-    +-----------------+--------+-------+-------+-----+---------+------+------+
-    | not set / Equal |   x    |   x   |   x   |  x  | absurd  |absurd|absurd|
-    +-----------------+--------+-------+-------+-----+---------+------+------+
-    |  set  / Ignore  | ok (D) | absurd|    x  |  x  |   ok    |  ok  |  ok  |
-    +-----------------+--------+-------+-------+-----+---------+------+------+
-    |not set / Ignore |   x    |  ok   |    x  |  x  |   ok    |  ok  |  ok  |
-    +-----------------+--------+-------+-------+-----+---------+------+------+
-    |  set   /   MSB  | absurd |absurd |    x  |  ok |  absurd |absurd|absurd|
-    +-----------------+--------+-------+-------+-----+---------+------+------+
-    | not set /  MSB  | absurd | absurd|    x  | ok  |  absurd |absurd|absurd|
-    +-----------------+--------+-------+-------+-----+---------+------+------+
-    |  set   /  Match |   x    | absurd|   ok  |  x  |  absurd |absurd|absurd|
-    |         -mapping|        |       |       |     |         |      |      |
-    +-----------------+--------+-------+-------+-----+---------+------+------+
-    |not set /  Match |   x    |   x   | absurd|  x  |  absurd |absurd|absurd|
-    |         -mapping|        |       |       |     |         |      |      |
-    +-----------------+--------+-------+-------+-----+---------+------+------+
-
+ +-----------------+------------------------------------------------------+
+ |                 |                      CDA                             |
+ |  TV   /  MO     +--------+---------------+-----+---------+------+------+
+ |                 |not-sent| value |mapping| LSB |compute-*|DevIID|AppIID|
+ |                 |        | -sent | -sent |     |         |      |      |  
+ +-----------------+--------+-------+-------+-----+---------+------+------+
+ |  set  /  Equal  |  ok    |absurd |   x   |  x  | absurd  |absurd|absurd|
+ +-----------------+--------+-------+-------+-----+---------+------+------+
+ | not set / Equal |   x    |   x   |   x   |  x  | absurd  |absurd|absurd|
+ +-----------------+--------+-------+-------+-----+---------+------+------+
+ |  set  / Ignore  | ok (D) | absurd|    x  |  x  |   ok    |  ok  |  ok  |
+ +-----------------+--------+-------+-------+-----+---------+------+------+
+ |not set / Ignore |   x    |  ok   |    x  |  x  |   ok    |  ok  |  ok  |
+ +-----------------+--------+-------+-------+-----+---------+------+------+
+ |  set   /   MSB  | absurd |absurd |    x  |  ok |  absurd |absurd|absurd|
+ +-----------------+--------+-------+-------+-----+---------+------+------+
+ | not set /  MSB  | absurd | absurd|    x  | ok  |  absurd |absurd|absurd|
+ +-----------------+--------+-------+-------+-----+---------+------+------+
+ |  set   /  Match |   x    | absurd|   ok  |  x  |  absurd |absurd|absurd|
+ |         -mapping|        |       |       |     |         |      |      |
+ +-----------------+--------+-------+-------+-----+---------+------+------+
+ |not set /  Match |   x    |   x   | absurd|  x  |  absurd |absurd|absurd|
+ |         -mapping|        |       |       |     |         |      |      |
+ +-----------------+--------+-------+-------+-----+---------+------+------+
 
 ~~~~~~
 {: #Fig-combinations title='SCHC TV, MO, CDA valid combinations'}
