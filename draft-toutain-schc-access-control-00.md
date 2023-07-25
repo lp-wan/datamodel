@@ -1,7 +1,7 @@
 ---
 stand_alone: true
 ipr: trust200902
-docname: draft-toutain-schc-access-control-01
+docname: draft-toutain-schc-access-control-02
 area: Internet
 kw: Internet-Draft
 cat: std
@@ -71,6 +71,8 @@ SCHC is a compression and fragmentation mechanism defined in {{RFC8724}} while {
 
 # Terminology
 
+It is expected that the reader will be familiar with the terms and concepts associated with the SCHC framework {{RFC8724}}, {{I-D.ietf-schc-architecture}}, and managmente request processing {{I-D.ietf-core-comi}}, NETCONF{{RFC6241}}, RESTCONF {{RFC8040}}.
+
 ToDo
 * Access Control. 
 * Management request processing: The NETCONF, RESTCONF or CORECONF request is processed and passed to the end-point Rule Manager.
@@ -111,7 +113,7 @@ When a management request arrives on a SCHC endpoint, several processes should b
 
 # Threat Model
 
-The RM is in charge of applying changes to the rules database when a management request arrives at a SCHC end-point. It is assumed that these changes can only be effectively applied when it is sure that all end-points of an instance have made the change. This means that in all cases, a peer of peers in an instance always shares the same Set of Rules.
+The RM is in charge of applying changes to the context when a management request arrives at a SCHC end-point. It is assumed that these changes should only be effectively applied when it is sure that all end-points of an instance have made the change. This means that in all cases, a peer of peers in an instance always shares the same Set of Rules.
 
 The selection of a rule to be applied in an accurate endpoint when a packet arrives is made by selecting the rule offering the best-performance SCHC packet after compression.
 
